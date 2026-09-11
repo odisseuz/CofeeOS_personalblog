@@ -57,6 +57,46 @@ Se esquecer de registrar um post (ou registrar um que não existe), o CI falha n
 python3 .github/scripts/check_manifest.py
 ```
 
+## Grupos, pastas e ícones
+
+Os grupos (as "pastas" da home e do dock) são fixos: `readings`, `art`, `games`, `science`. Pra **adicionar um grupo novo** (ex.: `music`):
+
+1. Cria `posts/music/` e registra no `manifest.json` (uma chave nova):
+
+   ```json
+   { "music": ["album-review.md"] }
+   ```
+
+2. Em `index.html`, adiciona o grupo em **dois** lugares (copiando o padrão dos que já existem):
+   - **home**: um `<button class="folder" data-group="music">` com ícone, `<span class="folder-name">` e `<span class="folder-count" data-count="music">`.
+   - **dock**: um `<button class="dock-item" data-group="music" aria-label="...">` com ícone e tooltip.
+
+3. Coloca um ícone em `assets/icons/music.svg` (SVG).
+
+4. Em `js/data.js`, adiciona o grupo no mapa `groupIcon`:
+
+   ```js
+   music: 'assets/icons/music.svg',
+   ```
+
+**Trocar o ícone** de um grupo existente: substitui o `.svg` em `assets/icons/` (mantendo o nome) ou aponta outro caminho no `groupIcon`. Os ícones atuais são SVGs estilo Papirus — dá pra baixar outros e jogar em `assets/icons/`.
+
+**Renomear um grupo** (ex.: `science` → `philosophy`):
+
+1. Renomeia a pasta `posts/science/` → `posts/philosophy/`.
+2. No `manifest.json`, muda a chave `"science"` → `"philosophy"`.
+3. No `index.html`, atualiza `data-group` (e `id`, ícone, nome, `aria-label`) nos botões da home e do dock.
+4. No `js/data.js`, atualiza a chave no `groupIcon`.
+
+**Remover um grupo:**
+
+1. Apaga a pasta `posts/<grupo>/`.
+2. Remove a chave do `manifest.json`.
+3. Remove o botão `.folder` da home e o `.dock-item` do dock em `index.html`.
+4. Remove a linha do `groupIcon` em `js/data.js`.
+
+O card de "recent", o file manager, a busca e o terminal leem o `manifest.json`, então o grupo novo aparece neles automaticamente.
+
 ## Imagens
 
 Coloca em `images/` e referencia no markdown assim:
