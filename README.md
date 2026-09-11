@@ -107,6 +107,12 @@ Coloca em `images/` e referencia no markdown assim:
 ![descrição](images/minha-imagem.jpg)
 ```
 
+Clicar numa imagem de um post abre ela num **visualizador em janela** (com o nome do arquivo na barra; arrastável, redimensionável e maximizável).
+
+## Sobre (about)
+
+A página `posts/about.md` tem dois comportamentos especiais: a primeira imagem vira **círculo** (foto de perfil), e no fim é injetado um **formulário de contato** (assunto + mensagem + email → `mailto`). O email de destino fica hardcoded em `js/article.js` (função `wireContactForm`).
+
 ## Markdown suportado
 
 - títulos (`#`, `##`…), listas, citações (`>`), linha horizontal (`---`)
