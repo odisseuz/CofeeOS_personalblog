@@ -207,6 +207,23 @@
     </div>
   </div>
 
+  <div class="overlay" id="img-overlay">
+    <div class="overlay-backdrop" id="img-backdrop"></div>
+    <div class="img-viewer" role="dialog" aria-modal="true" aria-label="Image viewer">
+      <div class="img-bar">
+        <span class="img-filename" id="img-filename">image</span>
+        <div class="finder-actions">
+          <button class="editor-btn maximize-btn" id="img-maximize" type="button" aria-label="Maximize">⤢</button>
+          <button class="editor-close" id="img-close" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="img-body">
+        <img id="img-view" alt="">
+      </div>
+      <div class="resize-handle"></div>
+    </div>
+  </div>
+
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

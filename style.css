@@ -933,6 +933,86 @@ body::before {
   border-radius: 8px;
 }
 
+/* foto de perfil na página about (imagem solta; os ícones de contato são links e ficam de fora) */
+.is-about .editor-body p > img {
+  border-radius: 50%;
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 1.2em;
+  border: 2px solid rgb(var(--caramel-rgb) / 0.4);
+}
+
+/* formulário de contato (página about) */
+.contact-form {
+  margin-top: 1.5em;
+}
+
+.contact-form-title {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.contact-form textarea,
+.contact-form input {
+  background: rgb(var(--cream-rgb) / 0.06);
+  border: 1px solid rgb(var(--cream-rgb) / 0.12);
+  border-radius: 8px;
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 10px;
+  outline: none;
+}
+
+.contact-form textarea {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+}
+
+#contact-subject {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.contact-form-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.contact-form-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-form button {
+  background: rgb(var(--caramel-rgb) / 0.15);
+  border: 1px solid rgb(var(--caramel-rgb) / 0.4);
+  border-radius: 8px;
+  color: var(--caramel);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.contact-form button:hover {
+  background: rgb(var(--caramel-rgb) / 0.25);
+}
+
+.contact-form textarea:focus,
+.contact-form input:focus {
+  border-color: rgb(var(--caramel-rgb) / 0.4);
+}
+
 .editor-body .footnotes {
   margin-top: 1.5em;
   font-size: 0.85em;
@@ -986,6 +1066,52 @@ body::before {
 
 .overlay.open {
   display: flex;
+}
+
+/* visualizador de imagem (janela) */
+.img-viewer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 900px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: rgb(var(--glass-win) / 0.55);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  border: 1px solid rgb(var(--cream-rgb) / 0.14);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
+}
+
+.img-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  background: rgb(var(--cream-rgb) / 0.05);
+  border-bottom: 1px solid rgb(var(--cream-rgb) / 0.08);
+}
+
+.img-filename {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.img-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.img-body img {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .overlay-backdrop {
@@ -1368,7 +1494,8 @@ body::before {
 /* === 12. Janelas: drag, maximize, animações, empilhamento === */
 
 .editor-bar,
-.finder-bar {
+.finder-bar,
+.img-bar {
   cursor: grab;
   user-select: none;
 }
@@ -1378,7 +1505,8 @@ body::before {
 }
 
 .editor.maximized,
-.finder.maximized {
+.finder.maximized,
+.img-viewer.maximized {
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
@@ -1416,6 +1544,7 @@ body::before {
 /* stacked windows: article sits above the finder */
 #overlay { z-index: 110; }
 #fm-overlay { z-index: 100; }
+#img-overlay { z-index: 120; }
 
 #fm-overlay.dimmed .finder {
   opacity: 0.35;

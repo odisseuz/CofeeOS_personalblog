@@ -27,6 +27,10 @@ export function loadNote(file, body, filenameEl, statusEl) {
       }
       html += renderMarkdown(parsed.body);
       body.innerHTML = html;
+      if (file === 'posts/about.md') {
+        body.insertAdjacentHTML('beforeend', contactFormHtml());
+        wireContactForm();
+      }
       const words = parsed.body.trim() ? parsed.body.trim().split(/\s+/).length : 0;
       if (statusEl) statusEl.textContent = '"' + filename + '" ' + words + ' words';
     })
@@ -106,7 +110,10 @@ export function openArticle(file) {
   loadNotesFor(file);
   const editor = document.querySelector('#overlay .editor');
   resetWindow(editor);
-  if (editor) editor.classList.remove('show-notes');
+  if (editor) {
+    editor.classList.remove('show-notes');
+    editor.classList.toggle('is-about', file === 'posts/about.md');
+  }
   if (state.articleFromFinder) {
     articleOverlay.classList.add('over-finder');
   } else {
@@ -140,4 +147,34 @@ export function closeArticle() {
   }
   document.title = originalTitle;
   if (state.lastFocus && state.lastFocus.focus) state.lastFocus.focus();
+}
+
+// formulário de contato (página about)
+function contactFormHtml() {
+  return '<div class="contact-form">' +
+    '<p class="contact-form-title">write me a message</p>' +
+    '<input id="contact-subject" type="text" aria-label="Subject" placeholder="subject" spellcheck="false">' +
+    '<textarea id="contact-message" aria-label="Message" placeholder="your message…" spellcheck="false"></textarea>' +
+    '<div class="contact-form-row">' +
+    '<input id="contact-email" type="email" aria-label="Your email" placeholder="your email (so I can reply)" autocomplete="off" spellcheck="false">' +
+    '<button id="contact-send" type="button">send</button>' +
+    '</div>' +
+    '</div>';
+}
+
+function wireContactForm() {
+  const send = document.getElementById('contact-send');
+  const msg = document.getElementById('contact-message');
+  const email = document.getElementById('contact-email');
+  const subject = document.getElementById('contact-subject');
+  if (!send || !msg || !email) return;
+  send.addEventListener('click', function () {
+    const text = msg.value.trim();
+    if (!text) { msg.focus(); return; }
+    let body = text;
+    if (email.value.trim()) body += '\n\n— ' + email.value.trim();
+    const subj = subject && subject.value.trim() ? subject.value.trim() : 'Hello from coffeeOS';
+    window.location.href = 'mailto:andregomes.academico@gmail.com?subject=' +
+      encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
+  });
 }

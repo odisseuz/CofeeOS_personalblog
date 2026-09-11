@@ -1,5 +1,5 @@
 // wiring
-import { makeWindow, makeMaximize, trapFocus } from './windows.js';
+import { makeWindow, resetWindow, makeMaximize, trapFocus } from './windows.js';
 import { articleOverlay, fmOverlay, state } from './state.js';
 import { closeArticle, openArticle, setNotesMode, downloadNotes, saveNotes } from './article.js';
 import { closeFolder, navigateUp, navigateInto, renderFinder, applyFinderFilter, openFolder } from './finder.js';
@@ -29,6 +29,38 @@ import './terminal.js';
     document.querySelector('#fm-overlay .finder'),
     document.getElementById('fm-maximize')
   );
+
+  // visualizador de imagem (janela)
+  const imgOverlay = document.getElementById('img-overlay');
+  const imgViewer = document.querySelector('#img-overlay .img-viewer');
+  const imgView = document.getElementById('img-view');
+  const imgFilename = document.getElementById('img-filename');
+  const imgClose = document.getElementById('img-close');
+  const imgBackdrop = document.getElementById('img-backdrop');
+  makeWindow(imgViewer, document.querySelector('#img-overlay .img-bar'), document.querySelector('#img-overlay .resize-handle'));
+  makeMaximize(imgViewer, document.getElementById('img-maximize'));
+
+  function closeImageViewer() {
+    if (imgOverlay) imgOverlay.classList.remove('open');
+    if (imgView) imgView.removeAttribute('src');
+  }
+  function openImageViewer(src) {
+    if (!imgOverlay || !imgView) return;
+    resetWindow(imgViewer);
+    imgView.src = src;
+    if (imgFilename) imgFilename.textContent = src.split('/').pop() || 'image';
+    imgOverlay.classList.add('open');
+    if (imgClose) imgClose.focus();
+  }
+
+  document.addEventListener('click', function (e) {
+    const img = e.target.closest('.editor-body img');
+    if (!img || img.closest('a')) return;
+    e.preventDefault();
+    openImageViewer(img.src);
+  });
+  if (imgClose) imgClose.addEventListener('click', closeImageViewer);
+  if (imgBackdrop) imgBackdrop.addEventListener('click', closeImageViewer);
 
   if (articleOverlay) {
     const closeBtn = document.getElementById('overlay-close');
@@ -82,6 +114,7 @@ import './terminal.js';
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
+      if (imgOverlay && imgOverlay.classList.contains('open')) { closeImageViewer(); return; }
       if (articleOverlay && articleOverlay.classList.contains('open')) closeArticle();
       else if (fmOverlay && fmOverlay.classList.contains('open')) closeFolder();
       return;
