@@ -20,13 +20,17 @@ function excerpt(html) {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
 }
 
-// imagens no markdown são relativas à raiz (images/...); nas páginas geradas,
-// elas precisam do prefixo relativo pra apontar pra raiz de novo
+// qualquer URL relativa em src/href (images/, assets/, ...) precisa do prefixo
+// relativo nas páginas geradas pra apontar de volta pra raiz; externos, âncoras
+// e mailto: ficam intactos
 function rootRelative(html, depth) {
   const prefix = '../'.repeat(depth);
-  return html
-    .replaceAll('src="images/', 'src="' + prefix + 'images/')
-    .replaceAll('href="images/', 'href="' + prefix + 'images/');
+  return html.replace(
+    /(src|href)="(?!(?:https?:)?\/\/|\/|#|mailto:|data:)([^"]+)"/g,
+    function (m, attr, url) {
+      return attr + '="' + prefix + url + '"';
+    }
+  );
 }
 
 function page(relMd, data, bodyHtml, recent) {

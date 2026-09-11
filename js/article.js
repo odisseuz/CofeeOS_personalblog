@@ -6,7 +6,10 @@ import { setHash, hashForFile, hashForFolder } from './routing.js';
 import { groupFromFile } from './data.js';
 import { updateDockActive } from './finder.js';
 
+let loadToken = 0;
+
 export function loadNote(file, body, filenameEl, statusEl) {
+  const token = ++loadToken;
   const filename = file.split('/').pop();
   if (filenameEl) filenameEl.textContent = filename;
   document.title = filename + ' — note';
@@ -17,6 +20,7 @@ export function loadNote(file, body, filenameEl, statusEl) {
       return res.text();
     })
     .then(function (text) {
+      if (token !== loadToken) return;
       const parsed = parseFrontmatter(text);
       const title = parsed.data.title;
       const date = parsed.data.date;
@@ -36,6 +40,7 @@ export function loadNote(file, body, filenameEl, statusEl) {
       if (statusEl) statusEl.textContent = '"' + filename + '" ' + words + ' words';
     })
     .catch(function () {
+      if (token !== loadToken) return;
       let hint = 'create the file, check the path in the link, or check posts/manifest.json.';
       if (window.location.protocol === 'file:') {
         hint = 'you opened this via file://, and fetch cannot read local files.\n\nrun a local server instead, like:\n  python3 -m http.server\n\nthen open http://localhost:8000';

@@ -13,6 +13,7 @@ export function loadManifest() {
 
 let postsCache = null;
 
+// NOTE: baixa o corpo de todos os posts (ok enquanto o blog for pequeno)
 export function getAllPosts() {
   if (postsCache) return Promise.resolve(postsCache);
   return loadManifest().then(function (manifest) {
