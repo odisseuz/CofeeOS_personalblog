@@ -1536,6 +1536,11 @@ body::before {
     gap: 4px;
   }
 
+  #theme-menu .pill-options {
+    left: 0;
+    right: auto;
+  }
+
   .pill-options {
     max-width: calc(100vw - 24px);
   }
