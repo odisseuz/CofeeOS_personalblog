@@ -1,0 +1,12 @@
+{
+  "readings": ["fiction/house-of-leaves.md", "non-fiction/example-essay.md"],
+  "art": ["photography/postaqui.md", "poetry/untitled-poem.md", "drawings/sketch.md"],
+  "games": ["chill-games/cozy-game.md", "coding-games/code-game.md"],
+  "science": [
+    "Causal-Inference/causal-inference.md",
+    "ComputerSci/CPU_Arch.md",
+    "psychology/notes.md",
+    "neuroscience/notes.md",
+    "open-science/notes.md"
+  ]
+}

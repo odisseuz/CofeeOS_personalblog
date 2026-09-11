@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>midnight coffee</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="pill-menu" id="theme-menu">
+      <button class="pill-btn" id="theme-toggle" type="button" aria-label="Theme" aria-haspopup="true">☾</button>
+      <div class="pill-options" role="group" aria-label="Theme">
+        <button class="pill-option" type="button" data-theme="dark" aria-pressed="false">Dark</button>
+        <button class="pill-option" type="button" data-theme="brown" aria-pressed="false">Brown</button>
+        <button class="pill-option" type="button" data-theme="black" aria-pressed="false">All black</button>
+        <button class="pill-option" type="button" data-theme="gray" aria-pressed="false">Gray</button>
+      </div>
+    </div>
+    <div class="pill-menu" id="font-family-menu">
+      <button class="pill-btn" id="font-family-toggle" type="button" aria-label="Font" aria-haspopup="true">Aa</button>
+      <div class="pill-options" role="group" aria-label="Font">
+        <button class="pill-option" type="button" data-font-family="sans" aria-pressed="false">Sans</button>
+        <button class="pill-option" type="button" data-font-family="serif" aria-pressed="false">Serif</button>
+        <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false">Mono</button>
+      </div>
+    </div>
+    <div class="pill-menu" id="font-menu">
+      <button class="pill-btn" id="font-toggle" type="button" aria-label="Font size" aria-haspopup="true">A</button>
+      <div class="pill-options" role="group" aria-label="Font size">
+        <button class="pill-option" type="button" data-font-size="normal" aria-pressed="false">Normal</button>
+        <button class="pill-option" type="button" data-font-size="large" aria-pressed="false">Large</button>
+        <button class="pill-option" type="button" data-font-size="xl" aria-pressed="false">Extra large</button>
+      </div>
+    </div>
+    <div class="search">
+      <input class="search-input" id="search-input" type="text" placeholder="search" autocomplete="off" spellcheck="false" aria-label="Search posts">
+      <div class="search-results" id="search-results" hidden></div>
+    </div>
+    <div class="clock">
+      <span class="clock-time">03:15</span>
+      <span class="ampm">AM</span>
+    </div>
+  </div>
+
+  <main class="page">
+    <header class="hero" id="home">
+      <p class="eyebrow">☕ Insomnia and Coffee</p>
+      <h1>midnight coffee</h1>
+      <p class="tagline">WIP</p>
+
+      <details class="terminal" id="terminal">
+        <summary class="term-bar">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="term-title">coffeeOS — sh</span>
+          <span class="term-chevron" aria-hidden="true">▾</span>
+        </summary>
+        <div class="term-output" id="term-output" aria-live="polite"></div>
+        <div class="term-inputline">
+          <span class="prompt">guest@coffeeOS:~$</span>
+          <input id="term-input" class="term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal command">
+        </div>
+      </details>
+    </header>
+
+    <div class="folders">
+      <button class="folder" id="readings" type="button" data-group="readings">
+        <img src="assets/icons/books.svg" alt="">
+        <span class="folder-name">readings</span>
+        <span class="folder-count" data-count="readings"></span>
+      </button>
+      <button class="folder" id="art" type="button" data-group="art">
+        <img src="assets/icons/art.svg" alt="">
+        <span class="folder-name">art</span>
+        <span class="folder-count" data-count="art"></span>
+      </button>
+      <button class="folder" id="games" type="button" data-group="games">
+        <img src="assets/icons/games.svg" alt="">
+        <span class="folder-name">games</span>
+        <span class="folder-count" data-count="games"></span>
+      </button>
+      <button class="folder" id="science" type="button" data-group="science">
+        <img src="assets/icons/science.svg" alt="">
+        <span class="folder-name">science</span>
+        <span class="folder-count" data-count="science"></span>
+      </button>
+    </div>
+
+    <section class="card recent-card" id="recent">
+      <h2 class="recent-title">recent</h2>
+      <ul class="recent-list" id="recent-list" aria-live="polite"></ul>
+    </section>
+
+    <button class="card about-card" type="button" data-note="posts/about.md">
+      <span class="about-title">
+        <img src="assets/icons/about.svg" alt="">
+        about
+      </span>
+      <span class="muted">a bit about me</span>
+    </button>
+  </main>
+
+  <nav class="dock" aria-label="Main navigation">
+    <button class="dock-item" type="button" data-home aria-label="Home">
+      <img src="assets/icons/home.svg" alt="">
+      <span class="tooltip">home</span>
+    </button>
+    <button class="dock-item" type="button" data-group="readings" aria-label="Readings">
+      <img src="assets/icons/books.svg" alt="">
+      <span class="tooltip">readings</span>
+    </button>
+    <button class="dock-item" type="button" data-group="art" aria-label="Art">
+      <img src="assets/icons/art.svg" alt="">
+      <span class="tooltip">art</span>
+    </button>
+    <button class="dock-item" type="button" data-group="games" aria-label="Games">
+      <img src="assets/icons/games.svg" alt="">
+      <span class="tooltip">games</span>
+    </button>
+    <button class="dock-item" type="button" data-group="science" aria-label="Science">
+      <img src="assets/icons/science.svg" alt="">
+      <span class="tooltip">science</span>
+    </button>
+    <button class="dock-item" type="button" data-note="posts/about.md" aria-label="About">
+      <img src="assets/icons/about.svg" alt="">
+      <span class="tooltip">about</span>
+    </button>
+  </nav>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-backdrop" id="overlay-backdrop"></div>
+    <div class="editor" role="dialog" aria-modal="true" aria-labelledby="filename">
+      <div class="editor-bar">
+        <span class="editor-filename" id="filename">note</span>
+        <div class="editor-actions">
+          <div class="reader-font">
+            <div class="pill-menu" id="article-font-menu">
+              <button class="editor-btn" id="article-font-toggle" type="button" aria-label="Font: sans" aria-haspopup="true">Aa</button>
+              <div class="pill-options" role="group" aria-label="Font">
+                <button class="pill-option" type="button" data-font-family="sans" aria-pressed="false">Sans</button>
+                <button class="pill-option" type="button" data-font-family="serif" aria-pressed="false">Serif</button>
+                <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false">Mono</button>
+              </div>
+            </div>
+            <button class="editor-btn" id="font-down" type="button" aria-label="Decrease text size">A−</button>
+            <span class="reader-size" id="reader-size">1×</span>
+            <button class="editor-btn" id="font-up" type="button" aria-label="Increase text size">A+</button>
+          </div>
+          <button class="editor-btn" id="notes-toggle" type="button" aria-label="Notes">✎</button>
+          <button class="editor-btn maximize-btn" id="editor-maximize" type="button" aria-label="Maximize">⤢</button>
+          <button class="editor-close" id="overlay-close" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="editor-main">
+        <div class="editor-body" id="editor-body"></div>
+        <aside class="notes-panel" id="notes-panel">
+          <div class="notes-header">
+            <button class="editor-btn" id="notes-preview" type="button">preview</button>
+            <div class="pill-menu">
+              <button class="editor-btn" type="button" aria-label="Notes actions" aria-haspopup="true">⋮</button>
+              <div class="pill-options" role="group" aria-label="Notes actions">
+                <button class="pill-option" id="notes-download" type="button">download</button>
+                <button class="pill-option" id="notes-quote" type="button">quote</button>
+                <button class="pill-option" id="notes-clear" type="button">clear</button>
+              </div>
+            </div>
+          </div>
+          <textarea class="notes-area" id="notes-area" placeholder="write notes about this…" spellcheck="false"></textarea>
+          <div class="notes-preview" id="notes-preview-body" hidden></div>
+        </aside>
+      </div>
+      <div class="editor-status">
+        <span id="status">…</span>
+        <span class="status-right">
+          <span class="clock-time">03:15</span><span class="ampm">AM</span>
+          <span>[readonly]</span>
+        </span>
+      </div>
+      <div class="resize-handle"></div>
+    </div>
+  </div>
+
+  <div class="overlay fm-overlay" id="fm-overlay">
+    <div class="fm-backdrop" id="fm-backdrop"></div>
+    <div class="finder" role="dialog" aria-modal="true" aria-label="File manager">
+      <div class="finder-bar">
+        <input class="finder-path" id="fm-path" type="text" value="~" spellcheck="false" aria-label="Path">
+        <div class="finder-actions">
+          <button class="editor-btn fm-back" id="fm-back" type="button" aria-label="Up">↑</button>
+          <button class="editor-btn maximize-btn" id="fm-maximize" type="button" aria-label="Maximize">⤢</button>
+          <button class="editor-close" id="fm-close" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="finder-search">
+        <input class="finder-search-input" id="fm-search" type="text" placeholder="filter" autocomplete="off" spellcheck="false" aria-label="Filter files">
+      </div>
+      <div class="finder-body" id="fm-body"></div>
+      <div class="finder-status">
+        <span id="fm-status">0 items</span>
+      </div>
+      <div class="resize-handle"></div>
+    </div>
+  </div>
+
+  <script src="js/state.js" defer></script>
+  <script src="js/markdown.js" defer></script>
+  <script src="js/data.js" defer></script>
+  <script src="js/windows.js" defer></script>
+  <script src="js/routing.js" defer></script>
+  <script src="js/finder.js" defer></script>
+  <script src="js/article.js" defer></script>
+  <script src="js/theme.js" defer></script>
+  <script src="js/terminal.js" defer></script>
+  <script src="js/search.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>
