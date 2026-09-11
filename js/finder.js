@@ -1,5 +1,10 @@
 // file manager
-function updateDockActive(key) {
+import { fmOverlay, state } from './state.js';
+import { loadManifest, getAllPosts, flattenManifest, listLevel, groupIcon } from './data.js';
+import { resetWindow, setBackdropInert } from './windows.js';
+import { setHash, hashForFolder } from './routing.js';
+
+export function updateDockActive(key) {
   document.querySelectorAll('.dock-item').forEach(function (el) {
     let active = false;
     if (el.hasAttribute('data-group')) active = el.getAttribute('data-group') === key;
@@ -9,11 +14,11 @@ function updateDockActive(key) {
   });
 }
 
-function openFolder(segments) {
+export function openFolder(segments) {
   if (!fmOverlay) return;
-  lastFocus = document.activeElement;
-  currentPath = segments || [];
-  finderFilter = '';
+  state.lastFocus = document.activeElement;
+  state.currentPath = segments || [];
+  state.finderFilter = '';
   const searchInput = document.getElementById('fm-search');
   if (searchInput) searchInput.value = '';
   fmOverlay.classList.remove('dimmed');
@@ -24,37 +29,37 @@ function openFolder(segments) {
   document.body.style.overflow = 'hidden';
   const closeBtn = document.getElementById('fm-close');
   if (closeBtn) closeBtn.focus();
-  updateDockActive(currentPath.length ? currentPath[0] : 'home');
+  updateDockActive(state.currentPath.length ? state.currentPath[0] : 'home');
 }
 
-function navigateInto(folder) {
-  currentPath.push(folder);
+export function navigateInto(folder) {
+  state.currentPath.push(folder);
   renderFinder();
 }
 
-function navigateUp() {
-  if (currentPath.length) currentPath.pop();
+export function navigateUp() {
+  if (state.currentPath.length) state.currentPath.pop();
   renderFinder();
 }
 
-function applyFinderFilter() {
+export function applyFinderFilter() {
   const rows = document.querySelectorAll('#fm-body .finder-file');
-  const q = (finderFilter || '').toLowerCase();
+  const q = (state.finderFilter || '').toLowerCase();
   rows.forEach(function (row) {
     const name = (row.querySelector('.file-name') || {}).textContent || '';
     row.style.display = (!q || name.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
   });
 }
 
-function renderFinder() {
-  setHash(hashForFolder(currentPath));
+export function renderFinder() {
+  setHash(hashForFolder(state.currentPath));
   const pathInput = document.getElementById('fm-path');
   const bodyEl = document.getElementById('fm-body');
   const statusEl = document.getElementById('fm-status');
   const backBtn = document.getElementById('fm-back');
 
-  if (pathInput) pathInput.value = currentPath.length ? '~/' + currentPath.join('/') : '~';
-  if (backBtn) backBtn.style.visibility = currentPath.length ? 'visible' : 'hidden';
+  if (pathInput) pathInput.value = state.currentPath.length ? '~/' + state.currentPath.join('/') : '~';
+  if (backBtn) backBtn.style.visibility = state.currentPath.length ? 'visible' : 'hidden';
 
   Promise.all([loadManifest(), getAllPosts()]).then(function (results) {
     const manifest = results[0];
@@ -63,8 +68,8 @@ function renderFinder() {
     posts.forEach(function (p) { byPath[p.path] = p; });
 
     const all = flattenManifest(manifest);
-    const level = listLevel(all, currentPath);
-    const base = 'posts/' + (currentPath.length ? currentPath.join('/') + '/' : '');
+    const level = listLevel(all, state.currentPath);
+    const base = 'posts/' + (state.currentPath.length ? state.currentPath.join('/') + '/' : '');
     const paths = level.files.map(function (f) { return base + f; });
 
     bodyEl.innerHTML = '';
@@ -128,14 +133,14 @@ function renderFinder() {
   });
 }
 
-function closeFolder() {
+export function closeFolder() {
   if (!fmOverlay) return;
-  articleFromFinder = false;
+  state.articleFromFinder = false;
   fmOverlay.classList.remove('open');
   fmOverlay.classList.remove('dimmed');
   setBackdropInert(false);
   document.body.style.overflow = '';
   setHash('#/');
-  if (lastFocus && lastFocus.focus) lastFocus.focus();
+  if (state.lastFocus && state.lastFocus.focus) state.lastFocus.focus();
   updateDockActive(null);
 }

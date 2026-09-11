@@ -1,5 +1,9 @@
 // busca + card "recent"
-function loadRecentPosts() {
+import { getAllPosts } from './data.js';
+import { state } from './state.js';
+import { openArticle } from './article.js';
+
+export function loadRecentPosts() {
   const listEl = document.getElementById('recent-list');
   if (!listEl) return;
 
@@ -44,7 +48,7 @@ function loadRecentPosts() {
   });
 }
 
-function setupSearch() {
+export function setupSearch() {
   const input = document.getElementById('search-input');
   const results = document.getElementById('search-results');
   if (!input || !results) return;
@@ -103,7 +107,7 @@ function setupSearch() {
   results.addEventListener('click', function (e) {
     const btn = e.target.closest('.search-item');
     if (!btn) return;
-    articleFromFinder = false;
+    state.articleFromFinder = false;
     openArticle(btn.getAttribute('data-file'));
     input.value = '';
     hide();

@@ -1,4 +1,14 @@
 // wiring
+import { makeWindow, makeMaximize, trapFocus } from './windows.js';
+import { articleOverlay, fmOverlay, state } from './state.js';
+import { closeArticle, openArticle, setNotesMode, downloadNotes, saveNotes } from './article.js';
+import { closeFolder, navigateUp, navigateInto, renderFinder, applyFinderFilter, openFolder } from './finder.js';
+import { route } from './routing.js';
+import { loadRecentPosts, setupSearch } from './search.js';
+import { loadManifest } from './data.js';
+import './theme.js';
+import './terminal.js';
+
 (function () {
   makeWindow(
     document.querySelector('#overlay .editor'),
@@ -45,7 +55,7 @@
         }
         const fileBtn = e.target.closest('.finder-file');
         if (!fileBtn) return;
-        articleFromFinder = true;
+        state.articleFromFinder = true;
         fmOverlay.classList.add('dimmed');
         openArticle(fileBtn.getAttribute('data-file'));
       });
@@ -56,7 +66,7 @@
       pathInput.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter') return;
         const cleaned = pathInput.value.trim().replace(/^~\/?/, '').replace(/^\/+/, '');
-        currentPath = cleaned ? cleaned.split('/').filter(Boolean) : [];
+        state.currentPath = cleaned ? cleaned.split('/').filter(Boolean) : [];
         renderFinder();
       });
     }
@@ -64,7 +74,7 @@
     const searchInput = document.getElementById('fm-search');
     if (searchInput) {
       searchInput.addEventListener('input', function () {
-        finderFilter = searchInput.value;
+        state.finderFilter = searchInput.value;
         applyFinderFilter();
       });
     }
@@ -103,7 +113,7 @@
     const noteEl = e.target.closest('[data-note]');
     if (noteEl) {
       e.preventDefault();
-      articleFromFinder = false;
+      state.articleFromFinder = false;
       openArticle(noteEl.getAttribute('data-note'));
     }
   });

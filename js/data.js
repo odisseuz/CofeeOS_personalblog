@@ -1,7 +1,9 @@
 // dados: manifest + lista de posts
+import { parseFrontmatter } from './markdown.js';
+
 let manifestCache = null;
 
-function loadManifest() {
+export function loadManifest() {
   if (manifestCache) return Promise.resolve(manifestCache);
   return fetch('posts/manifest.json')
     .then(function (res) { return res.json(); })
@@ -11,7 +13,7 @@ function loadManifest() {
 
 let postsCache = null;
 
-function getAllPosts() {
+export function getAllPosts() {
   if (postsCache) return Promise.resolve(postsCache);
   return loadManifest().then(function (manifest) {
     const entries = [];
@@ -47,7 +49,7 @@ function getAllPosts() {
   });
 }
 
-function flattenManifest(manifest) {
+export function flattenManifest(manifest) {
   const out = [];
   Object.keys(manifest).forEach(function (group) {
     (manifest[group] || []).forEach(function (name) {
@@ -57,7 +59,7 @@ function flattenManifest(manifest) {
   return out;
 }
 
-function groupIcon(group) {
+export function groupIcon(group) {
   const icons = {
     readings: 'assets/icons/books.svg',
     art: 'assets/icons/art.svg',
@@ -67,7 +69,7 @@ function groupIcon(group) {
   return icons[group] || 'assets/icons/books.svg';
 }
 
-function listLevel(paths, segments) {
+export function listLevel(paths, segments) {
   const prefix = segments.length ? segments.join('/') + '/' : '';
   const folderSet = {};
   const folders = [];
@@ -86,7 +88,7 @@ function listLevel(paths, segments) {
   return { folders: folders, files: files };
 }
 
-function groupFromFile(file) {
+export function groupFromFile(file) {
   if (file === 'posts/about.md') return 'about';
   return (file || '').split('/')[1] || '';
 }

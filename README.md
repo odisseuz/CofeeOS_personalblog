@@ -23,7 +23,7 @@ posts/          # conteúdo em .md + manifest.json
 .github/        # CI (deploy + validação)
 ```
 
-Os scripts carregam via `<script defer>` na ordem de dependência (estado → utilitários → módulos → wiring). Sem build, sem dependência externa.
+Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada — `js/main.js`, carregado via `<script type="module">`. Sem build, sem dependência externa.
 
 ## Como escrever um post
 
@@ -125,6 +125,19 @@ Pra ativar:
 O workflow roda um job `validate` antes do deploy: confere que `posts/manifest.json` bate com os arquivos em `posts/` (nenhum post órfão, nenhuma entrada apontando pra arquivo inexistente) e valida o frontmatter de cada `.md`. Se falhar, o deploy não roda.
 
 Como o site usa só caminhos relativos, ele funciona tanto em `usuario.github.io` (raiz) quanto em `usuario.github.io/repo` (project site).
+
+## SEO (build.js)
+
+Os posts são carregados via `fetch` no navegador, o que os deixa invisíveis pra buscadores. O `build.js` resolve isso gerando, pra cada post, uma página HTML estática com `<title>`, meta description, Open Graph/Twitter e canonical — além de um `sitemap.xml`.
+
+Pra rodar:
+
+```
+node build.js                                          # gera posts/**/*.html + sitemap.xml (URLs relativas)
+BASE_URL=https://usuario.github.io/repo node build.js  # URLs absolutas
+```
+
+Os `.html` gerados e o `sitemap.xml` ficam no `.gitignore` e são **regenerados no CI** antes do deploy (o workflow roda `node build.js` com o `BASE_URL` correto).
 
 ## Rodar localmente
 

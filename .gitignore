@@ -40,3 +40,7 @@ env/
 # logs / temporários
 *.log
 *.tmp
+
+# gerados pelo build.js (SEO)
+sitemap.xml
+posts/**/*.html

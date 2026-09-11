@@ -1460,6 +1460,26 @@ body::before {
   border-color: rgb(var(--caramel-rgb) / 0.5);
 }
 
+/* páginas estáticas geradas pelo build.js (SEO) */
+.static-page {
+  padding-top: 56px;
+}
+
+.static-article {
+  max-height: none;
+  overflow: visible;
+}
+
+.static-back {
+  margin-top: 28px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.static-back a {
+  color: var(--caramel);
+}
+
 /* === 14. Responsivo & motion === */
 
 @media (max-width: 560px) {

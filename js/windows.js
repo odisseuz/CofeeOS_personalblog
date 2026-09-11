@@ -1,5 +1,5 @@
 // janelas: arrastar, redimensionar, maximizar
-function makeWindow(win, handle, resizeHandle) {
+export function makeWindow(win, handle, resizeHandle) {
   if (!win || !handle) return;
 
   let dx = 0;
@@ -55,7 +55,7 @@ function makeWindow(win, handle, resizeHandle) {
   }
 }
 
-function resetWindow(win) {
+export function resetWindow(win) {
   if (!win) return;
   win.classList.remove('maximized');
   win.style.transform = '';
@@ -70,7 +70,7 @@ function resetWindow(win) {
   }
 }
 
-function makeMaximize(win, btn) {
+export function makeMaximize(win, btn) {
   if (!win || !btn) return;
   btn.addEventListener('click', function () {
     const maximized = win.classList.toggle('maximized');
@@ -86,7 +86,7 @@ function makeMaximize(win, btn) {
 }
 
 // mantém o foco dentro de um modal
-function trapFocus(container, e) {
+export function trapFocus(container, e) {
   const focusable = container.querySelectorAll(
     'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
@@ -115,7 +115,7 @@ function trapFocus(container, e) {
 }
 
 // conteúdo de trás fica inerte quando há modal
-function setBackdropInert(on) {
+export function setBackdropInert(on) {
   const background = [
     document.querySelector('main'),
     document.querySelector('.dock'),

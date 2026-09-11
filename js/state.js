@@ -1,10 +1,12 @@
 // estado global compartilhado entre módulos
-const articleOverlay = document.getElementById('overlay');
-const fmOverlay = document.getElementById('fm-overlay');
-const originalTitle = document.title;
+export const articleOverlay = document.getElementById('overlay');
+export const fmOverlay = document.getElementById('fm-overlay');
+export const originalTitle = document.title;
 
-let currentNoteFile = null;
-let lastFocus = null;
-let articleFromFinder = false;
-let currentPath = [];
-let finderFilter = '';
+export const state = {
+  currentNoteFile: null,
+  lastFocus: null,
+  articleFromFinder: false,
+  currentPath: [],
+  finderFilter: ''
+};

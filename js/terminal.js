@@ -1,4 +1,6 @@
 // terminal
+import { loadManifest, getAllPosts } from './data.js';
+
 (function () {
   const term = document.getElementById('terminal');
   const output = document.getElementById('term-output');

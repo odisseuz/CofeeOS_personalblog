@@ -1,7 +1,7 @@
 // markdown renderer
 let footnotes = {};
 
-function escapeHtml(s) {
+export function escapeHtml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
@@ -86,7 +86,7 @@ function isBlockStart(line) {
     /^\s*\d+\.\s/.test(t);
 }
 
-function renderMarkdown(text) {
+export function renderMarkdown(text) {
   const raw = text.replace(/\r\n/g, '\n').split('\n');
   const extracted = extractFootnotes(raw);
   footnotes = extracted.footnotes;
@@ -188,7 +188,7 @@ function renderMarkdown(text) {
   return out.join('\n');
 }
 
-function parseFrontmatter(text) {
+export function parseFrontmatter(text) {
   const lines = text.split(/\r?\n/);
   if (lines[0] && lines[0].trim() !== '---') {
     return { data: {}, body: text };
