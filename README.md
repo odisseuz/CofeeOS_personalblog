@@ -1,12 +1,14 @@
 # midnight coffee ☕
 
-Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem build.
+Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem bundler nem dependência (só um `build.js` leve pra gerar HTML de SEO).
 
 ## Estrutura
 
 ```
 index.html
 style.css
+build.js        # gera HTML estático dos posts (SEO) + sitemap.xml
+package.json    # "type": "module" (node roda os módulos ES)
 js/
   state.js      # estado global compartilhado
   markdown.js   # renderer de markdown + frontmatter
@@ -23,7 +25,7 @@ posts/          # conteúdo em .md + manifest.json
 .github/        # CI (deploy + validação)
 ```
 
-Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada — `js/main.js`, carregado via `<script type="module">`. Sem build, sem dependência externa.
+Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada — `js/main.js`, carregado via `<script type="module">`. Sem bundler, sem dependência externa.
 
 ## Como escrever um post
 
@@ -114,7 +116,7 @@ O caminho do hash segue a estrutura de `posts/` (com subpastas, ex.: `#~/art/pho
 
 ## Deploy no GitHub Pages
 
-O deploy é estático, via GitHub Actions (`.github/workflows/deploy.yml`). Não há build — o conteúdo é servido como está. O arquivo `.nojekyll` garante que o Jekyll não processe os `.md` (que têm frontmatter e seriam transformados, quebrando o `fetch`).
+O deploy é estático, via GitHub Actions (`.github/workflows/deploy.yml`). O app em si não tem build (sem bundler/transpile) — é servido como está; só o `build.js` roda no CI pra gerar o HTML de SEO. O arquivo `.nojekyll` garante que o Jekyll não processe os `.md` (que têm frontmatter e seriam transformados, quebrando o `fetch`).
 
 Pra ativar:
 
