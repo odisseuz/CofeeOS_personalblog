@@ -170,6 +170,13 @@ import './terminal.js';
     });
   }
 
+  const tocToggle = document.getElementById('toc-toggle');
+  if (tocToggle && notesEditor) {
+    tocToggle.addEventListener('click', function () {
+      notesEditor.classList.toggle('show-toc');
+    });
+  }
+
   if (notesPreviewBtn && notesArea && notesPreviewBody) {
     notesPreviewBtn.addEventListener('click', function () {
       if (notesArea.hidden) {

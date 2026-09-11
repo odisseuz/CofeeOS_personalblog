@@ -4,7 +4,7 @@ title: about
 
 ![André](images/me.jpeg)
 
-Hi! I'm André, a Psychology undergrad from Brazil with a deep interest in neuroscience, public health, and a bit of computer science and math (still learning, a lot). I'm a bit of a nerd, and I'm really passionate about open science and meeting new people around the world.
+Hi! I'm André, a Psychology undergrad from Brazil with a big interest in neuroscience, public health, and a bit of computer science and math (still learning, a lot). I'm a bit of a nerd, and I'm really passionate about open science and meeting new people around the world.
 
 I have 5 cats I love very much, my favorite is Bolinha, which means "little ball" in Portuguese.
 

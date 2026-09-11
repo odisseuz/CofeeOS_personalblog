@@ -27,6 +27,7 @@ export function loadNote(file, body, filenameEl, statusEl) {
       }
       html += renderMarkdown(parsed.body);
       body.innerHTML = html;
+      buildToc(body);
       if (file === 'posts/about.md') {
         body.insertAdjacentHTML('beforeend', contactFormHtml());
         wireContactForm();
@@ -112,6 +113,7 @@ export function openArticle(file) {
   resetWindow(editor);
   if (editor) {
     editor.classList.remove('show-notes');
+    editor.classList.remove('show-toc');
     editor.classList.toggle('is-about', file === 'posts/about.md');
   }
   if (state.articleFromFinder) {
@@ -176,5 +178,45 @@ function wireContactForm() {
     const subj = subject && subject.value.trim() ? subject.value.trim() : 'Hello from coffeeOS';
     window.location.href = 'mailto:andregomes.academico@gmail.com?subject=' +
       encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
+  });
+}
+
+// índice (table of contents) dos headings
+function slugify(s) {
+  return s.toLowerCase().trim()
+    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/ +/g, '-')
+    .replace(/-+/g, '-');
+}
+
+function buildToc(container) {
+  const tocPanel = document.getElementById('toc-panel');
+  if (!tocPanel) return;
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  tocPanel.innerHTML = '';
+  if (!headings.length) {
+    const empty = document.createElement('p');
+    empty.className = 'toc-empty';
+    empty.textContent = 'no headings';
+    tocPanel.appendChild(empty);
+    return;
+  }
+  const used = {};
+  headings.forEach(function (h) {
+    if (h.classList.contains('note-title')) return;
+    let id = slugify(h.textContent);
+    if (!id) id = 'section';
+    if (used[id]) { used[id]++; id = id + '-' + used[id]; }
+    else used[id] = 1;
+    h.id = id;
+    const level = parseInt(h.tagName.charAt(1), 10);
+    const link = document.createElement('button');
+    link.type = 'button';
+    link.className = 'toc-link toc-l' + level;
+    link.textContent = h.textContent;
+    link.addEventListener('click', function () {
+      h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    tocPanel.appendChild(link);
   });
 }

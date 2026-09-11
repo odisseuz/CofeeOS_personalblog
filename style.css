@@ -1198,6 +1198,55 @@ body::before {
   display: flex;
 }
 
+.toc-panel {
+  display: none;
+  flex-direction: column;
+  width: 200px;
+  flex: 0 0 200px;
+  border-right: 1px solid rgb(var(--cream-rgb) / 0.08);
+  background: rgba(0, 0, 0, 0.16);
+  overflow-y: auto;
+  padding: 10px 12px;
+}
+
+.editor.show-toc .toc-panel {
+  display: flex;
+}
+
+.toc-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  padding: 1px 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+}
+
+.toc-link:hover {
+  color: var(--caramel);
+}
+
+.toc-empty {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.toc-l1,
+.toc-l2 {
+  padding-left: 0;
+}
+
+.toc-l3 { padding-left: 12px; }
+.toc-l4 { padding-left: 22px; }
+.toc-l5 { padding-left: 32px; }
+.toc-l6 { padding-left: 42px; }
+
 .notes-header {
   display: flex;
   align-items: center;
