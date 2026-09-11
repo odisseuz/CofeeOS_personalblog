@@ -15,3 +15,7 @@ These days I study Chinese and French, and I'm trying to learn more about CS and
 [![GitHub](assets/icons/github.svg)](https://github.com/odisseuz)
 [![ORCID](assets/icons/orcid.svg)](https://orcid.org/0009-0002-8094-9744)
 [![Lattes](assets/icons/book.svg)](http://lattes.cnpq.br/2009666948082062)
+
+### License
+
+Code here is [MIT](LICENSE); all content (text, art, images) is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

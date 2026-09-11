@@ -561,6 +561,24 @@ body::before {
   border-color: rgb(var(--caramel-rgb) / 0.28);
 }
 
+.site-footer {
+  margin: 22px 0 8px;
+  padding: 0 26px;
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.site-footer a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--caramel);
+}
+
 .about-card {
   display: flex;
   align-items: center;
