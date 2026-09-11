@@ -1511,6 +1511,35 @@ body::before {
 /* === 14. Responsivo & motion === */
 
 @media (max-width: 560px) {
+  .topbar {
+    gap: 6px;
+  }
+
+  .pill-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+  }
+
+  .search-input {
+    width: 88px;
+    padding: 7px 12px;
+  }
+
+  .search-input:focus {
+    width: 120px;
+  }
+
+  .clock {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    gap: 4px;
+  }
+
+  .pill-options {
+    max-width: calc(100vw - 24px);
+  }
+
   .dock-item {
     width: 48px;
     height: 48px;
