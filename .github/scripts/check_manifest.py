@@ -19,6 +19,9 @@ MANIFEST = os.path.join(POSTS, "manifest.json")
 # Root-level files that aren't part of any group.
 SPECIAL = {"about.md", "example.md"}
 
+# .md files that aren't posts (no frontmatter) — skipped entirely.
+IGNORE = {"LICENSE.md"}
+
 DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$")
 
@@ -87,6 +90,8 @@ def main():
                 continue
             abs_path = os.path.join(dirpath, fn)
             rel = os.path.relpath(abs_path, POSTS).replace(os.sep, "/")
+            if rel in IGNORE:
+                continue
             files[rel] = abs_path
 
     checkable = {p for p in files if p not in SPECIAL}
