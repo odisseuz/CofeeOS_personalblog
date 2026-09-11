@@ -1,5 +1,7 @@
 # midnight coffee ☕
 
+![deploy](https://img.shields.io/github/actions/workflow/status/odisseuz/CofeeOS_personalblog/deploy.yml?branch=main&label=deploy) ![static](https://img.shields.io/badge/site-static-8b949e) ![coffee](https://img.shields.io/badge/made%20with-coffee-c98d5a)
+
 Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem bundler nem dependência (só um `build.js` leve pra gerar HTML de SEO).
 
 ## Estrutura
@@ -46,7 +48,7 @@ Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada �
 2. Adiciona o caminho (com a subpasta, se houver) no array certo de `posts/manifest.json`:
 
    ```json
-   { "art": ["poetry/untitled-poem.md"], "science": ["psychology/notes.md"] }
+   { "art": ["poetry/meu-poema.md"], "science": ["psychology/minhas-notas.md"] }
    ```
 
 Pronto — ele aparece no file manager (com subpastas navegáveis) e no card de "recent". As subpastas são livres (`fiction/`, `poetry/`, `psychology/`, `chill-games/`…), mas precisam estar refletidas no caminho do manifest.
@@ -149,10 +151,10 @@ Cada post e pasta tem uma URL própria via hash — dá pra compartilhar/favorit
 - `#/` — home
 - `#~/` — file manager na raiz
 - `#~/readings` — file manager dentro de `readings`
-- `#~/readings/fiction/house-of-leaves.md` — abre o artigo
+- `#~/readings/fiction/meu-post.md` — abre o artigo
 - `#/about` — a nota about
 
-O caminho do hash segue a estrutura de `posts/` (com subpastas, ex.: `#~/art/photography/postaqui.md` ou `#~/readings/fiction/house-of-leaves.md`).
+O caminho do hash segue a estrutura de `posts/` (com subpastas, ex.: `#~/art/photography/foto.md` ou `#~/readings/fiction/meu-post.md`).
 
 ## Deploy no GitHub Pages
 
