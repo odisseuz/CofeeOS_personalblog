@@ -29,16 +29,22 @@ function rootRelative(html, depth) {
     .replaceAll('href="images/', 'href="' + prefix + 'images/');
 }
 
-function page(relMd, data, bodyHtml) {
+function page(relMd, data, bodyHtml, recent) {
   const relHtml = relMd.replace(/\.md$/, '.html');
   const depth = relHtml.split('/').length - 1;
+  const up = '../'.repeat(depth);
   const title = data.title || relMd.split('/').pop().replace(/\.md$/, '');
   const desc = excerpt(bodyHtml);
-  const css = '../'.repeat(depth) + 'style.css';
-  const back = '../'.repeat(depth) + 'index.html#~/' + relMd.replace(/^posts\//, '');
   const url = baseUrl + relHtml;
   const dateHtml = data.date ? '<p class="note-date">' + esc(data.date) + '</p>' : '';
   const body = rootRelative(bodyHtml, depth);
+
+  const links = recent
+    .filter(function (p) { return p.relHtml !== relHtml; })
+    .map(function (p) {
+      return '      <li><a href="' + esc(up + p.relHtml) + '">' + esc(p.title) + '</a></li>';
+    })
+    .join('\n');
 
   return '<!DOCTYPE html>\n' +
     '<html lang="en">\n' +
@@ -53,7 +59,8 @@ function page(relMd, data, bodyHtml) {
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + esc(url) + '">\n' +
     '<meta name="twitter:card" content="summary">\n' +
-    '<link rel="stylesheet" href="' + css + '">\n' +
+    '<link rel="icon" type="image/svg+xml" href="' + up + 'favicon.svg">\n' +
+    '<link rel="stylesheet" href="' + up + 'style.css">\n' +
     '</head>\n' +
     '<body>\n' +
     '<main class="page static-page">\n' +
@@ -62,7 +69,14 @@ function page(relMd, data, bodyHtml) {
     (dateHtml ? '    ' + dateHtml + '\n' : '') +
     body + '\n' +
     '  </article>\n' +
-    '  <p class="static-back"><a href="' + esc(back) + '">← abrir no coffeeOS</a></p>\n' +
+    '  <p class="static-back"><a href="' + esc(up + 'index.html#~/' + relMd.replace(/^posts\//, '')) + '">← abrir no coffeeOS</a></p>\n' +
+    '  <footer class="static-footer">\n' +
+    '    <p class="static-home"><a href="' + esc(up + 'index.html') + '">← midnight coffee</a></p>\n' +
+    '    <p class="static-recent-title">recent</p>\n' +
+    '    <ul class="static-recent">\n' +
+    links + '\n' +
+    '    </ul>\n' +
+    '  </footer>\n' +
     '</main>\n' +
     '</body>\n' +
     '</html>\n';
@@ -74,11 +88,28 @@ for (const [group, names] of Object.entries(manifest)) {
   for (const name of names) entries.push('posts/' + group + '/' + name);
 }
 
-for (const relMd of entries) {
-  const absMd = join(ROOT, relMd);
+// primeira passada: metadados (pra montar os links internos)
+const posts = entries.map(function (relMd) {
+  const { data } = parseFrontmatter(readFileSync(join(ROOT, relMd), 'utf8'));
+  return {
+    relMd: relMd,
+    relHtml: relMd.replace(/\.md$/, '.html'),
+    title: data.title || relMd.split('/').pop().replace(/\.md$/, ''),
+    date: data.date || ''
+  };
+});
+
+// posts recentes (por data) pra linkar no rodapé
+const recent = posts.slice().sort(function (a, b) {
+  return String(b.date).localeCompare(String(a.date));
+}).slice(0, 5);
+
+// segunda passada: gera as páginas
+for (const p of posts) {
+  const absMd = join(ROOT, p.relMd);
   const { data, body } = parseFrontmatter(readFileSync(absMd, 'utf8'));
-  const html = page(relMd, data, renderMarkdown(body));
-  const absHtml = join(ROOT, relMd.replace(/\.md$/, '.html'));
+  const html = page(p.relMd, data, renderMarkdown(body), recent);
+  const absHtml = join(ROOT, p.relHtml);
   mkdirSync(dirname(absHtml), { recursive: true });
   writeFileSync(absHtml, html);
 }

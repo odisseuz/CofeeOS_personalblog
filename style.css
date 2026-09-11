@@ -1480,6 +1480,34 @@ body::before {
   color: var(--caramel);
 }
 
+.static-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgb(var(--cream-rgb) / 0.12);
+}
+
+.static-home a,
+.static-recent a {
+  color: var(--caramel);
+}
+
+.static-recent-title {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.static-recent {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.static-recent li {
+  margin: 6px 0;
+}
+
 /* === 14. Responsivo & motion === */
 
 @media (max-width: 560px) {
