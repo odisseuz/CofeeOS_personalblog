@@ -1,6 +1,6 @@
 # midnight coffee ☕
 
-![deploy](https://img.shields.io/github/actions/workflow/status/odisseuz/CofeeOS_personalblog/deploy.yml?branch=main&label=deploy) ![static](https://img.shields.io/badge/site-static-8b949e) ![coffee](https://img.shields.io/badge/made%20with-coffee-c98d5a)
+![deploy](https://img.shields.io/github/actions/workflow/status/odisseuz/CofeeOS_personalblog/deploy.yml?branch=main&label=deploy) ![license](https://img.shields.io/github/license/odisseuz/CofeeOS_personalblog) ![static](https://img.shields.io/badge/site-static-8b949e) ![coffee](https://img.shields.io/badge/made%20with-coffee-c98d5a)
 
 Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem bundler nem dependência (só um `build.js` leve pra gerar HTML de SEO).
 
@@ -190,3 +190,10 @@ python3 -m http.server
 ```
 
 e abre `http://localhost:8000` (o `fetch` não funciona abrindo por `file://`).
+
+## Licença
+
+Licença dupla:
+
+- **Código** (`js/`, `index.html`, `style.css`, `build.js`, etc.): [MIT](LICENSE).
+- **Conteúdo** (`posts/` e `images/` — textos, arte e imagens): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — pode usar/adaptar, mas **dê crédito** (veja [`posts/LICENSE.md`](posts/LICENSE.md)).
