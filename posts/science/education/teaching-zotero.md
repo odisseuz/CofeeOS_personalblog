@@ -39,7 +39,7 @@ There were downsides, though. Despite my preparation for a hands-on workshop, th
 
 Teaching a tool is a humbling experience. You only find out if you actually taught it when you watch someone try to use it. 
 
-The constructivist take on these tools already exists internationally,[^5] but I keep thinking about how much of it needs adapting to Brazilian researchers. In my reality, we don't have a research support department to hold our hands through software installation. 
+The constructivist take on these tools already exists internationally,[^5] but I keep thinking about how much of it needs adapting to Brazilian researchers. In my reality, we don't have a research support department to help us out through the research process. 
 
 I also noticed that some older researchers had a hard time keeping up with the interface. It made me think about that autonomy across generational gaps with technology. How to better support this audience is a challenge I still need to think seriously about.
 
