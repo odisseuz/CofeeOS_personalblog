@@ -3,7 +3,7 @@ title: Teaching Zotero using Documentation
 date: 2026-09-11
 ---
 
-A few months ago, I got the opportunity to teach a short Zotero class at an international event at UECE. I had one strict rule for myself: I absolutely refused to use slides.
+A few months ago, I got the opportunity to teach a short Zotero class at an international event at UECE(Universidade Estadual do Ceará). I had one strict rule for myself: I absolutely refused to use slides.
 
 This post is the story of how I prepared for it, and why I chose to build documentation instead.
 
