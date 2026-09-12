@@ -57,6 +57,10 @@ has('task checked', renderMarkdown('- [x] b'), 'checked');
 // autolink
 has('autolink', renderMarkdown('<https://x.com>'), '<a href="https://x.com">');
 
+// URL com underscore não pode virar itálico dentro do href
+has('link underscore', renderMarkdown('[repo](https://github.com/GmailR_Sender_Simple_Script)'), '<a href="https://github.com/GmailR_Sender_Simple_Script">');
+lacks('link underscore sem em', renderMarkdown('[repo](https://github.com/GmailR_Sender_Simple_Script)'), '<em>');
+
 // code fence
 has('fence com linguagem', renderMarkdown('```js\nlet x = 1;\n```'), 'class="language-js"');
 

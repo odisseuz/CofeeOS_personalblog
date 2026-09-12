@@ -46,20 +46,27 @@ function inline(s) {
     return m;
   });
 
+  // URLs viram placeholders pra não serem corrompidas por bold/itálico depois
+  const urls = [];
+  function protect(url) {
+    urls.push(safeUrl(url));
+    return '\u0001' + (urls.length - 1) + '\u0001';
+  }
+
   out = out.replace(/\[\^([^\]]+)\]/g, function (m, label) {
     if (!footnotes[label]) return m;
     return '<sup><a href="#fn-' + label + '" id="fnref-' + label + '">' + label + '</a></sup>';
   });
   out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
   out = out.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (m, alt, url) {
-    return '<img src="' + safeUrl(url) + '" alt="' + alt.replace(/"/g, '&quot;') + '" loading="lazy">';
+    return '<img src="' + protect(url) + '" alt="' + alt.replace(/"/g, '&quot;') + '" loading="lazy">';
   });
   out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, text, url) {
-    return '<a href="' + safeUrl(url) + '">' + text + '</a>';
+    return '<a href="' + protect(url) + '">' + text + '</a>';
   });
   // autolinks <https://...>
   out = out.replace(/&lt;((?:https?:\/\/|ftp:\/\/)[^\s<>&]+)&gt;/g, function (m, url) {
-    return '<a href="' + safeUrl(url) + '">' + url + '</a>';
+    return '<a href="' + protect(url) + '">' + url + '</a>';
   });
   out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   out = out.replace(/__([^_]+)__/g, '<strong>$1</strong>');
@@ -70,6 +77,10 @@ function inline(s) {
   // restaura os escapes
   out = out.replace(/\u0000(\d+)\u0000/g, function (m, idx) {
     return escaped[Number(idx)];
+  });
+  // restaura as URLs
+  out = out.replace(/\u0001(\d+)\u0001/g, function (m, idx) {
+    return urls[Number(idx)];
   });
 
   return out;
