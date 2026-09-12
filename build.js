@@ -33,6 +33,12 @@ function rootRelative(html, depth) {
   );
 }
 
+// primeira imagem do post (pra usar como og:image)
+function firstImage(html) {
+  const m = /<img[^>]*src="([^"]+)"/.exec(html);
+  return m ? m[1] : '';
+}
+
 function page(relMd, data, bodyHtml, recent) {
   const relHtml = relMd.replace(/\.md$/, '.html');
   const depth = relHtml.split('/').length - 1;
@@ -42,6 +48,24 @@ function page(relMd, data, bodyHtml, recent) {
   const url = baseUrl + relHtml;
   const dateHtml = data.date ? '<p class="note-date">' + esc(data.date) + '</p>' : '';
   const body = rootRelative(bodyHtml, depth);
+
+  const image = firstImage(bodyHtml);
+  const ogImage = image ? baseUrl + image : '';
+  const twitterCard = image ? 'summary_large_image' : 'summary';
+  const ogImageMeta = ogImage
+    ? '<meta property="og:image" content="' + esc(ogImage) + '">\n' +
+      '<meta name="twitter:image" content="' + esc(ogImage) + '">\n'
+    : '';
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: title,
+    description: desc,
+    url: url,
+    datePublished: data.date || undefined,
+    author: { '@type': 'Person', name: 'André Gomes' }
+  }).replace(/</g, '\\u003c');
 
   const links = recent
     .filter(function (p) { return p.relHtml !== relHtml; })
@@ -62,7 +86,10 @@ function page(relMd, data, bodyHtml, recent) {
     '<meta property="og:title" content="' + esc(title) + '">\n' +
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + esc(url) + '">\n' +
-    '<meta name="twitter:card" content="summary">\n' +
+    '<meta property="og:site_name" content="midnight coffee">\n' +
+    '<meta name="twitter:card" content="' + twitterCard + '">\n' +
+    ogImageMeta +
+    '<script type="application/ld+json">' + jsonLd + '</script>\n' +
     '<link rel="icon" type="image/svg+xml" href="' + up + 'favicon.svg">\n' +
     '<link rel="stylesheet" href="' + up + 'style.css">\n' +
     '</head>\n' +
@@ -118,10 +145,10 @@ for (const p of posts) {
   writeFileSync(absHtml, html);
 }
 
-const urls = entries
-  .map(function (relMd) {
+const urls = ['  <url><loc>' + esc(baseUrl || 'index.html') + '</loc></url>']
+  .concat(entries.map(function (relMd) {
     return '  <url><loc>' + esc(baseUrl + relMd.replace(/\.md$/, '.html')) + '</loc></url>';
-  })
+  }))
   .join('\n');
 writeFileSync(
   join(ROOT, 'sitemap.xml'),

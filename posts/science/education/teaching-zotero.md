@@ -37,7 +37,7 @@ There were downsides, though. Despite my preparation for a hands-on workshop, th
 
 ## What stuck with me
 
-Teaching a tool is a humbling experience. You only find out if you actually taught it when you watch someone try to use it. 
+Teaching a tool was a humbling experience. You only find out if you actually taught it when you watch someone try to use it .
 
 The constructivist take on these tools already exists internationally,[^5] but I keep thinking about how much of it needs adapting to Brazilian researchers. In my reality, we don't have a research support department to help us out through the research process. 
 
