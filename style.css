@@ -462,6 +462,15 @@ body::before {
   font-size: 1.05rem;
 }
 
+.tagline-sub {
+  margin: 8px auto 0;
+  max-width: 52ch;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
 /* item mais recente, em destaque dentro do card "recent" */
 .recent-item.is-latest {
   display: block;
@@ -907,6 +916,15 @@ button.card-soft {
   color: var(--caramel);
 }
 
+#zen-link {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+#zen-link:hover {
+  color: var(--caramel);
+}
+
 .footer-link:focus-visible {
   outline: 2px solid var(--caramel);
   outline-offset: 2px;
@@ -986,51 +1004,37 @@ button.card-soft {
 
 .dock-item {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   border: none;
-  border-radius: 16px;
-  background: rgb(var(--cream-rgb) / 0.06);
+  border-radius: 14px;
+  background: transparent;
   color: var(--cream);
   font-family: inherit;
   cursor: pointer;
-  transform-origin: center bottom;
   transition:
-    transform 0.18s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 0.18s ease,
     background 0.2s ease;
 }
 
 .dock-item img {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   pointer-events: none;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  transition: transform 0.18s ease;
 }
 
 .dock-item:hover {
-  transform: translateY(-14px) scale(1.35);
-  background: rgb(var(--caramel-rgb) / 0.16);
-  z-index: 1;
+  background: rgb(var(--cream-rgb) / 0.07);
 }
 
-.dock-item:hover + .dock-item {
-  transform: translateY(-10px) scale(1.18);
-}
-
-.dock-item:hover + .dock-item + .dock-item {
-  transform: translateY(-4px) scale(1.07);
-}
-
-.dock-item:has(+ .dock-item:hover) {
-  transform: translateY(-10px) scale(1.18);
-}
-
-.dock-item:has(+ .dock-item + .dock-item:hover) {
-  transform: translateY(-4px) scale(1.07);
+.dock-item:hover img {
+  transform: translateY(-2px) scale(1.08);
 }
 
 .tooltip {

@@ -47,6 +47,13 @@ export function loadRecentPosts() {
       li.appendChild(link);
       listEl.appendChild(li);
     });
+
+    // link "zen": versão de leitura limpa (HTML estático gerado pelo build)
+    const zenEl = document.getElementById('zen-link');
+    if (zenEl) {
+      zenEl.href = sorted[0].path.replace(/\.md$/, '.html');
+      zenEl.hidden = false;
+    }
   });
 }
 
