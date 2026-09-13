@@ -31,6 +31,9 @@ export function loadNote(file, body, filenameEl, statusEl) {
       }
       html += renderMarkdown(parsed.body);
       body.innerHTML = html;
+      body.scrollTop = 0;
+      const tocPanel = document.getElementById('toc-panel');
+      if (tocPanel) tocPanel.scrollTop = 0;
       buildToc(body);
       if (file === 'posts/about.md') {
         body.insertAdjacentHTML('beforeend', contactFormHtml());
@@ -207,6 +210,7 @@ function buildToc(container) {
     return;
   }
   const used = {};
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   headings.forEach(function (h) {
     if (h.classList.contains('note-title') || h.closest('.footnotes')) return;
     let id = slugify(h.textContent);
@@ -220,8 +224,20 @@ function buildToc(container) {
     link.className = 'toc-link toc-l' + level;
     link.textContent = h.textContent;
     link.addEventListener('click', function () {
-      h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollBodyTo(container, h, reduceMotion);
     });
     tocPanel.appendChild(link);
+  });
+}
+
+// scrolla só o container do artigo (não o documento) — evita o bug de
+// scroll suave do Chrome/Safari deslocar o <html> e sumir com a barra de cima
+function scrollBodyTo(container, heading, reduceMotion) {
+  const scroller = container.closest('.editor-body') || container;
+  const target = heading.getBoundingClientRect().top - scroller.getBoundingClientRect().top +
+    scroller.scrollTop - scroller.clientTop;
+  scroller.scrollTo({
+    top: target,
+    behavior: reduceMotion ? 'auto' : 'smooth'
   });
 }
