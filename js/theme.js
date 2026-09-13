@@ -19,11 +19,24 @@ tick();
 setInterval(tick, 1000);
 
 // tema
-(function () {
-  const THEME_KEY = 'coffeeos:theme';
+const THEME_KEY = 'coffeeos:theme';
+const THEMES = ['blue', 'brown', 'black', 'cream', 'light'];
+
+// aplica (e salva) o tema — usado pelo menu de settings e pelo terminal
+export function setTheme(name) {
   const root = document.documentElement;
+  if (THEMES.indexOf(name) === -1) name = 'blue';
+  // "blue" é o padrão: vive no :root, sem atributo
+  if (name === 'blue') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', name);
+  document.querySelectorAll('#theme-menu .pill-option').forEach(function (opt) {
+    opt.setAttribute('aria-pressed', opt.getAttribute('data-theme') === name ? 'true' : 'false');
+  });
+  try { localStorage.setItem(THEME_KEY, name); } catch (e) {}
+}
+
+(function () {
   const options = document.querySelectorAll('#theme-menu .pill-option');
-  const themes = ['blue', 'brown', 'black', 'cream', 'light'];
 
   function savedTheme() {
     try {
@@ -33,28 +46,13 @@ setInterval(tick, 1000);
     }
   }
 
-  function apply(name) {
-    // "blue" é o padrão: vive no :root, sem atributo
-    if (name === 'blue' || themes.indexOf(name) === -1) {
-      root.removeAttribute('data-theme');
-      name = 'blue';
-    } else {
-      root.setAttribute('data-theme', name);
-    }
-    options.forEach(function (opt) {
-      opt.setAttribute('aria-pressed', opt.getAttribute('data-theme') === name ? 'true' : 'false');
-    });
-  }
-
   const stored = savedTheme();
-  let current = (themes.indexOf(stored) !== -1) ? stored : 'blue';
-  apply(current);
+  const current = (THEMES.indexOf(stored) !== -1) ? stored : 'blue';
+  setTheme(current);
 
   options.forEach(function (opt) {
     opt.addEventListener('click', function () {
-      current = opt.getAttribute('data-theme');
-      apply(current);
-      try { localStorage.setItem(THEME_KEY, current); } catch (e) {}
+      setTheme(opt.getAttribute('data-theme'));
     });
   });
 })();

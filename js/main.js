@@ -10,6 +10,7 @@ import { initTerminal, focusTerminal, runCommand } from './terminal.js';
 import { initNotepad, focusNotepad } from './notepad.js';
 import { initIdleChrome } from './idle.js';
 import './theme.js';
+import { setTheme } from './theme.js';
 
 (function () {
   makeWindow(
@@ -172,6 +173,19 @@ import './theme.js';
       appsToggle.setAttribute('aria-expanded', 'false');
     });
   }
+
+  // ponte pro terminal: abrir post, abrir app, trocar tema
+  window.__openPost = function (file) {
+    closeTerminal();
+    state.articleFromFinder = false;
+    // espera o terminal sair de cena antes de abrir o artigo
+    requestAnimationFrame(function () { openArticle(file); });
+  };
+  window.__openApp = function (app) {
+    if (app === 'notes') { closeTerminal(); openNotepad(); }
+    else if (app === 'settings') { closeTerminal(); openSettings(); }
+  };
+  window.__setTheme = setTheme;
 
   if (articleOverlay) {
     const closeBtn = document.getElementById('overlay-close');

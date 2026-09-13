@@ -2189,9 +2189,13 @@ body.chrome-dim .editor-bar {
   cursor: grabbing;
 }
 
-/* stacked windows: article sits above the finder */
-#overlay { z-index: 110; }
+/* empilhamento: apps abaixo, conteúdo acima
+   finder 100 < apps 105 < artigo 110 < imagem 120 */
 #fm-overlay { z-index: 100; }
+#term-overlay { z-index: 105; }
+#settings-overlay { z-index: 105; }
+#notes-overlay { z-index: 105; }
+#overlay { z-index: 110; }
 #img-overlay { z-index: 120; }
 
 #fm-overlay.dimmed .finder {
