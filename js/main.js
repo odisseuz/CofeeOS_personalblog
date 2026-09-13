@@ -108,6 +108,7 @@ import './theme.js';
   const settingsWindow = document.querySelector('#settings-overlay .settings-window');
   const settingsClose = document.getElementById('settings-close');
   const settingsBackdrop = document.getElementById('settings-backdrop');
+  const settingsToggle = document.getElementById('settings-toggle');
   makeWindow(
     settingsWindow,
     document.getElementById('settings-bar'),
@@ -124,6 +125,7 @@ import './theme.js';
     settingsOverlay.classList.add('open');
     if (settingsClose) settingsClose.focus();
   }
+  if (settingsToggle) settingsToggle.addEventListener('click', openSettings);
   if (settingsClose) settingsClose.addEventListener('click', closeSettings);
   if (settingsBackdrop) settingsBackdrop.addEventListener('click', closeSettings);
 
@@ -252,19 +254,16 @@ import './theme.js';
     if (searchEl) {
       e.preventDefault();
       const input = document.getElementById('search-input');
-      if (input) { input.focus(); input.scrollIntoView({ block: 'nearest' }); }
+      if (input) {
+        input.focus({ preventScroll: true });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       return;
     }
     const termEl = e.target.closest('[data-dock-term]');
     if (termEl) {
       e.preventDefault();
       openTerminal();
-      return;
-    }
-    const settingsEl = e.target.closest('[data-dock-settings]');
-    if (settingsEl) {
-      e.preventDefault();
-      openSettings();
       return;
     }
     const notesEl = e.target.closest('[data-dock-notes]');

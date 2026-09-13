@@ -201,8 +201,10 @@ body::before {
 .topbar {
   position: fixed;
   top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   z-index: 60;
 }
 
@@ -225,6 +227,36 @@ body::before {
   width: 1px;
   height: 16px;
   background: rgb(var(--cream-rgb) / 0.12);
+}
+
+.status-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  background: rgb(var(--glass-top) / 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgb(var(--cream-rgb) / 0.1);
+  border-radius: 999px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgb(var(--cream-rgb) / 0.07);
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.status-btn:hover {
+  color: var(--cream);
+  border-color: rgb(var(--caramel-rgb) / 0.35);
+}
+
+.status-btn:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: 2px;
 }
 
 .clock {
@@ -793,14 +825,12 @@ body::before {
 
 /* === 6. Cards da home (about / recent) === */
 
-/* sistema de cards em 3 níveis:
+/* sistema de cards em 2 níveis:
    .card       → cheio (caixa + sombra)
-   .card-soft  → sutil (fundo leve + borda discreta, sem sombra)
-   .card-flat  → solto (sem caixa) */
+   .card-soft  → sutil (fundo leve + borda discreta, sem sombra) */
 
 .card,
-.card-soft,
-.card-flat {
+.card-soft {
   scroll-margin-top: 76px;
 }
 
@@ -832,26 +862,15 @@ body::before {
   border-color: rgb(var(--caramel-rgb) / 0.18);
 }
 
-.card-flat {
-  margin: 34px 0;
-}
-
 /* botões-card: zera o estilo nativo do <button> */
 button.card,
-button.card-soft,
-button.card-flat {
+button.card-soft {
   display: block;
   width: 100%;
   font: inherit;
   color: inherit;
   text-align: left;
   cursor: pointer;
-}
-
-button.card-flat {
-  background: none;
-  border: none;
-  padding: 0;
 }
 
 .site-footer {
@@ -1037,7 +1056,18 @@ button.card-flat {
   transform: translateX(-50%) translateY(0);
 }
 
+/* com o popover aberto, o tooltip do botão sai de cena */
+.dock-pop.open .tooltip {
+  opacity: 0;
+}
+
 /* === 7b. Popover de apps (dock) === */
+
+.dock-pop {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
 
 .dock-pop {
   position: relative;
@@ -1047,13 +1077,16 @@ button.card-flat {
 
 .dock-pop-panel {
   position: absolute;
-  bottom: calc(100% + 12px);
+  bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%) translateY(6px);
+  z-index: 3;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  width: max-content;
   min-width: 150px;
+  max-width: calc(100vw - 24px);
   padding: 6px;
   background: rgb(var(--glass-top) / 0.92);
   backdrop-filter: blur(16px) saturate(140%);
@@ -2094,11 +2127,6 @@ button.card-flat {
   outline-offset: 2px;
 }
 
-.term-bar:focus-visible {
-  outline: 2px solid var(--caramel);
-  outline-offset: -2px;
-}
-
 /* páginas estáticas geradas pelo build.js (SEO) */
 .static-page {
   padding-top: 56px;
@@ -2151,24 +2179,44 @@ button.card-flat {
 
 @media (max-width: 560px) {
   .topbar {
-    top: 14px;
-    right: 14px;
-    gap: 6px;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    justify-content: flex-end;
+  }
+
+  .statusbar {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .search {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .search-input {
-    width: 96px;
+    width: 100%;
     font-size: 0.78rem;
   }
 
   .search-input:focus {
-    width: 140px;
+    width: 100%;
   }
 
   .clock {
-    padding: 0 11px;
+    padding: 0 11px 0 0;
     font-size: 0.76rem;
     gap: 4px;
+    flex: 0 0 auto;
+  }
+
+  .status-btn {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
   }
 
   #theme-menu .pill-options,
@@ -2189,6 +2237,11 @@ button.card-flat {
   .dock-item img {
     width: 30px;
     height: 30px;
+  }
+
+  /* sem hover de verdade no toque: tooltip só atrapalha */
+  .tooltip {
+    display: none;
   }
 
   .dock {
