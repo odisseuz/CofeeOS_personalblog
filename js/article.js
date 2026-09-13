@@ -208,7 +208,7 @@ function buildToc(container) {
   }
   const used = {};
   headings.forEach(function (h) {
-    if (h.classList.contains('note-title')) return;
+    if (h.classList.contains('note-title') || h.closest('.footnotes')) return;
     let id = slugify(h.textContent);
     if (!id) id = 'section';
     if (used[id]) { used[id]++; id = id + '-' + used[id]; }

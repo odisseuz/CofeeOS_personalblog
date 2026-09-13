@@ -2,7 +2,7 @@
 
 ![deploy](https://img.shields.io/github/actions/workflow/status/odisseuz/CofeeOS_personalblog/deploy.yml?branch=main&label=deploy) ![license](https://img.shields.io/github/license/odisseuz/CofeeOS_personalblog) ![static](https://img.shields.io/badge/site-static-8b949e) ![coffee](https://img.shields.io/badge/made%20with-coffee-c98d5a)
 
-Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem bundler nem dependência (só um `build.js` leve pra gerar HTML de SEO).
+Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem bundler nem CDN em runtime (as dependências ficam vendorizadas em `js/vendor/`; só um `build.js` leve roda no CI pra gerar HTML de SEO).
 
 ## Estrutura
 
@@ -13,7 +13,8 @@ build.js        # gera HTML estático dos posts (SEO) + sitemap.xml
 package.json    # "type": "module" (node roda os módulos ES)
 js/
   state.js      # estado global compartilhado
-  markdown.js   # renderer de markdown + frontmatter
+  markdown.js   # renderer de markdown (marked) + frontmatter
+  vendor/       # marked + marked-footnote (self-hosted)
   data.js       # manifest + lista de posts
   windows.js    # arrastar/resize/maximize/focus-trap
   routing.js    # hash routing
@@ -27,7 +28,7 @@ posts/          # conteúdo em .md + manifest.json
 .github/        # CI (deploy + validação)
 ```
 
-Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada — `js/main.js`, carregado via `<script type="module">`. Sem bundler, sem dependência externa.
+Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada — `js/main.js`, carregado via `<script type="module">`. Sem bundler, sem CDN — as dependências (marked) são vendorizadas.
 
 ## Como escrever um post
 
@@ -115,13 +116,18 @@ A página `posts/about.md` tem dois comportamentos especiais: a primeira imagem 
 
 ## Markdown suportado
 
-- títulos (`#`, `##`…), listas, citações (`>`), linha horizontal (`---`)
-- **negrito**, *itálico*, ~~riscado~~, `inline code`, [links](...), imagens `![alt](url)`
-- notas de rodapé `[^1]` … `[^1]: texto`
-- **task lists**: `- [ ]` (pendente) e `- [x]` (feito) — checkbox visual, não editável
-- **autolinks**: `<https://exemplo.com>` vira link clicável
-- **escapes**: `\*literal\*` mostra os asteriscos sem aplicar itálico
-- **código com linguagem**: o bloco pode declarar a linguagem (ex. `js`) e ganha `class="language-js"` — pronto pra um highlight futuro
+O renderer é o [marked](https://marked.js.org/) (vendorizado em `js/vendor/`), com GFM + notas de rodapé. Suporta:
+
+- títulos (`#`–`######`), parágrafos, linha horizontal (`---`)
+- **negrito**, *itálico*, ~~riscado~~, `inline code`, [links](...), imagens `![alt](url)` (com `loading="lazy"`)
+- **listas aninhadas** (ordenadas e não-ordenadas) e **tabelas** (`| a | b |`)
+- citações (`>`), inclusive **multi-parágrafo**
+- **task lists**: `- [ ]` (pendente) e `- [x]` (feito)
+- **notas de rodapé** `[^1]` … `[^1]: texto`
+- **autolinks** `<https://exemplo.com>` e **escapes** `\*literal\*`
+- **código** com ou sem linguagem (`class="language-js"` quando declarada)
+
+Por segurança, HTML cru é escapado e URLs `javascript:`/`data:` são neutralizadas. Pra atualizar o marked, vê `js/vendor/README.md`.
 
 ## Notas
 

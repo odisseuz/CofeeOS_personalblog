@@ -1,4 +1,4 @@
-// smoke test do renderer de markdown — roda no CI pra pegar regressão
+// smoke test do renderer de markdown (marked) — roda no CI pra pegar regressão
 import { renderMarkdown, parseFrontmatter } from '../../js/markdown.js';
 
 let failures = 0;
@@ -51,13 +51,13 @@ has('escape literal', renderMarkdown(B + '*' + 'x' + B + '*'), '*x*');
 lacks('escape não vira itálico', renderMarkdown(B + '*' + 'x' + B + '*'), '<em>');
 
 // task list
-has('task-list', renderMarkdown('- [ ] a\n- [x] b'), 'class="task-list"');
+has('task-list', renderMarkdown('- [ ] a\n- [x] b'), 'type="checkbox"');
 has('task checked', renderMarkdown('- [x] b'), 'checked');
 
 // autolink
 has('autolink', renderMarkdown('<https://x.com>'), '<a href="https://x.com">');
 
-// URL com underscore não pode virar itálico dentro do href
+// link com underscore não vira itálico
 has('link underscore', renderMarkdown('[repo](https://github.com/GmailR_Sender_Simple_Script)'), '<a href="https://github.com/GmailR_Sender_Simple_Script">');
 lacks('link underscore sem em', renderMarkdown('[repo](https://github.com/GmailR_Sender_Simple_Script)'), '<em>');
 
@@ -67,8 +67,15 @@ has('fence com linguagem', renderMarkdown('```js\nlet x = 1;\n```'), 'class="lan
 // footnotes
 has('footnotes', renderMarkdown('a[^1]\n\n[^1]: nota'), 'footnotes');
 
-// segurança: HTML é escapado
+// segurança: HTML é escapado e javascript: é bloqueado
 lacks('html escapado', renderMarkdown('<script>alert(1)</script>'), '<script>');
+has('javascript bloqueado', renderMarkdown('[x](javascript:alert(1))'), 'href="#"');
+has('imagem lazy', renderMarkdown('![alt](images/a.jpg)'), 'loading="lazy"');
+
+// features que o renderer antigo não tinha
+has('tabela', renderMarkdown('| a | b |\n| --- | --- |\n| 1 | 2 |'), '<table>');
+has('lista aninhada', renderMarkdown('- a\n  - b'), '<li>a<ul>');
+has('blockquote multi parágrafo', renderMarkdown('> one\n>\n> two'), '<p>two</p>');
 
 console.log('');
 if (failures) {

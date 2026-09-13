@@ -880,14 +880,14 @@ body::before {
 
 .editor-body li { margin: 0.15em 0; }
 
-.editor-body ul.task-list,
-.notes-preview ul.task-list {
+.editor-body ul:has(input[type="checkbox"]),
+.notes-preview ul:has(input[type="checkbox"]) {
   list-style: none;
   padding-left: 0.25em;
 }
 
-.editor-body .task-list input[type="checkbox"],
-.notes-preview .task-list input[type="checkbox"] {
+.editor-body li input[type="checkbox"],
+.notes-preview li input[type="checkbox"] {
   vertical-align: -0.15em;
   margin-right: 8px;
   accent-color: var(--caramel);
@@ -1022,8 +1022,22 @@ body::before {
   border-color: rgb(var(--caramel-rgb) / 0.4);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .editor-body .footnotes {
   margin-top: 1.5em;
+  padding-top: 1em;
+  border-top: 1px solid rgb(var(--cream-rgb) / 0.08);
   font-size: 0.85em;
   color: var(--muted);
 }
