@@ -828,6 +828,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
   padding: 10px 14px;
   background: rgb(var(--cream-rgb) / 0.05);
   border-bottom: 1px solid rgb(var(--cream-rgb) / 0.08);
@@ -835,6 +836,11 @@ body::before {
 
 .editor-filename {
   color: var(--muted);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .editor-body {
@@ -1063,6 +1069,7 @@ body::before {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-shrink: 0;
   padding: 8px 14px;
   background: rgb(var(--cream-rgb) / 0.05);
   border-top: 1px solid rgb(var(--cream-rgb) / 0.08);
@@ -1146,7 +1153,7 @@ body::before {
 }
 
 .overlay .editor {
-  min-height: 65vh;
+  height: 65vh;
   max-height: 88vh;
   display: flex;
   flex-direction: column;
@@ -1156,6 +1163,7 @@ body::before {
   max-height: none;
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
 }
 
 .editor-actions {
@@ -1213,6 +1221,7 @@ body::before {
   flex-direction: column;
   width: 260px;
   flex: 0 0 260px;
+  min-height: 0;
   border-left: 1px solid rgb(var(--cream-rgb) / 0.08);
   background: rgba(0, 0, 0, 0.16);
 }
@@ -1226,6 +1235,7 @@ body::before {
   flex-direction: column;
   width: 200px;
   flex: 0 0 200px;
+  min-height: 0;
   border-right: 1px solid rgb(var(--cream-rgb) / 0.08);
   background: rgba(0, 0, 0, 0.16);
   overflow-y: auto;
