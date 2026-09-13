@@ -148,6 +148,27 @@ import './theme.js';
   if (notesBackdrop) notesBackdrop.addEventListener('click', closeNotepad);
   initNotepad();
 
+  // popover de apps no dock
+  const appsPop = document.getElementById('apps-pop');
+  const appsToggle = document.getElementById('apps-toggle');
+  if (appsPop && appsToggle) {
+    appsToggle.addEventListener('click', function () {
+      const open = appsPop.classList.toggle('open');
+      appsToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!appsPop.classList.contains('open')) return;
+      if (e.target.closest('.dock-pop-item')) {
+        appsPop.classList.remove('open');
+        appsToggle.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      if (appsPop.contains(e.target)) return;
+      appsPop.classList.remove('open');
+      appsToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
   if (articleOverlay) {
     const closeBtn = document.getElementById('overlay-close');
     const backdrop = document.getElementById('overlay-backdrop');
@@ -200,6 +221,7 @@ import './theme.js';
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
+      if (appsPop && appsPop.classList.contains('open')) { appsPop.classList.remove('open'); appsToggle.setAttribute('aria-expanded', 'false'); return; }
       if (imgOverlay && imgOverlay.classList.contains('open')) { closeImageViewer(); return; }
       if (settingsOverlay && settingsOverlay.classList.contains('open')) { closeSettings(); return; }
       if (notesOverlay && notesOverlay.classList.contains('open')) { closeNotepad(); return; }

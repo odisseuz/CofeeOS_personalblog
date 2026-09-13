@@ -1037,6 +1037,75 @@ button.card-flat {
   transform: translateX(-50%) translateY(0);
 }
 
+/* === 7b. Popover de apps (dock) === */
+
+.dock-pop {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.dock-pop-panel {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+  padding: 6px;
+  background: rgb(var(--glass-top) / 0.92);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgb(var(--cream-rgb) / 0.12);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+}
+
+.dock-pop-panel[hidden] {
+  display: none;
+}
+
+.dock-pop.open .dock-pop-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.dock-pop-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dock-pop-item:hover {
+  background: rgb(var(--cream-rgb) / 0.08);
+}
+
+.dock-pop-item img {
+  width: 20px;
+  height: 20px;
+}
+
+.dock-pop-item:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: -2px;
+}
+
 /* === 8. Pastas da home (ícones de OS) === */
 
 .folders {

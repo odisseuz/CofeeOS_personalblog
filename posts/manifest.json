@@ -1,6 +1,6 @@
 {
-  "readings": ["mock-house-of-leaves.md"],
-  "art": ["mock-poem.md"],
-  "games": ["mock-cozy-game.md"],
-  "science": ["education/teaching-zotero.md", "mock-signal-detection.md"]
+  "readings": [],
+  "art": [],
+  "games": [],
+  "science": ["education/teaching-zotero.md"]
 }

@@ -78,14 +78,22 @@
       <img src="assets/icons/search.svg" alt="">
       <span class="tooltip">search</span>
     </button>
-    <button class="dock-item" type="button" data-dock-term aria-label="Terminal">
-      <img src="assets/icons/terminal.svg" alt="">
-      <span class="tooltip">terminal</span>
-    </button>
-    <button class="dock-item" type="button" data-dock-notes aria-label="Notepad">
-      <img src="assets/icons/notes.svg" alt="">
-      <span class="tooltip">notes</span>
-    </button>
+    <div class="dock-pop" id="apps-pop">
+      <button class="dock-item" id="apps-toggle" type="button" aria-label="Apps" aria-haspopup="true" aria-expanded="false">
+        <img src="assets/icons/apps.svg" alt="">
+        <span class="tooltip">apps</span>
+      </button>
+      <div class="dock-pop-panel" role="group" aria-label="Apps">
+        <button class="dock-pop-item" type="button" data-dock-term>
+          <img src="assets/icons/terminal.svg" alt="">
+          <span>terminal</span>
+        </button>
+        <button class="dock-pop-item" type="button" data-dock-notes>
+          <img src="assets/icons/notes.svg" alt="">
+          <span>notes</span>
+        </button>
+      </div>
+    </div>
     <button class="dock-item" type="button" data-dock-settings aria-label="Settings">
       <img src="assets/icons/settings.svg" alt="">
       <span class="tooltip">settings</span>
