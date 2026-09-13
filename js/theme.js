@@ -23,7 +23,7 @@ setInterval(tick, 1000);
   const THEME_KEY = 'coffeeos:theme';
   const root = document.documentElement;
   const options = document.querySelectorAll('#theme-menu .pill-option');
-  const themes = ['dark', 'brown', 'black', 'gray'];
+  const themes = ['blue', 'brown', 'black', 'cream', 'light'];
 
   function savedTheme() {
     try {
@@ -34,8 +34,10 @@ setInterval(tick, 1000);
   }
 
   function apply(name) {
-    if (name === 'dark') {
+    // "blue" é o padrão: vive no :root, sem atributo
+    if (name === 'blue' || themes.indexOf(name) === -1) {
       root.removeAttribute('data-theme');
+      name = 'blue';
     } else {
       root.setAttribute('data-theme', name);
     }
@@ -45,7 +47,7 @@ setInterval(tick, 1000);
   }
 
   const stored = savedTheme();
-  let current = (themes.indexOf(stored) !== -1) ? stored : 'dark';
+  let current = (themes.indexOf(stored) !== -1) ? stored : 'blue';
   apply(current);
 
   options.forEach(function (opt) {

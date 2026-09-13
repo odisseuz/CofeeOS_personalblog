@@ -22,7 +22,7 @@
 :root {
   font-size: 100%;
 
-  /* dark (azul) — padrão */
+  /* blue (padrão) */
   --bg-0: #0e1116;
   --bg-1: #161b22;
   --bg-2: #090c10;
@@ -46,6 +46,15 @@
   --glow-rgb: 88 166 255;
   --scroll-track: #0d1117;
   --scroll-thumb: #30363d;
+
+  /* sombras e escurecimentos — cada tema define os seus */
+  --shadow-1: 0 8px 26px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --shadow-3: 0 20px 50px rgba(0, 0, 0, 0.55);
+  --shadow-icon: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  --ink: rgba(0, 0, 0, 0.35);
+  --ink-soft: rgba(0, 0, 0, 0.16);
+  --ink-faint: rgba(0, 0, 0, 0.12);
 
   --font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --font-display: Georgia, "Times New Roman", serif;
@@ -102,29 +111,74 @@
   --scroll-thumb: #2a2a2a;
 }
 
-[data-theme="gray"] {
-  --bg-0: #1a1a1a;
-  --bg-1: #242424;
-  --bg-2: #141414;
+/* creme — papel quente, pra leitura longa */
+[data-theme="cream"] {
+  --bg-0: #f4ecdd;
+  --bg-1: #efe4d2;
+  --bg-2: #e8dcc6;
 
-  --cream: #e5e5e5;
-  --cream-rgb: 229 229 229;
-  --muted: #9a9a9a;
-  --muted-rgb: 154 154 154;
-  --coffee: #e0a458;
-  --caramel: #f0b86e;
-  --caramel-rgb: 240 184 110;
+  --cream: #3b3228;
+  --cream-rgb: 59 50 40;
+  --muted: #8a7a63;
+  --muted-rgb: 138 122 99;
+  --coffee: #a8724a;
+  --caramel: #8a5a2b;
+  --caramel-rgb: 138 90 43;
 
-  --surface: rgba(30, 30, 30, 0.6);
+  --surface: rgba(255, 252, 245, 0.7);
+  --border: rgb(var(--cream-rgb) / 0.14);
 
-  --glass-top: 30 30 30;
-  --glass-win: 26 26 26;
-  --glass-term: 20 20 20;
-  --glass-backdrop: 14 14 14;
+  --glass-top: 244 236 221;
+  --glass-win: 248 241 229;
+  --glass-term: 236 226 208;
+  --glass-backdrop: 228 216 196;
 
-  --glow-rgb: 200 150 90;
-  --scroll-track: #1a1a1a;
-  --scroll-thumb: #3a3a3a;
+  --glow-rgb: 168 114 74;
+  --scroll-track: #e8dcc6;
+  --scroll-thumb: #c9b89c;
+
+  --shadow-1: 0 8px 26px rgba(80, 60, 40, 0.12);
+  --shadow-2: 0 12px 40px rgba(80, 60, 40, 0.16);
+  --shadow-3: 0 20px 50px rgba(80, 60, 40, 0.2);
+  --shadow-icon: drop-shadow(0 2px 4px rgba(80, 60, 40, 0.22));
+  --ink: rgba(80, 60, 40, 0.1);
+  --ink-soft: rgba(80, 60, 40, 0.06);
+  --ink-faint: rgba(80, 60, 40, 0.04);
+}
+
+/* light — branco frio */
+[data-theme="light"] {
+  --bg-0: #ffffff;
+  --bg-1: #f6f8fa;
+  --bg-2: #eef1f4;
+
+  --cream: #1f2328;
+  --cream-rgb: 31 35 40;
+  --muted: #656d76;
+  --muted-rgb: 101 109 118;
+  --coffee: #0969da;
+  --caramel: #0550ae;
+  --caramel-rgb: 5 80 174;
+
+  --surface: rgba(255, 255, 255, 0.8);
+  --border: rgb(var(--cream-rgb) / 0.12);
+
+  --glass-top: 255 255 255;
+  --glass-win: 255 255 255;
+  --glass-term: 246 248 250;
+  --glass-backdrop: 238 241 244;
+
+  --glow-rgb: 9 105 218;
+  --scroll-track: #eef1f4;
+  --scroll-thumb: #c6cdd5;
+
+  --shadow-1: 0 8px 26px rgba(31, 35, 40, 0.1);
+  --shadow-2: 0 12px 40px rgba(31, 35, 40, 0.14);
+  --shadow-3: 0 20px 50px rgba(31, 35, 40, 0.18);
+  --shadow-icon: drop-shadow(0 2px 4px rgba(31, 35, 40, 0.18));
+  --ink: rgba(31, 35, 40, 0.08);
+  --ink-soft: rgba(31, 35, 40, 0.05);
+  --ink-faint: rgba(31, 35, 40, 0.03);
 }
 
 html[data-font="serif"] {
@@ -220,7 +274,7 @@ body::before {
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   border: 1px solid rgb(var(--cream-rgb) / 0.1);
   border-radius: 999px;
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgb(var(--cream-rgb) / 0.07);
+  box-shadow: var(--shadow-1), inset 0 1px 0 rgb(var(--cream-rgb) / 0.07);
 }
 
 .status-sep {
@@ -241,7 +295,7 @@ body::before {
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   border: 1px solid rgb(var(--cream-rgb) / 0.1);
   border-radius: 999px;
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgb(var(--cream-rgb) / 0.07);
+  box-shadow: var(--shadow-1), inset 0 1px 0 rgb(var(--cream-rgb) / 0.07);
   color: var(--muted);
   font-size: 0.95rem;
   line-height: 1;
@@ -295,7 +349,7 @@ body::before {
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid rgb(var(--cream-rgb) / 0.12);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-2);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-4px);
@@ -377,7 +431,7 @@ body::before {
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid rgb(var(--cream-rgb) / 0.12);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-2);
   padding: 6px;
 }
 
@@ -517,7 +571,7 @@ body::before {
   overflow: hidden;
   font-family: var(--font-mono);
   font-size: 0.85rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
+  box-shadow: var(--shadow-3), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
 }
 
 .settings-bar {
@@ -621,7 +675,7 @@ body::before {
   overflow: hidden;
   font-family: var(--font-mono);
   font-size: 0.85rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
+  box-shadow: var(--shadow-3), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
 }
 
 .notepad-bar {
@@ -710,7 +764,7 @@ body::before {
   font-family: var(--font-mono);
 }
 .pad-preview pre {
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--ink);
   border: 1px solid rgb(var(--cream-rgb) / 0.08);
   border-radius: 8px;
   padding: 10px;
@@ -756,7 +810,7 @@ body::before {
   -webkit-backdrop-filter: blur(20px) saturate(130%);
   border: 1px solid rgb(var(--cream-rgb) / 0.18);
   border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgb(var(--cream-rgb) / 0.08);
+  box-shadow: var(--shadow-3), inset 0 1px 0 rgb(var(--cream-rgb) / 0.08);
   overflow: hidden;
   font-family: var(--font-mono);
   font-size: 0.85rem;
@@ -849,7 +903,7 @@ body::before {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgb(var(--cream-rgb) / 0.06);
+  box-shadow: var(--shadow-1), inset 0 1px 0 rgb(var(--cream-rgb) / 0.06);
 }
 
 .card-soft {
@@ -989,7 +1043,7 @@ button.card-soft {
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   border: 1px solid rgb(var(--cream-rgb) / 0.12);
   border-radius: 24px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.08);
+  box-shadow: var(--shadow-2), inset 0 1px 0 rgb(var(--cream-rgb) / 0.08);
   z-index: 50;
 }
 
@@ -1016,7 +1070,7 @@ button.card-soft {
   width: 30px;
   height: 30px;
   pointer-events: none;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  filter: var(--shadow-icon);
   transition: transform 0.18s ease;
 }
 
@@ -1088,7 +1142,7 @@ button.card-soft {
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid rgb(var(--cream-rgb) / 0.12);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-2);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
@@ -1172,7 +1226,7 @@ button.card-soft {
 .folder img {
   width: 46px;
   height: 46px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+  filter: var(--shadow-icon);
   transition: transform 0.2s ease;
 }
 
@@ -1265,7 +1319,7 @@ button.card-soft {
   overflow: hidden;
   font-family: var(--font-mono);
   font-size: 0.9rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
+  box-shadow: var(--shadow-3), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
 }
 
 .editor-bar {
@@ -1360,7 +1414,7 @@ body.chrome-dim .editor-bar {
 }
 
 .editor-body pre {
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--ink);
   border: 1px solid rgb(var(--cream-rgb) / 0.08);
   border-radius: 8px;
   padding: 12px;
@@ -1578,7 +1632,7 @@ body.chrome-dim .editor-bar {
   border: 1px solid rgb(var(--cream-rgb) / 0.14);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
+  box-shadow: var(--shadow-3), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
 }
 
 .img-bar {
@@ -1723,7 +1777,7 @@ body.chrome-dim .editor-bar {
   min-width: 0;
   min-height: 0;
   border-left: 1px solid rgb(var(--cream-rgb) / 0.08);
-  background: rgba(0, 0, 0, 0.16);
+  background: var(--ink-soft);
 }
 
 .editor.show-notes .notes-panel {
@@ -1738,7 +1792,7 @@ body.chrome-dim .editor-bar {
   min-width: 0;
   min-height: 0;
   border-right: 1px solid rgb(var(--cream-rgb) / 0.08);
-  background: rgba(0, 0, 0, 0.16);
+  background: var(--ink-soft);
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px 12px;
@@ -1849,7 +1903,7 @@ body.chrome-dim .editor-bar {
 }
 
 .notes-preview pre {
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--ink);
   border: 1px solid rgb(var(--cream-rgb) / 0.08);
   border-radius: 8px;
   padding: 10px;
@@ -1917,7 +1971,7 @@ body.chrome-dim .editor-bar {
   border: 1px solid rgb(var(--cream-rgb) / 0.14);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
+  box-shadow: var(--shadow-3), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
 }
 
 .finder-bar {
@@ -1950,13 +2004,13 @@ body.chrome-dim .editor-bar {
 .finder-path:focus {
   color: var(--cream);
   border-color: rgb(var(--caramel-rgb) / 0.4);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--ink);
 }
 
 .finder-search {
   padding: 6px 8px;
   border-bottom: 1px solid rgb(var(--cream-rgb) / 0.08);
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--ink-faint);
 }
 
 .finder-search-input {
@@ -2025,7 +2079,7 @@ body.chrome-dim .editor-bar {
 .finder-file .file-icon {
   width: 24px;
   height: 24px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  filter: var(--shadow-icon);
 }
 
 .finder-file .file-name {
