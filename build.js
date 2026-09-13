@@ -100,7 +100,7 @@ function page(relMd, data, bodyHtml, recent) {
     (dateHtml ? '    ' + dateHtml + '\n' : '') +
     body + '\n' +
     '  </article>\n' +
-    '  <p class="static-back"><a href="' + esc(up + 'index.html#~/' + relMd.replace(/^posts\//, '')) + '">← abrir no coffeeOS</a></p>\n' +
+    '  <p class="static-back"><a href="' + esc(up + 'index.html#~/' + relMd.replace(/^posts\//, '')) + '">← open in coffeeOS</a></p>\n' +
     '  <footer class="static-footer">\n' +
     '    <p class="static-home"><a href="' + esc(up + 'index.html') + '">← midnight coffee</a></p>\n' +
     '    <p class="static-recent-title">recent</p>\n' +

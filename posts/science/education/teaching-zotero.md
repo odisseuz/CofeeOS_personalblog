@@ -19,7 +19,7 @@ If you give someone slides, they look at them once and forget. If you give them 
 
 ## docs instead of slides
 
-I needed a website. At the time, I was deciding between Quarto and Astro. While Quarto is great for traditional academic publishing, I ended up taking a leap of faith with Starlight (Astro's documentation framework). It was fast, and had built-in features that made separating the site into Portuguese, English, and Spanish so much easier.
+I needed a website. At the time, I was deciding between Quarto and Astro. I found out about Astro through a close good friend of mine, a web developer who's been using it for his own personal projects and showed it to me. While Quarto is great for traditional academic publishing, I ended up taking a leap of faith with Starlight (Astro's documentation framework). It was fast, and had built-in features that made separating the site into Portuguese, English, and Spanish so much easier.
 
 Writing the documentation forced me to be precise and sometimes repetitive about steps I normally do on autopilot. I even tried installing Zotero on every computer I could find just to see what random errors I'd get. 
 
@@ -45,7 +45,7 @@ I also noticed that some older researchers had a hard time keeping up with the i
 
 ## the material
 
-If you want to see the result, the whole documentation is open here: [curso-zotero](https://github.com/odisseuz/curso-zotero).
+If you want to see the result, the whole documentation is live here: [curso-zotero](https://odisseuz.github.io/curso-zotero/) ([source](https://github.com/odisseuz/curso-zotero)).
 
 [^1]: Dudziak, E. A. (2003). *Information literacy: princípios, filosofia e prática.*
 [^2]: Rangaswamy, B. (2021). *Researcher's perception on Zotero and Mendeley.*; Speare, M. (2018). *Graduate student use and non-use of reference and PDF management software.*
