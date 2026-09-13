@@ -7,8 +7,7 @@ import { setHash, hashForFolder } from './routing.js';
 export function updateDockActive(key) {
   document.querySelectorAll('.dock-item').forEach(function (el) {
     let active = false;
-    if (el.hasAttribute('data-group')) active = el.getAttribute('data-group') === key;
-    else if (el.hasAttribute('data-home')) active = key === 'home';
+    if (el.hasAttribute('data-home')) active = key === 'home';
     else if (el.hasAttribute('data-note')) active = key === 'about';
     el.classList.toggle('active', active);
   });

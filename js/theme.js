@@ -22,10 +22,8 @@ setInterval(tick, 1000);
 (function () {
   const THEME_KEY = 'coffeeos:theme';
   const root = document.documentElement;
-  const trigger = document.getElementById('theme-toggle');
   const options = document.querySelectorAll('#theme-menu .pill-option');
   const themes = ['dark', 'brown', 'black', 'gray'];
-  const icons = { dark: '☾', brown: '☕', black: '●', gray: '▣' };
 
   function savedTheme() {
     try {
@@ -44,11 +42,6 @@ setInterval(tick, 1000);
     options.forEach(function (opt) {
       opt.setAttribute('aria-pressed', opt.getAttribute('data-theme') === name ? 'true' : 'false');
     });
-    if (trigger) {
-      trigger.textContent = icons[name] || '☾';
-      trigger.setAttribute('aria-label', 'Theme: ' + name);
-      trigger.setAttribute('title', 'Theme: ' + name);
-    }
   }
 
   const stored = savedTheme();
@@ -68,7 +61,6 @@ setInterval(tick, 1000);
 (function () {
   const FAMILY_KEY = 'coffeeos:font-family';
   const root = document.documentElement;
-  const trigger = document.getElementById('font-family-toggle');
   const articleTrigger = document.getElementById('article-font-toggle');
   const options = document.querySelectorAll('#font-family-menu .pill-option');
   const articleOptions = document.querySelectorAll('#article-font-menu .pill-option');
@@ -94,10 +86,6 @@ setInterval(tick, 1000);
     articleOptions.forEach(function (opt) {
       opt.setAttribute('aria-pressed', opt.getAttribute('data-font-family') === name ? 'true' : 'false');
     });
-    if (trigger) {
-      trigger.setAttribute('aria-label', 'Font: ' + name);
-      trigger.setAttribute('title', 'Font: ' + name);
-    }
     if (articleTrigger) {
       articleTrigger.setAttribute('aria-label', 'Font: ' + name);
       articleTrigger.setAttribute('title', 'Font: ' + name);
@@ -129,10 +117,8 @@ setInterval(tick, 1000);
 (function () {
   const FONT_KEY = 'coffeeos:font-size';
   const root = document.documentElement;
-  const trigger = document.getElementById('font-toggle');
   const options = document.querySelectorAll('#font-menu .pill-option');
   const sizes = ['normal', 'large', 'xl'];
-  const labels = { normal: 'Normal', large: 'Large', xl: 'Extra large' };
 
   function savedSize() {
     try {
@@ -152,11 +138,6 @@ setInterval(tick, 1000);
       const active = opt.getAttribute('data-font-size') === name;
       opt.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
-    if (trigger) {
-      trigger.textContent = labels[name] ? labels[name].charAt(0) : 'A';
-      trigger.setAttribute('aria-label', 'Font size: ' + labels[name]);
-      trigger.setAttribute('title', 'Font size: ' + labels[name]);
-    }
   }
 
   const stored = savedSize();

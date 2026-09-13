@@ -62,6 +62,48 @@ import './terminal.js';
   if (imgClose) imgClose.addEventListener('click', closeImageViewer);
   if (imgBackdrop) imgBackdrop.addEventListener('click', closeImageViewer);
 
+  // janela de terminal
+  const termOverlay = document.getElementById('term-overlay');
+  const termWindow = document.querySelector('#term-overlay .term-window');
+  const termClose = document.getElementById('term-close');
+  const termBackdrop = document.getElementById('term-backdrop');
+  makeWindow(termWindow, document.getElementById('term-window-bar'), document.querySelector('#term-overlay .resize-handle'));
+  makeMaximize(termWindow, document.getElementById('term-maximize'));
+
+  function closeTerminal() {
+    if (termOverlay) termOverlay.classList.remove('open');
+  }
+  function openTerminal() {
+    if (!termOverlay) return;
+    resetWindow(termWindow);
+    termOverlay.classList.add('open');
+    if (window.__termFocus) window.__termFocus();
+    else if (termClose) termClose.focus();
+  }
+  if (termClose) termClose.addEventListener('click', closeTerminal);
+  if (termBackdrop) termBackdrop.addEventListener('click', closeTerminal);
+
+  // menu de display (Aa): abre no clique, fecha fora/Esc
+  const displayMenu = document.getElementById('display-menu');
+  const displayToggle = document.getElementById('display-toggle');
+  if (displayMenu && displayToggle) {
+    displayToggle.addEventListener('click', function () {
+      const open = displayMenu.classList.toggle('open');
+      displayToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (displayMenu.contains(e.target) || !displayMenu.classList.contains('open')) return;
+      displayMenu.classList.remove('open');
+      displayToggle.setAttribute('aria-expanded', 'false');
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || !displayMenu.classList.contains('open')) return;
+      displayMenu.classList.remove('open');
+      displayToggle.setAttribute('aria-expanded', 'false');
+      displayToggle.focus();
+    });
+  }
+
   if (articleOverlay) {
     const closeBtn = document.getElementById('overlay-close');
     const backdrop = document.getElementById('overlay-backdrop');
@@ -115,6 +157,7 @@ import './terminal.js';
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       if (imgOverlay && imgOverlay.classList.contains('open')) { closeImageViewer(); return; }
+      if (termOverlay && termOverlay.classList.contains('open')) { closeTerminal(); return; }
       if (articleOverlay && articleOverlay.classList.contains('open')) closeArticle();
       else if (fmOverlay && fmOverlay.classList.contains('open')) closeFolder();
       return;
@@ -135,6 +178,19 @@ import './terminal.js';
     if (homeEl) {
       e.preventDefault();
       openFolder([]);
+      return;
+    }
+    const searchEl = e.target.closest('[data-dock-search]');
+    if (searchEl) {
+      e.preventDefault();
+      const input = document.getElementById('search-input');
+      if (input) { input.focus(); input.scrollIntoView({ block: 'nearest' }); }
+      return;
+    }
+    const termEl = e.target.closest('[data-dock-term]');
+    if (termEl) {
+      e.preventDefault();
+      openTerminal();
       return;
     }
     const groupEl = e.target.closest('[data-group]');

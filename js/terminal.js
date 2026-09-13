@@ -2,10 +2,9 @@
 import { loadManifest, getPostIndex, getAllPosts } from './data.js';
 
 (function () {
-  const term = document.getElementById('terminal');
   const output = document.getElementById('term-output');
   const input = document.getElementById('term-input');
-  if (!term || !output || !input) return;
+  if (!output || !input) return;
 
   const PROMPT = 'guest@coffeeOS:~$';
 
@@ -210,17 +209,12 @@ import { loadManifest, getPostIndex, getAllPosts } from './data.js';
     }
   });
 
-  term.addEventListener('click', function () {
-    if (term.open) input.focus();
-  });
-
-  term.addEventListener('toggle', function () {
-    if (term.open) input.focus();
-  });
-
   print([
     'coffeeOS 1.0 (midnight)',
     'type "help" and press enter to see the commands.',
     '',
   ]);
+
+  // exposto pro main.js focar o input ao abrir a janela
+  window.__termFocus = function () { input.focus(); };
 })();

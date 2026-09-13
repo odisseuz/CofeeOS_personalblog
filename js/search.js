@@ -12,8 +12,6 @@ function byNewest(a, b) {
 
 export function loadRecentPosts() {
   const listEl = document.getElementById('recent-list');
-  const hintEl = document.getElementById('hero-hint');
-  const latestEl = document.getElementById('hero-latest');
   if (!listEl) return;
 
   getPostIndex().then(function (posts) {
@@ -26,18 +24,13 @@ export function loadRecentPosts() {
       li.className = 'recent-item muted';
       li.textContent = 'no posts yet';
       listEl.appendChild(li);
-      if (hintEl) hintEl.hidden = true;
       return;
     }
 
-    if (latestEl) {
-      latestEl.setAttribute('data-note', sorted[0].path);
-    }
-
-    sorted.slice(0, 5).forEach(function (post) {
+    sorted.slice(0, 5).forEach(function (post, i) {
       const li = document.createElement('li');
       const link = document.createElement('a');
-      link.className = 'recent-item';
+      link.className = 'recent-item' + (i === 0 ? ' is-latest' : '');
       link.href = '#';
       link.setAttribute('data-note', post.path);
 
@@ -48,6 +41,13 @@ export function loadRecentPosts() {
       const meta = document.createElement('span');
       meta.className = 'recent-item-meta';
       meta.textContent = post.group + (post.date ? ' · ' + post.date : '');
+
+      if (i === 0) {
+        const label = document.createElement('span');
+        label.className = 'recent-latest-label';
+        label.textContent = 'latest';
+        link.appendChild(label);
+      }
 
       link.appendChild(title);
       link.appendChild(meta);
