@@ -11,7 +11,7 @@ In the last semester, I had the opportunity to get to know many people from this
 
 ## What is Chinese, and where does it come from
 
-China is one of the world's oldest continuous civilizations, but its full history would need a whole blog post. For now, all we need to know is that "Chinese" isn't a single language, but a massive family.
+China is one of the world's oldest continuous civilizations, but its full history would need a whole blog post. For now, all we need to know is that "Chinese" isn't a single language.
 
 The most crucial distinction to avoid confusion (and getting beaten by either side!) is between the **spoken varieties** and the **writing systems**. On the spoken side, people may speak Mandarin, Cantonese, or other regional varieties the Han ethnic group is the largest. On the written side, characters come in **Simplified** (standardized in mainland China) and **Traditional** (used in places like Hong Kong and Taiwan) forms.
 
@@ -95,13 +95,6 @@ There are four main tones, plus a fifth "neutral" one. The classic example every
 *   **Neutral Tone:** `ma` (吗) — **Question particle**. It has no mark. It is pronounced short and light, placed at the end of a sentence to turn it into a yes/no question.
 
 So yes, if you use the wrong tone, you might accidentally call your mother a horse. (Don't worry, context usually saves us, but it's a rite of passage for every beginner! *Me included*)
-
-### To summarize
-
-**拼音** = **声母** + **韵母** + **声调**
-(Pin yin) = Sheng mu (Initials) + Yun mu (Finals) + Sheng Diao (Tones)
-
-In future posts we will go more in-depth with the phonetics of the language and talk about stroker order of the hanzi and work throughout some more vocabulary
 
 ## summary
 
