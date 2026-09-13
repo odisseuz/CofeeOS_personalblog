@@ -167,7 +167,7 @@ Ao criar um `<button>` novo, adicione o `tabindex` junto (ou chame `makeTabbable
 
 ## Grupos, pastas e ícones
 
-Os grupos (as "pastas" da home) são: `readings`, `art`, `games`, `science`.
+Os grupos (as "pastas" da home) são: `readings`, `art`, `games`, `science`, `culture`.
 
 ### Adicionar uma pasta principal
 
@@ -298,6 +298,30 @@ Cada post e pasta tem uma URL própria via hash — dá pra compartilhar/favorit
 - `#/about` — a nota about
 
 O caminho do hash segue a estrutura de `posts/` (com subpastas, ex.: `#~/art/photography/foto.md` ou `#~/readings/fiction/meu-post.md`).
+
+## Idiomas (futuro)
+
+**Hoje o site é só em inglês** (`<html lang="en">` no `index.html` e nas páginas geradas pelo `build.js`). Não há seletor nem i18n — e é de propósito: um blog com um post não precisa disso.
+
+Quando fizer sentido ter dois idiomas, o caminho mais simples é **idioma como pasta**, não como configuração:
+
+```
+posts/
+  en/
+    culture/languages/chinese/introduction.md
+  pt/
+    culture/languages/chinese/introducao.md
+```
+
+Assim cada post continua sendo um `.md` normal, sem biblioteca de i18n, sem dicionário, sem estado no navegador. O que muda é pouco:
+
+1. O caminho ganha um primeiro segmento de idioma (`en/`, `pt/`).
+2. O file manager mostra esses dois como pastas.
+3. Um seletor `EN · PT` (no topbar ou no dock) filtra qual idioma aparece.
+
+**Não use hover** pro seletor: hover não existe no toque, então no celular ninguém trocaria de idioma. Um botão de texto funciona em mouse, toque e teclado.
+
+Um detalhe que vale saber: se os idiomas tiverem **conteúdo diferente** (e não tradução do mesmo texto), o custo é praticamente zero — é só escrever dois posts. O custo real é manter traduções espelhadas, que exigem atualizar os dois lados sempre.
 
 ## Testes
 

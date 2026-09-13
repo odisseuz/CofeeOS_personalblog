@@ -23,15 +23,30 @@ fail() {
 # cria uma cópia mínima e limpa do projeto pra testar
 sandbox() {
   local d="$TMP/$1"
-  mkdir -p "$d/posts/science/education" "$d/bin/lib" "$d/.github/scripts"
+  mkdir -p "$d/posts" "$d/bin/lib" "$d/.github/scripts"
   if ! cp "$SRC/bin/coffee" "$d/bin/coffee" \
      || ! cp "$SRC/bin/lib/"*.py "$d/bin/lib/" \
      || ! cp "$SRC/.github/scripts/check_manifest.py" "$d/.github/scripts/" \
-     || ! cp "$SRC/posts/manifest.json" "$d/posts/manifest.json" \
-     || ! cp "$SRC/posts/science/education/teaching-zotero.md" "$d/posts/science/education/"; then
+     || ! cp "$SRC/index.html" "$d/index.html" \
+     || ! cp "$SRC/posts/manifest.json" "$d/posts/manifest.json"; then
     printf 'ERRO: sandbox não conseguiu copiar os arquivos de %s\n' "$SRC" >&2
     exit 2
   fi
+  # copia todos os posts declarados no manifest, pra o sandbox ficar válido
+  # mesmo quando o projeto ganhar mais conteúdo
+  python3 - "$SRC" "$d" <<'PY'
+import json, os, shutil, sys
+src, dst = sys.argv[1], sys.argv[2]
+manifest = json.load(open(os.path.join(src, 'posts', 'manifest.json'), encoding='utf-8'))
+for group, items in manifest.items():
+    for item in items:
+        rel = os.path.join(group, item)
+        s = os.path.join(src, 'posts', rel)
+        t = os.path.join(dst, 'posts', rel)
+        os.makedirs(os.path.dirname(t), exist_ok=True)
+        if os.path.isfile(s):
+            shutil.copy(s, t)
+PY
   printf '%s' "$d"
 }
 

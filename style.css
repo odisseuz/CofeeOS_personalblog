@@ -127,8 +127,8 @@
 
   --cream: #3b3228;
   --cream-rgb: 59 50 40;
-  --muted: #8a7a63;
-  --muted-rgb: 138 122 99;
+  --muted: #6f6045;
+  --muted-rgb: 111 96 69;
   --coffee: #a8724a;
   --caramel: #8a5a2b;
   --caramel-rgb: 138 90 43;
@@ -1207,7 +1207,9 @@ button.card-soft {
 
 .folders {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* 5 colunas quando houver 5 grupos; o auto-fit deixa a última linha
+     alinhada sozinha em vez de esticar */
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 8px;
   margin: 34px 0 10px;
 }
@@ -1389,6 +1391,36 @@ body.chrome-dim .editor-bar {
 .editor-body h1 { font-size: 1.5em; }
 .editor-body h2 { font-size: 1.25em; }
 .editor-body h3 { font-size: 1.05em; }
+
+/* tabelas (GFM) — o CSS do projeto não cobria, e o navegador usava o padrão cru */
+.editor-body table {
+  width: 100%;
+  margin: 1.2em 0;
+  border-collapse: collapse;
+  font-size: 0.92em;
+  /* caber em telas estreitas sem quebrar o layout */
+  display: block;
+  overflow-x: auto;
+}
+
+.editor-body th,
+.editor-body td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgb(var(--cream-rgb) / 0.12);
+  white-space: nowrap;
+}
+
+.editor-body th {
+  color: var(--caramel);
+  font-family: var(--font-display);
+  font-weight: 600;
+  border-bottom-color: rgb(var(--cream-rgb) / 0.25);
+}
+
+.editor-body tbody tr:hover {
+  background: rgb(var(--cream-rgb) / 0.04);
+}
 
 .editor-body h1.note-title { margin-bottom: 0.1em; }
 
@@ -1866,6 +1898,12 @@ body.chrome-dim .editor-bar {
   font-size: 0.75rem;
 }
 
+.notes-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .notes-area {
   flex: 1 1 auto;
   min-height: 0;
@@ -2170,6 +2208,25 @@ body.chrome-dim .editor-bar {
   max-height: none !important;
   transform: none !important;
   border-radius: 0;
+}
+
+/* maximizado, o corpo do texto ocupa a altura toda em vez dos 70vh fixos,
+   que deixavam um vão embaixo e soltavam a barra de status no meio.
+   Vira um flex column pra altura se resolver sozinha, sem chutar pixels. */
+.editor.maximized {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor.maximized .editor-main {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.editor.maximized .editor-body {
+  max-height: none;
+  height: 100%;
+  min-height: 0;
 }
 
 /* ---- window feel ---- */

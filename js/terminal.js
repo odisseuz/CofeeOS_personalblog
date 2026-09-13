@@ -111,7 +111,8 @@ const commands = {
           group = p.group;
           lines.push(group + '/');
         }
-        const file = p.path.split('/').pop();
+        // caminho relativo ao grupo, pra mostrar as subpastas (languages/chinese.md)
+        const file = p.path.replace(/^posts\//, '').replace(group + '/', '');
         lines.push(long ? '  ' + file.padEnd(34) + p.date : '  ' + file);
       });
       return lines;

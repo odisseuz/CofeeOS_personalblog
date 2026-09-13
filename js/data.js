@@ -113,12 +113,18 @@ export function groupIcon(group) {
     readings: 'assets/icons/lucide/readings.svg',
     art: 'assets/icons/lucide/art.svg',
     games: 'assets/icons/lucide/games.svg',
-    science: 'assets/icons/lucide/science.svg'
+    science: 'assets/icons/lucide/science.svg',
+    culture: 'assets/icons/lucide/globe.svg'
   };
   if (!icons[group]) {
     console.warn('groupIcon: no icon for group "' + group + '" — falling back to readings. Add it to groupIcon().');
   }
   return icons[group] || 'assets/icons/lucide/readings.svg';
+}
+
+// distingue um grupo (pasta da home, tem ícone próprio) de uma subpasta qualquer
+export function isGroup(name) {
+  return ['readings', 'art', 'games', 'science', 'culture'].indexOf(name) !== -1;
 }
 
 export function listLevel(paths, segments) {

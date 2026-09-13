@@ -1,6 +1,6 @@
 // file manager
 import { fmOverlay, state } from './state.js';
-import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon } from './data.js';
+import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon, isGroup } from './data.js';
 import { resetWindow, notifyOverlayChange, makeTabbable } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
 
@@ -81,7 +81,8 @@ export function renderFinder() {
 
       const icon = document.createElement('img');
       icon.className = 'file-icon';
-      icon.src = groupIcon(folder);
+      // subpassa não é um grupo (não tem ícone próprio) → usa a pasta genérica
+      icon.src = isGroup(folder) ? groupIcon(folder) : 'assets/icons/lucide/folder.svg';
       icon.alt = '';
 
       const name = document.createElement('span');

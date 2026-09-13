@@ -22,7 +22,7 @@
         <span class="ampm">AM</span>
       </div>
     </div>
-    <button class="status-btn" id="settings-toggle" type="button" aria-label="Settings" aria-haspopup="dialog" tabindex="0">⚙</button>
+    <button class="status-btn" id="settings-toggle" type="button" aria-label="Settings" title="Settings" aria-haspopup="dialog" tabindex="0">⚙</button>
   </div>
 
   <main class="page">
@@ -52,6 +52,11 @@
         <img src="assets/icons/lucide/science.svg" alt="">
         <span class="folder-name">science</span>
         <span class="folder-count" data-count="science"></span>
+      </button>
+      <button class="folder" id="culture" type="button" data-group="culture" tabindex="0">
+        <img src="assets/icons/lucide/globe.svg" alt="">
+        <span class="folder-name">culture</span>
+        <span class="folder-count" data-count="culture"></span>
       </button>
     </div>
 
@@ -108,10 +113,10 @@
       <div class="editor-bar">
         <span class="editor-filename" id="filename">note</span>
         <div class="editor-actions">
-          <button class="editor-btn" id="toc-toggle" type="button" aria-label="Table of contents" tabindex="0">☰</button>
-          <button class="editor-btn" id="notes-toggle" type="button" aria-label="Notes" tabindex="0">✎</button>
-          <button class="editor-btn maximize-btn" id="editor-maximize" type="button" aria-label="Maximize" tabindex="0">⤢</button>
-          <button class="editor-close" id="overlay-close" aria-label="Close" tabindex="0">✕</button>
+          <button class="editor-btn" id="toc-toggle" type="button" aria-label="Table of contents" title="Table of contents" tabindex="0">☰</button>
+          <button class="editor-btn" id="notes-toggle" type="button" aria-label="Notes" title="Notes" tabindex="0">✎</button>
+          <button class="editor-btn maximize-btn" id="editor-maximize" type="button" aria-label="Maximize" title="Maximize" tabindex="0">⤢</button>
+          <button class="editor-close" id="overlay-close" aria-label="Close" title="Close" tabindex="0">✕</button>
         </div>
       </div>
       <div class="editor-main">
@@ -119,13 +124,15 @@
         <div class="editor-body" id="editor-body"></div>
         <aside class="notes-panel" id="notes-panel">
           <div class="notes-header">
-            <button class="editor-btn" id="notes-preview" type="button" tabindex="0">preview</button>
+            <div class="notes-actions">
+              <button class="editor-btn" id="notes-preview" type="button" title="Preview as markdown" tabindex="0">preview</button>
+              <button class="editor-btn" id="notes-quote" type="button" title="Quote the selected text from the article" tabindex="0">quote</button>
+            </div>
             <div class="pill-menu">
-              <button class="editor-btn" type="button" aria-label="Notes actions" aria-haspopup="true" tabindex="0">⋮</button>
+              <button class="editor-btn" type="button" aria-label="Notes actions" title="More actions" aria-haspopup="true" tabindex="0">⋮</button>
               <div class="pill-options" role="group" aria-label="Notes actions">
-                <button class="pill-option" id="notes-download" type="button" tabindex="0">download</button>
-                <button class="pill-option" id="notes-quote" type="button" tabindex="0">quote</button>
-                <button class="pill-option" id="notes-clear" type="button" tabindex="0">clear</button>
+                <button class="pill-option" id="notes-download" type="button" title="Download as .md" tabindex="0">download</button>
+                <button class="pill-option" id="notes-clear" type="button" title="Erase these notes" tabindex="0">clear</button>
               </div>
             </div>
           </div>
@@ -136,17 +143,17 @@
       <div class="editor-status">
         <div class="reader-font">
           <div class="pill-menu" id="article-font-menu">
-            <button class="editor-btn" id="article-font-toggle" type="button" aria-label="Font: sans" aria-haspopup="true" tabindex="0">Aa</button>
+            <button class="editor-btn" id="article-font-toggle" type="button" aria-label="Font: sans" title="Change the font" aria-haspopup="true" tabindex="0">Aa</button>
             <div class="pill-options" role="group" aria-label="Font">
               <button class="pill-option" type="button" data-font-family="sans" aria-pressed="false" tabindex="0">Sans</button>
               <button class="pill-option" type="button" data-font-family="serif" aria-pressed="false" tabindex="0">Serif</button>
               <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false" tabindex="0">Mono</button>
             </div>
           </div>
-          <button class="editor-btn" id="font-down" type="button" aria-label="Decrease text size" tabindex="0">A−</button>
+          <button class="editor-btn" id="font-down" type="button" aria-label="Decrease text size" title="Decrease text size" tabindex="0">A−</button>
           <span class="reader-size" id="reader-size">1×</span>
-          <button class="editor-btn" id="font-up" type="button" aria-label="Increase text size" tabindex="0">A+</button>
-          <a class="editor-btn" id="zen-post" href="#" target="_blank" rel="noopener" aria-label="Read the clean version" hidden>zen ↗</a>
+          <button class="editor-btn" id="font-up" type="button" aria-label="Increase text size" title="Increase text size" tabindex="0">A+</button>
+          <a class="editor-btn" id="zen-post" href="#" target="_blank" rel="noopener" aria-label="Read the clean version" title="Read the clean version" hidden>zen ↗</a>
         </div>
         <span id="status">…</span>
         <span class="status-right">
@@ -164,9 +171,9 @@
       <div class="finder-bar">
         <input class="finder-path" id="fm-path" type="text" value="~" spellcheck="false" aria-label="Path">
         <div class="finder-actions">
-          <button class="editor-btn fm-back" id="fm-back" type="button" aria-label="Up" tabindex="0">↑</button>
-          <button class="editor-btn maximize-btn" id="fm-maximize" type="button" aria-label="Maximize" tabindex="0">⤢</button>
-          <button class="editor-close" id="fm-close" aria-label="Close" tabindex="0">✕</button>
+          <button class="editor-btn fm-back" id="fm-back" type="button" aria-label="Up" tabindex="0" title="Go up one level">↑</button>
+          <button class="editor-btn maximize-btn" id="fm-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize">⤢</button>
+          <button class="editor-close" id="fm-close" aria-label="Close" tabindex="0" title="Close">✕</button>
         </div>
       </div>
       <div class="finder-search">
@@ -186,8 +193,8 @@
       <div class="img-bar">
         <span class="img-filename" id="img-filename">image</span>
         <div class="finder-actions">
-          <button class="editor-btn maximize-btn" id="img-maximize" type="button" aria-label="Maximize" tabindex="0">⤢</button>
-          <button class="editor-close" id="img-close" aria-label="Close" tabindex="0">✕</button>
+          <button class="editor-btn maximize-btn" id="img-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize">⤢</button>
+          <button class="editor-close" id="img-close" aria-label="Close" tabindex="0" title="Close">✕</button>
         </div>
       </div>
       <div class="img-body">
@@ -203,8 +210,8 @@
       <div class="term-window-bar" id="term-window-bar">
         <span class="term-title">coffeeOS — sh</span>
         <div class="finder-actions">
-          <button class="editor-btn maximize-btn" id="term-maximize" type="button" aria-label="Maximize" tabindex="0">⤢</button>
-          <button class="editor-close" id="term-close" aria-label="Close" tabindex="0">✕</button>
+          <button class="editor-btn maximize-btn" id="term-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize">⤢</button>
+          <button class="editor-close" id="term-close" aria-label="Close" tabindex="0" title="Close">✕</button>
         </div>
       </div>
       <div class="term-output" id="term-output" aria-live="polite"></div>
@@ -222,8 +229,8 @@
       <div class="settings-bar" id="settings-bar">
         <span class="settings-title">System Settings</span>
         <div class="finder-actions">
-          <button class="editor-btn maximize-btn" id="settings-maximize" type="button" aria-label="Maximize" tabindex="0">⤢</button>
-          <button class="editor-close" id="settings-close" aria-label="Close" tabindex="0">✕</button>
+          <button class="editor-btn maximize-btn" id="settings-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize">⤢</button>
+          <button class="editor-close" id="settings-close" aria-label="Close" tabindex="0" title="Close">✕</button>
         </div>
       </div>
       <div class="settings-body">
@@ -264,10 +271,10 @@
       <div class="notepad-bar" id="notepad-bar">
         <span class="notepad-filename">scratch.md</span>
         <div class="finder-actions">
-          <button class="editor-btn pad-btn" id="pad-preview" type="button" tabindex="0">preview</button>
-          <button class="editor-btn pad-btn" id="pad-download" type="button" aria-label="Download as .md" tabindex="0">download</button>
-          <button class="editor-btn maximize-btn" id="notepad-maximize" type="button" aria-label="Maximize" tabindex="0">⤢</button>
-          <button class="editor-close" id="notepad-close" aria-label="Close" tabindex="0">✕</button>
+          <button class="editor-btn pad-btn" id="pad-preview" type="button" tabindex="0" title="Preview as markdown">preview</button>
+          <button class="editor-btn pad-btn" id="pad-download" type="button" aria-label="Download as .md" tabindex="0" title="Download as .md">download</button>
+          <button class="editor-btn maximize-btn" id="notepad-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize">⤢</button>
+          <button class="editor-close" id="notepad-close" aria-label="Close" tabindex="0" title="Close">✕</button>
         </div>
       </div>
       <textarea class="pad-area" id="pad-area" placeholder="…" spellcheck="false" aria-label="Notepad"></textarea>

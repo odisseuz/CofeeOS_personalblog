@@ -17,7 +17,13 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 POSTS="$ROOT/posts"
 MANIFEST="$POSTS/manifest.json"
 TOOL="$ROOT/bin/lib/manifest_tool.py"
-KNOW="readings art games science"
+
+# os grupos são os que estão na home (index.html) — assim um grupo novo é
+# reconhecido na hora, sem editar o script.
+groups() {
+  grep -o 'data-group="[a-z0-9-]*"' "$ROOT/index.html" 2>/dev/null \
+    | sed 's/data-group="//; s/"//' | tr '\n' ' '
+}
 
 die() { printf 'coffee: %s\n' "$*" >&2; exit 1; }
 
@@ -54,9 +60,9 @@ cmd_new() {
   [ "$group" != "$rel" ] || die "comece com um grupo (ex.: science/meu-post.md)"
   [ -e "$abs" ] && die "já existe: posts/$rel"
 
-  case " $KNOW " in
+  case " $(groups) " in
     *" $group "*) ;;
-    *) printf 'aviso: "%s" não é um grupo da home (%s)\n' "$group" "$KNOW" >&2
+    *) printf 'aviso: "%s" não é um grupo da home (%s)\n' "$group" "$(groups)" >&2
        printf 'continuar? [y/N] ' >&2
        read -r ans
        case "$ans" in y|Y) ;; *) die "cancelado" ;; esac ;;

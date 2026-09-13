@@ -67,6 +67,7 @@ export function resetWindow(win) {
   if (maxBtn) {
     maxBtn.textContent = '⤢';
     maxBtn.setAttribute('aria-label', 'Maximize');
+    maxBtn.setAttribute('title', 'Maximize');
   }
 }
 
@@ -78,9 +79,11 @@ export function makeMaximize(win, btn) {
       win.style.transform = '';
       btn.textContent = '⤡';
       btn.setAttribute('aria-label', 'Restore');
+      btn.setAttribute('title', 'Restore');
     } else {
       btn.textContent = '⤢';
       btn.setAttribute('aria-label', 'Maximize');
+      btn.setAttribute('title', 'Maximize');
     }
   });
 }

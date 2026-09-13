@@ -117,6 +117,26 @@ export function downloadNotes() {
   URL.revokeObjectURL(url);
 }
 
+// âncoras internas do artigo (footnotes, links `#`) precisam rolar o
+// .editor-body, não a página: o Safari desloca o <html> e a barra de cima
+// some (mesmo bug que o índice tinha). Intercepta e rola o container.
+document.addEventListener('click', function (e) {
+  const link = e.target.closest('a[href^="#"]');
+  if (!link) return;
+  const body = document.getElementById('editor-body');
+  if (!body || !body.contains(link)) return;
+  const id = link.getAttribute('href').slice(1);
+  if (!id) return;
+  const alvo = body.querySelector('#' + CSS.escape(id));
+  if (!alvo) return;
+  e.preventDefault();
+  const scroller = body.closest('.editor-body') || body;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const top = alvo.getBoundingClientRect().top - scroller.getBoundingClientRect().top +
+    scroller.scrollTop - scroller.clientTop;
+  scroller.scrollTo({ top: top, behavior: reduce ? 'auto' : 'smooth' });
+});
+
 export function openArticle(file) {
   if (!articleOverlay) return;
   state.lastFocus = document.activeElement;
