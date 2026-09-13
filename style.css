@@ -196,63 +196,52 @@ body::before {
     linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 48%, var(--bg-2) 100%);
 }
 
-/* === 3. Topbar (relógio, menus de tema/fonte, busca) === */
+/* === 3. Topbar (barra de status: busca + relógio) === */
 
 .topbar {
   position: fixed;
-  top: 16px;
-  right: 16px;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+}
+
+/* pill única: busca + relógio juntos */
+.statusbar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  z-index: 60;
+  gap: 12px;
+  height: 38px;
+  padding: 0 8px 0 4px;
+  background: rgb(var(--glass-top) / 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgb(var(--cream-rgb) / 0.1);
+  border-radius: 999px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgb(var(--cream-rgb) / 0.07);
+}
+
+.status-sep {
+  width: 1px;
+  height: 16px;
+  background: rgb(var(--cream-rgb) / 0.12);
 }
 
 .clock {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  padding: 8px 14px;
-  background: rgb(var(--glass-top) / 0.5);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid rgb(var(--cream-rgb) / 0.12);
-  border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgb(var(--cream-rgb) / 0.08);
+  gap: 5px;
+  padding-right: 10px;
   font-family: var(--font-mono);
   font-size: 0.9rem;
-  color: var(--muted);
+  color: var(--cream);
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
-.pill-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 38px;
-  height: 38px;
-  padding: 0 12px;
-  background: rgb(var(--glass-top) / 0.5);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid rgb(var(--cream-rgb) / 0.12);
-  border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgb(var(--cream-rgb) / 0.08);
-  color: var(--caramel);
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
-}
-
-.pill-btn:hover {
-  border-color: rgb(var(--caramel-rgb) / 0.4);
-}
-
-.pill-btn:focus-visible {
-  outline: 2px solid var(--caramel);
-  outline-offset: 2px;
+.clock .ampm {
+  font-size: 0.68rem;
+  color: var(--muted);
 }
 
 .pill-menu {
@@ -316,57 +305,28 @@ body::before {
   outline-offset: -2px;
 }
 
-/* menu de display agrupado (tema / fonte / tamanho) */
-.display-options {
-  min-width: 180px;
-  gap: 0;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.pill-group-label {
-  margin: 8px 0 2px;
-  padding: 0 10px;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.pill-group-label:first-child {
-  margin-top: 2px;
-}
-
-.pill-group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .search {
   position: relative;
 }
 
 .search-input {
-  width: 140px;
-  padding: 8px 14px;
-  background: rgb(var(--glass-top) / 0.5);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid rgb(var(--cream-rgb) / 0.12);
+  width: 150px;
+  height: 30px;
+  padding: 0 12px;
+  background: rgb(var(--cream-rgb) / 0.05);
+  border: 1px solid transparent;
   border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgb(var(--cream-rgb) / 0.08);
   color: var(--cream);
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   outline: none;
-  transition: width 0.2s ease, border-color 0.2s ease;
+  transition: width 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .search-input:focus {
-  width: 220px;
-  border-color: rgb(var(--caramel-rgb) / 0.4);
+  width: 210px;
+  background: rgb(var(--cream-rgb) / 0.08);
+  border-color: rgb(var(--caramel-rgb) / 0.35);
 }
 
 .search-input::placeholder {
@@ -489,6 +449,246 @@ body::before {
   display: block;
   margin-top: 6px;
 }
+
+/* === 5b. Janela de configurações === */
+
+.settings-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--glass-backdrop) / 0.45);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+.settings-window {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: rgb(var(--glass-win) / 0.7);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  border: 1px solid rgb(var(--cream-rgb) / 0.14);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
+}
+
+.settings-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 9px 12px;
+  background: rgb(var(--cream-rgb) / 0.05);
+  border-bottom: 1px solid rgb(var(--cream-rgb) / 0.08);
+  cursor: grab;
+  user-select: none;
+}
+
+.settings-bar:active {
+  cursor: grabbing;
+}
+
+.settings-title {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.settings-bar .finder-actions {
+  margin-left: auto;
+  gap: 2px;
+}
+
+.settings-body {
+  padding: 18px 20px 22px;
+  overflow-y: auto;
+}
+
+.settings-group {
+  margin-bottom: 20px;
+}
+
+.settings-group:last-child {
+  margin-bottom: 0;
+}
+
+.settings-label {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.settings-row .pill-option {
+  width: auto;
+  padding: 7px 12px;
+  border: 1px solid rgb(var(--cream-rgb) / 0.1);
+  border-radius: 8px;
+  background: rgb(var(--cream-rgb) / 0.02);
+}
+
+.settings-row .pill-option:hover {
+  background: rgb(var(--cream-rgb) / 0.08);
+}
+
+.settings-row .pill-option[aria-pressed="true"] {
+  border-color: rgb(var(--caramel-rgb) / 0.5);
+  background: rgb(var(--caramel-rgb) / 0.12);
+  color: var(--caramel);
+}
+
+/* === 5c. Janela de notepad (scratch.md) === */
+
+.notes-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--glass-backdrop) / 0.45);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+.notepad-window {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  height: 70vh;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: rgb(var(--glass-win) / 0.7);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  border: 1px solid rgb(var(--cream-rgb) / 0.14);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgb(var(--cream-rgb) / 0.10);
+}
+
+.notepad-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 9px 12px;
+  background: rgb(var(--cream-rgb) / 0.05);
+  border-bottom: 1px solid rgb(var(--cream-rgb) / 0.08);
+  cursor: grab;
+  user-select: none;
+}
+
+.notepad-bar:active {
+  cursor: grabbing;
+}
+
+.notepad-filename {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.notepad-bar .finder-actions {
+  margin-left: auto;
+  gap: 2px;
+}
+
+.pad-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  padding: 18px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  caret-color: var(--caramel);
+}
+
+.pad-area::placeholder {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.pad-btn {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.pad-btn:hover {
+  border-color: rgb(var(--cream-rgb) / 0.12);
+}
+
+.pad-preview {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px;
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.pad-preview p { margin: 0 0 0.8em; }
+.pad-preview h1,
+.pad-preview h2,
+.pad-preview h3 {
+  color: var(--caramel);
+  line-height: 1.3;
+  margin: 1em 0 0.4em;
+}
+.pad-preview code {
+  background: rgb(var(--cream-rgb) / 0.08);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-family: var(--font-mono);
+}
+.pad-preview pre {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgb(var(--cream-rgb) / 0.08);
+  border-radius: 8px;
+  padding: 10px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+}
+.pad-preview blockquote {
+  margin: 0 0 0.8em;
+  padding-left: 10px;
+  border-left: 3px solid var(--coffee);
+  color: var(--muted);
+}
+.pad-preview a { color: var(--caramel); }
+.pad-preview ul,
+.pad-preview ol {
+  margin: 0 0 0.8em;
+  padding-left: 1.5em;
+}
+.pad-preview[hidden] { display: none; }
 
 /* === 5. Terminal (janela) === */
 
@@ -1758,13 +1958,17 @@ button.card-flat {
 /* ---- window feel ---- */
 .overlay.open .editor,
 .overlay.open .finder,
-.overlay.open .term-window {
+.overlay.open .term-window,
+.overlay.open .settings-window,
+.overlay.open .notepad-window {
   animation: window-in 0.16s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .overlay.open .overlay-backdrop,
 .overlay.open .fm-backdrop,
-.overlay.open .term-backdrop {
+.overlay.open .term-backdrop,
+.overlay.open .settings-backdrop,
+.overlay.open .notes-backdrop {
   animation: backdrop-in 0.18s ease;
 }
 
@@ -1878,27 +2082,23 @@ button.card-flat {
 
 @media (max-width: 560px) {
   .topbar {
+    top: 14px;
+    right: 14px;
     gap: 6px;
   }
 
-  .pill-btn {
-    min-width: 34px;
-    height: 34px;
-    padding: 0 10px;
-  }
-
   .search-input {
-    width: 88px;
-    padding: 7px 12px;
+    width: 96px;
+    font-size: 0.78rem;
   }
 
   .search-input:focus {
-    width: 120px;
+    width: 140px;
   }
 
   .clock {
-    padding: 6px 10px;
-    font-size: 0.78rem;
+    padding: 0 11px;
+    font-size: 0.76rem;
     gap: 4px;
   }
 

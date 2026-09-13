@@ -7,6 +7,7 @@ import { route } from './routing.js';
 import { loadRecentPosts, setupSearch } from './search.js';
 import { loadManifest } from './data.js';
 import { initTerminal, focusTerminal, runCommand } from './terminal.js';
+import { initNotepad, focusNotepad } from './notepad.js';
 import './theme.js';
 
 (function () {
@@ -102,26 +103,50 @@ import './theme.js';
     });
   }
 
-  // menu de display (Aa): abre no clique, fecha fora/Esc
-  const displayMenu = document.getElementById('display-menu');
-  const displayToggle = document.getElementById('display-toggle');
-  if (displayMenu && displayToggle) {
-    displayToggle.addEventListener('click', function () {
-      const open = displayMenu.classList.toggle('open');
-      displayToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    document.addEventListener('click', function (e) {
-      if (displayMenu.contains(e.target) || !displayMenu.classList.contains('open')) return;
-      displayMenu.classList.remove('open');
-      displayToggle.setAttribute('aria-expanded', 'false');
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape' || !displayMenu.classList.contains('open')) return;
-      displayMenu.classList.remove('open');
-      displayToggle.setAttribute('aria-expanded', 'false');
-      displayToggle.focus();
-    });
+  // janela de configurações (System Settings)
+  const settingsOverlay = document.getElementById('settings-overlay');
+  const settingsWindow = document.querySelector('#settings-overlay .settings-window');
+  const settingsClose = document.getElementById('settings-close');
+  const settingsBackdrop = document.getElementById('settings-backdrop');
+  makeWindow(
+    settingsWindow,
+    document.getElementById('settings-bar'),
+    document.querySelector('#settings-overlay .resize-handle')
+  );
+  makeMaximize(settingsWindow, document.getElementById('settings-maximize'));
+
+  function closeSettings() {
+    if (settingsOverlay) settingsOverlay.classList.remove('open');
   }
+  function openSettings() {
+    if (!settingsOverlay) return;
+    resetWindow(settingsWindow);
+    settingsOverlay.classList.add('open');
+    if (settingsClose) settingsClose.focus();
+  }
+  if (settingsClose) settingsClose.addEventListener('click', closeSettings);
+  if (settingsBackdrop) settingsBackdrop.addEventListener('click', closeSettings);
+
+  // janela de notepad
+  const notesOverlay = document.getElementById('notes-overlay');
+  const notepadWindow = document.querySelector('#notes-overlay .notepad-window');
+  const notepadClose = document.getElementById('notepad-close');
+  const notesBackdrop = document.getElementById('notes-backdrop');
+  makeWindow(notepadWindow, document.getElementById('notepad-bar'), document.querySelector('#notes-overlay .resize-handle'));
+  makeMaximize(notepadWindow, document.getElementById('notepad-maximize'));
+
+  function closeNotepad() {
+    if (notesOverlay) notesOverlay.classList.remove('open');
+  }
+  function openNotepad() {
+    if (!notesOverlay) return;
+    resetWindow(notepadWindow);
+    notesOverlay.classList.add('open');
+    focusNotepad();
+  }
+  if (notepadClose) notepadClose.addEventListener('click', closeNotepad);
+  if (notesBackdrop) notesBackdrop.addEventListener('click', closeNotepad);
+  initNotepad();
 
   if (articleOverlay) {
     const closeBtn = document.getElementById('overlay-close');
@@ -176,6 +201,8 @@ import './theme.js';
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       if (imgOverlay && imgOverlay.classList.contains('open')) { closeImageViewer(); return; }
+      if (settingsOverlay && settingsOverlay.classList.contains('open')) { closeSettings(); return; }
+      if (notesOverlay && notesOverlay.classList.contains('open')) { closeNotepad(); return; }
       if (termOverlay && termOverlay.classList.contains('open')) { closeTerminal(); return; }
       if (articleOverlay && articleOverlay.classList.contains('open')) closeArticle();
       else if (fmOverlay && fmOverlay.classList.contains('open')) closeFolder();
@@ -210,6 +237,18 @@ import './theme.js';
     if (termEl) {
       e.preventDefault();
       openTerminal();
+      return;
+    }
+    const settingsEl = e.target.closest('[data-dock-settings]');
+    if (settingsEl) {
+      e.preventDefault();
+      openSettings();
+      return;
+    }
+    const notesEl = e.target.closest('[data-dock-notes]');
+    if (notesEl) {
+      e.preventDefault();
+      openNotepad();
       return;
     }
     const groupEl = e.target.closest('[data-group]');

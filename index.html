@@ -11,37 +11,16 @@
 <body>
 
   <div class="topbar">
-    <div class="pill-menu" id="display-menu">
-      <button class="pill-btn" id="display-toggle" type="button" aria-label="Display settings" aria-haspopup="true">Aa</button>
-      <div class="pill-options display-options" role="group" aria-label="Display settings">
-        <p class="pill-group-label">theme</p>
-        <div class="pill-group" id="theme-menu">
-          <button class="pill-option" type="button" data-theme="dark" aria-pressed="false">Dark</button>
-          <button class="pill-option" type="button" data-theme="brown" aria-pressed="false">Brown</button>
-          <button class="pill-option" type="button" data-theme="black" aria-pressed="false">All black</button>
-          <button class="pill-option" type="button" data-theme="gray" aria-pressed="false">Gray</button>
-        </div>
-        <p class="pill-group-label">font</p>
-        <div class="pill-group" id="font-family-menu">
-          <button class="pill-option" type="button" data-font-family="sans" aria-pressed="false">Sans</button>
-          <button class="pill-option" type="button" data-font-family="serif" aria-pressed="false">Serif</button>
-          <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false">Mono</button>
-        </div>
-        <p class="pill-group-label">text size</p>
-        <div class="pill-group" id="font-menu">
-          <button class="pill-option" type="button" data-font-size="normal" aria-pressed="false">Normal</button>
-          <button class="pill-option" type="button" data-font-size="large" aria-pressed="false">Large</button>
-          <button class="pill-option" type="button" data-font-size="xl" aria-pressed="false">Extra large</button>
-        </div>
+    <div class="statusbar">
+      <div class="search">
+        <input class="search-input" id="search-input" type="text" placeholder="search" autocomplete="off" spellcheck="false" aria-label="Search posts">
+        <div class="search-results" id="search-results" hidden></div>
       </div>
-    </div>
-    <div class="search">
-      <input class="search-input" id="search-input" type="text" placeholder="search" autocomplete="off" spellcheck="false" aria-label="Search posts">
-      <div class="search-results" id="search-results" hidden></div>
-    </div>
-    <div class="clock">
-      <span class="clock-time">03:15</span>
-      <span class="ampm">AM</span>
+      <span class="status-sep" aria-hidden="true"></span>
+      <div class="clock">
+        <span class="clock-time">03:15</span>
+        <span class="ampm">AM</span>
+      </div>
     </div>
   </div>
 
@@ -102,6 +81,14 @@
     <button class="dock-item" type="button" data-dock-term aria-label="Terminal">
       <img src="assets/icons/terminal.svg" alt="">
       <span class="tooltip">terminal</span>
+    </button>
+    <button class="dock-item" type="button" data-dock-notes aria-label="Notepad">
+      <img src="assets/icons/notes.svg" alt="">
+      <span class="tooltip">notes</span>
+    </button>
+    <button class="dock-item" type="button" data-dock-settings aria-label="Settings">
+      <img src="assets/icons/settings.svg" alt="">
+      <span class="tooltip">settings</span>
     </button>
     <button class="dock-item" type="button" data-note="posts/about.md" aria-label="About">
       <img src="assets/icons/about.svg" alt="">
@@ -218,6 +205,65 @@
         <span class="prompt">guest@coffeeOS:~$</span>
         <input id="term-input" class="term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal command">
       </div>
+      <div class="resize-handle"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="settings-overlay">
+    <div class="settings-backdrop" id="settings-backdrop"></div>
+    <div class="settings-window" role="dialog" aria-modal="true" aria-label="Settings">
+      <div class="settings-bar" id="settings-bar">
+        <span class="settings-title">System Settings</span>
+        <div class="finder-actions">
+          <button class="editor-btn maximize-btn" id="settings-maximize" type="button" aria-label="Maximize">⤢</button>
+          <button class="editor-close" id="settings-close" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="settings-body">
+        <section class="settings-group">
+          <h3 class="settings-label">theme</h3>
+          <div class="settings-row" id="theme-menu">
+            <button class="pill-option" type="button" data-theme="dark" aria-pressed="false">Dark</button>
+            <button class="pill-option" type="button" data-theme="brown" aria-pressed="false">Brown</button>
+            <button class="pill-option" type="button" data-theme="black" aria-pressed="false">All black</button>
+            <button class="pill-option" type="button" data-theme="gray" aria-pressed="false">Gray</button>
+          </div>
+        </section>
+        <section class="settings-group">
+          <h3 class="settings-label">font</h3>
+          <div class="settings-row" id="font-family-menu">
+            <button class="pill-option" type="button" data-font-family="sans" aria-pressed="false">Sans</button>
+            <button class="pill-option" type="button" data-font-family="serif" aria-pressed="false">Serif</button>
+            <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false">Mono</button>
+          </div>
+        </section>
+        <section class="settings-group">
+          <h3 class="settings-label">text size</h3>
+          <div class="settings-row" id="font-menu">
+            <button class="pill-option" type="button" data-font-size="normal" aria-pressed="false">Normal</button>
+            <button class="pill-option" type="button" data-font-size="large" aria-pressed="false">Large</button>
+            <button class="pill-option" type="button" data-font-size="xl" aria-pressed="false">Extra large</button>
+          </div>
+        </section>
+      </div>
+      <div class="resize-handle"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="notes-overlay">
+    <div class="notes-backdrop" id="notes-backdrop"></div>
+    <div class="notepad-window" role="dialog" aria-modal="true" aria-label="Notepad">
+      <div class="notepad-bar" id="notepad-bar">
+        <span class="notepad-filename">scratch.md</span>
+        <div class="finder-actions">
+          <button class="editor-btn pad-btn" id="pad-preview" type="button">preview</button>
+          <button class="editor-btn pad-btn" id="pad-download" type="button" aria-label="Download as .md">download</button>
+          <button class="editor-btn maximize-btn" id="notepad-maximize" type="button" aria-label="Maximize">⤢</button>
+          <button class="editor-close" id="notepad-close" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <textarea class="pad-area" id="pad-area" placeholder="…" spellcheck="false" aria-label="Notepad"></textarea>
+      <div class="pad-preview" id="pad-preview-body" hidden></div>
       <div class="resize-handle"></div>
     </div>
   </div>
