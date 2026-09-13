@@ -1737,7 +1737,8 @@ body::before {
     gap: 4px;
   }
 
-  #theme-menu .pill-options {
+  #theme-menu .pill-options,
+  #article-font-menu .pill-options {
     left: 0;
     right: auto;
   }
