@@ -158,7 +158,13 @@ writeFileSync(
     '</urlset>\n'
 );
 
-console.log('build: ' + entries.length + ' páginas HTML + sitemap.xml');
+// índice leve (sem corpo) pra home/busca/finder não baixarem todos os .md
+const index = posts.map(function (p) {
+  return { path: p.relMd, group: p.relMd.split('/')[1], title: p.title, date: p.date };
+});
+writeFileSync(join(ROOT, 'posts', 'index.json'), JSON.stringify(index, null, 2) + '\n');
+
+console.log('build: ' + entries.length + ' páginas HTML + sitemap.xml + posts/index.json');
 if (!baseUrl) {
   console.log('  (aviso: BASE_URL não definida — canonical/og/sitemap ficaram com URL relativa)');
 }

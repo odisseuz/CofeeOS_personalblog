@@ -441,6 +441,22 @@ body::before {
   font-size: 1.05rem;
 }
 
+.hero-hint {
+  margin: 14px auto 0;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.hero-hint a {
+  color: var(--caramel);
+  text-decoration: none;
+}
+
+.hero-hint a:hover {
+  text-decoration: underline;
+}
+
 /* === 5. Terminal === */
 
 .terminal {

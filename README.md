@@ -9,13 +9,13 @@ Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem bundler nem CDN 
 ```
 index.html
 style.css
-build.js        # gera HTML estático dos posts (SEO) + sitemap.xml
+build.js        # gera HTML estático dos posts (SEO) + sitemap.xml + posts/index.json
 package.json    # "type": "module" (node roda os módulos ES)
 js/
   state.js      # estado global compartilhado
   markdown.js   # renderer de markdown (marked) + frontmatter
   vendor/       # marked + marked-footnote (self-hosted)
-  data.js       # manifest + lista de posts
+  data.js       # manifest + lista de posts (índice leve + corpos)
   windows.js    # arrastar/resize/maximize/focus-trap
   routing.js    # hash routing
   finder.js     # file manager
@@ -186,6 +186,10 @@ Como o site usa só caminhos relativos, ele funciona tanto em `usuario.github.io
 
 Os posts são carregados via `fetch` no navegador, o que os deixa invisíveis pra buscadores. O `build.js` resolve isso gerando, pra cada post, uma página HTML estática com `<title>`, meta description, Open Graph/Twitter e canonical — além de um `sitemap.xml`.
 
+Ele também gera o **`posts/index.json`**: uma lista leve com `path`, `group`, `title` e `date` de cada post (sem o corpo). A home usa esse índice pro card de "recent" e o file manager, evitando baixar todos os `.md` no carregamento. A busca e o `grep` do terminal procuram primeiro no índice (título/grupo) e só baixam os corpos se nada casar.
+
+Se o `index.json` não existir (ex.: rodando localmente sem build), o app cai automaticamente pro `manifest.json` + frontmatters.
+
 Pra rodar:
 
 ```
@@ -193,7 +197,7 @@ node build.js                                          # gera posts/**/*.html + 
 BASE_URL=https://usuario.github.io/repo node build.js  # URLs absolutas
 ```
 
-Os `.html` gerados e o `sitemap.xml` ficam no `.gitignore` e são **regenerados no CI** antes do deploy (o workflow roda `node build.js` com o `BASE_URL` correto).
+Os `.html` gerados, o `sitemap.xml` e o `posts/index.json` ficam no `.gitignore` e são **regenerados no CI** antes do deploy (o workflow roda `node build.js` com o `BASE_URL` correto).
 
 ## Rodar localmente
 

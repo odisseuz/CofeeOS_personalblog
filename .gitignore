@@ -44,3 +44,4 @@ env/
 # gerados pelo build.js (SEO)
 sitemap.xml
 posts/**/*.html
+posts/index.json

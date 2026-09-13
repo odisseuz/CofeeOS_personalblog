@@ -1,5 +1,5 @@
 // terminal
-import { loadManifest, getAllPosts } from './data.js';
+import { loadManifest, getPostIndex, getAllPosts } from './data.js';
 
 (function () {
   const term = document.getElementById('terminal');
@@ -126,10 +126,18 @@ import { loadManifest, getAllPosts } from './data.js';
     grep: function (args) {
       if (args.length === 0) return ['usage: grep <term>'];
       const term = args.join(' ').toLowerCase();
-      return getAllPosts().then(function (posts) {
-        const matches = posts.filter(function (p) {
-          return (p.title + ' ' + p.body).toLowerCase().indexOf(term) !== -1;
+      // metadados primeiro (leve); corpos só se nada casar no índice
+      return getPostIndex().then(function (index) {
+        const byMeta = index.filter(function (p) {
+          return (p.title + ' ' + p.group).toLowerCase().indexOf(term) !== -1;
         });
+        if (byMeta.length) return byMeta;
+        return getAllPosts().then(function (posts) {
+          return posts.filter(function (p) {
+            return (p.title + ' ' + p.body).toLowerCase().indexOf(term) !== -1;
+          });
+        });
+      }).then(function (matches) {
         if (!matches.length) return ['no matches'];
         return matches.map(function (p) {
           return p.title + '  (' + p.group + ')';

@@ -1,19 +1,23 @@
 // busca + card "recent"
-import { getAllPosts } from './data.js';
+import { getAllPosts, getPostIndex } from './data.js';
 import { state } from './state.js';
 import { openArticle } from './article.js';
 
+function byNewest(a, b) {
+  if (!a.date && !b.date) return 0;
+  if (!a.date) return 1;
+  if (!b.date) return -1;
+  return String(b.date).localeCompare(String(a.date));
+}
+
 export function loadRecentPosts() {
   const listEl = document.getElementById('recent-list');
+  const hintEl = document.getElementById('hero-hint');
+  const latestEl = document.getElementById('hero-latest');
   if (!listEl) return;
 
-  getAllPosts().then(function (posts) {
-    const sorted = posts.slice().sort(function (a, b) {
-      if (!a.date && !b.date) return 0;
-      if (!a.date) return 1;
-      if (!b.date) return -1;
-      return String(b.date).localeCompare(String(a.date));
-    });
+  getPostIndex().then(function (posts) {
+    const sorted = posts.slice().sort(byNewest);
 
     listEl.innerHTML = '';
 
@@ -22,7 +26,12 @@ export function loadRecentPosts() {
       li.className = 'recent-item muted';
       li.textContent = 'no posts yet';
       listEl.appendChild(li);
+      if (hintEl) hintEl.hidden = true;
       return;
+    }
+
+    if (latestEl) {
+      latestEl.setAttribute('data-note', sorted[0].path);
     }
 
     sorted.slice(0, 5).forEach(function (post) {
@@ -66,10 +75,21 @@ export function setupSearch() {
     if (!term) { hide(); return; }
     timer = setTimeout(function () {
       const q = term.toLowerCase();
-      getAllPosts().then(function (posts) {
-        const matches = posts.filter(function (p) {
-          return (p.title + ' ' + p.body).toLowerCase().indexOf(q) !== -1;
-        }).slice(0, 8);
+      // busca primeiro nos metadados (índice, leve); só baixa os corpos se
+      // nenhum título casar, pra não puxar todos os .md em toda digitação
+      getPostIndex().then(function (index) {
+        const byTitle = index.filter(function (p) {
+          return (p.title + ' ' + p.group).toLowerCase().indexOf(q) !== -1;
+        });
+        if (byTitle.length) return { matches: byTitle };
+        return getAllPosts().then(function (posts) {
+          const matches = posts.filter(function (p) {
+            return (p.title + ' ' + p.body).toLowerCase().indexOf(q) !== -1;
+          });
+          return { matches: matches };
+        });
+      }).then(function (result) {
+        const matches = result.matches.slice(0, 8);
 
         results.innerHTML = '';
         if (!matches.length) {

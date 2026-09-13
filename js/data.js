@@ -13,7 +13,55 @@ export function loadManifest() {
 
 let postsCache = null;
 
-// NOTE: baixa o corpo de todos os posts (ok enquanto o blog for pequeno)
+// lista leve (sem corpo) — vem do posts/index.json gerado pelo build.js;
+// se o arquivo não existir (dev, file://), cai pro manifest + frontmatters
+export function getPostIndex() {
+  if (indexCache) return Promise.resolve(indexCache);
+  return fetch('posts/index.json')
+    .then(function (res) {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .catch(function () { return buildIndexFromManifest(); })
+    .then(function (list) {
+      indexCache = list;
+      return list;
+    });
+}
+
+let indexCache = null;
+
+function buildIndexFromManifest() {
+  return loadManifest().then(function (manifest) {
+    const entries = [];
+    Object.keys(manifest).forEach(function (group) {
+      (manifest[group] || []).forEach(function (name) {
+        entries.push({ group: group, path: 'posts/' + group + '/' + name });
+      });
+    });
+    return Promise.all(entries.map(function (entry) {
+      return fetch(entry.path)
+        .then(function (res) {
+          if (!res.ok) throw new Error();
+          return res.text();
+        })
+        .then(function (text) {
+          const parsed = parseFrontmatter(text);
+          return {
+            path: entry.path,
+            group: entry.group,
+            title: parsed.data.title || entry.path.split('/').pop().replace(/\.md$/, ''),
+            date: parsed.data.date || ''
+          };
+        })
+        .catch(function () {
+          return { path: entry.path, group: entry.group, title: entry.path.split('/').pop().replace(/\.md$/, ''), date: '' };
+        });
+    }));
+  });
+}
+
+// NOTE: baixa o corpo de todos os posts — usado só pela busca (sob demanda)
 export function getAllPosts() {
   if (postsCache) return Promise.resolve(postsCache);
   return loadManifest().then(function (manifest) {

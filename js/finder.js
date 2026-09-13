@@ -1,6 +1,6 @@
 // file manager
 import { fmOverlay, state } from './state.js';
-import { loadManifest, getAllPosts, flattenManifest, listLevel, groupIcon } from './data.js';
+import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon } from './data.js';
 import { resetWindow, setBackdropInert } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
 
@@ -61,7 +61,7 @@ export function renderFinder() {
   if (pathInput) pathInput.value = state.currentPath.length ? '~/' + state.currentPath.join('/') : '~';
   if (backBtn) backBtn.style.visibility = state.currentPath.length ? 'visible' : 'hidden';
 
-  Promise.all([loadManifest(), getAllPosts()]).then(function (results) {
+  Promise.all([loadManifest(), getPostIndex()]).then(function (results) {
     const manifest = results[0];
     const posts = results[1];
     const byPath = {};
