@@ -19,8 +19,8 @@ MANIFEST = os.path.join(POSTS, "manifest.json")
 # Root-level files that aren't part of any group.
 SPECIAL = {"about.md", "example.md"}
 
-# .md files that aren't posts (no frontmatter) — skipped entirely.
-IGNORE = {"LICENSE.md"}
+# .md files that aren't posts (no frontmatter is not required) — skipped entirely.
+IGNORE = {"LICENSE.md", "LICENSE-MIT.md"}
 
 DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$")

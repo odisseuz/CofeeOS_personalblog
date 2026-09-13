@@ -42,13 +42,6 @@ export function loadRecentPosts() {
       meta.className = 'recent-item-meta';
       meta.textContent = post.group + (post.date ? ' · ' + post.date : '');
 
-      if (i === 0) {
-        const label = document.createElement('span');
-        label.className = 'recent-latest-label';
-        label.textContent = 'latest';
-        link.appendChild(label);
-      }
-
       link.appendChild(title);
       link.appendChild(meta);
       li.appendChild(link);

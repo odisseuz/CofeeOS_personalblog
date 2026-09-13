@@ -450,7 +450,7 @@ body::before {
 
 .hero {
   text-align: center;
-  padding: 14vh 0 56px;
+  padding: 15vh 0 72px;
 }
 
 .hero h1 {
@@ -473,19 +473,9 @@ body::before {
 /* item mais recente, em destaque dentro do card "recent" */
 .recent-item.is-latest {
   display: block;
-  padding: 16px 0 18px;
+  padding: 4px 0 18px;
   margin-bottom: 4px;
   border-bottom: 1px solid rgb(var(--cream-rgb) / 0.1);
-}
-
-.recent-latest-label {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
 }
 
 .recent-item.is-latest .recent-item-title {
@@ -551,16 +541,6 @@ body::before {
   margin-left: auto;
   gap: 2px;
 }
-
-.dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-}
-
-.dot-red    { background: #ff5f57; }
-.dot-yellow { background: #febc2e; }
-.dot-green  { background: #28c840; }
 
 .term-title {
   margin-left: 8px;
@@ -689,43 +669,23 @@ button.card-flat {
   color: var(--caramel);
 }
 
-.about-card {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  padding: 20px 0 0;
+.footer-link {
+  padding: 0;
   background: none;
   border: none;
-  border-top: 1px solid rgb(var(--cream-rgb) / 0.07);
-  color: var(--cream);
-  font-family: var(--font-body);
-  font-size: 0.95rem;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-.about-card .muted {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-}
-
-.about-card:hover .about-title {
-  color: var(--cream);
-}
-
-.about-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-display);
-  font-size: 1.4rem;
+.footer-link:hover {
   color: var(--caramel);
 }
 
-.about-title img {
-  width: 22px;
-  height: 22px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+.footer-link:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: 2px;
 }
 
 .recent-title {
@@ -872,34 +832,34 @@ button.card-flat {
   transform: translateX(-50%) translateY(0);
 }
 
-/* === 8. Pastas da home === */
+/* === 8. Pastas da home (ícones de OS) === */
 
 .folders {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
   margin: 34px 0;
 }
 
 .folder {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 18px;
-  background: rgb(var(--cream-rgb) / 0.025);
-  border: 1px solid rgb(var(--cream-rgb) / 0.07);
-  border-radius: 16px;
+  gap: 10px;
+  padding: 18px 10px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 14px;
   color: var(--cream);
   font-family: var(--font-body);
-  font-size: 1rem;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
-  transition: background 0.25s ease, border-color 0.25s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .folder:hover {
-  background: rgb(var(--cream-rgb) / 0.04);
-  border-color: rgb(var(--caramel-rgb) / 0.18);
+  background: rgb(var(--cream-rgb) / 0.05);
+  border-color: rgb(var(--cream-rgb) / 0.09);
 }
 
 .folder:focus-visible {
@@ -908,22 +868,23 @@ button.card-flat {
 }
 
 .folder img {
-  width: 26px;
-  height: 26px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  width: 46px;
+  height: 46px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
 }
 
 .folder-name {
-  flex: 1;
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
   color: var(--cream);
 }
 
 .folder-count {
   color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.7rem;
+  white-space: nowrap;
 }
 
 /* === 9. Janela de artigo (editor) === */
@@ -1789,7 +1750,6 @@ button.card-flat {
 /* === 13. Estados de foco === */
 
 .dock-item:focus-visible,
-.about-card:focus-visible,
 .recent-item:focus-visible {
   outline: 2px solid var(--caramel);
   outline-offset: 2px;
@@ -1798,10 +1758,6 @@ button.card-flat {
 .term-bar:focus-visible {
   outline: 2px solid var(--caramel);
   outline-offset: -2px;
-}
-
-.terminal:focus-within {
-  border-color: rgb(var(--caramel-rgb) / 0.5);
 }
 
 /* páginas estáticas geradas pelo build.js (SEO) */
@@ -1906,7 +1862,17 @@ button.card-flat {
   }
 
   .folders {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+  }
+
+  .folder {
+    padding: 14px 6px;
+  }
+
+  .folder img {
+    width: 38px;
+    height: 38px;
   }
 
   .card-soft,
