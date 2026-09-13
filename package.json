@@ -2,6 +2,8 @@
   "type": "module",
   "scripts": {
     "build": "node build.js",
-    "test": "node .github/scripts/check_render.js"
+    "test": "node .github/scripts/check_render.js && bash .github/scripts/check_cli.sh",
+    "test:cli": "bash .github/scripts/check_cli.sh",
+    "test:render": "node .github/scripts/check_render.js"
   }
 }

@@ -47,11 +47,15 @@
   --scroll-track: #0d1117;
   --scroll-thumb: #30363d;
 
+  /* ícones Lucide: cor assada escura; nos temas escuros invertemos pra claro.
+     Sem opacity: ícone pequeno precisa de contraste, não de sutileza.
+     O drop-shadow vive aqui dentro pra manter um único filter válido. */
+  --icon-filter: invert(1) brightness(1.75) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+
   /* sombras e escurecimentos — cada tema define os seus */
   --shadow-1: 0 8px 26px rgba(0, 0, 0, 0.35);
   --shadow-2: 0 12px 40px rgba(0, 0, 0, 0.5);
   --shadow-3: 0 20px 50px rgba(0, 0, 0, 0.55);
-  --shadow-icon: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
   --ink: rgba(0, 0, 0, 0.35);
   --ink-soft: rgba(0, 0, 0, 0.16);
   --ink-faint: rgba(0, 0, 0, 0.12);
@@ -84,6 +88,8 @@
   --glow-rgb: 120 78 50;
   --scroll-track: #140c08;
   --scroll-thumb: #3a2618;
+
+  --icon-filter: invert(1) brightness(1.7) sepia(0.55) saturate(1.6) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
 }
 
 [data-theme="black"] {
@@ -109,6 +115,8 @@
   --glow-rgb: 80 80 80;
   --scroll-track: #000000;
   --scroll-thumb: #2a2a2a;
+
+  --icon-filter: invert(1) brightness(1.7) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
 }
 
 /* creme — papel quente, pra leitura longa */
@@ -137,10 +145,12 @@
   --scroll-track: #e8dcc6;
   --scroll-thumb: #c9b89c;
 
+  /* tema claro: o ícone escuro já aparece bem, só um drop-shadow suave */
+  --icon-filter: brightness(1) drop-shadow(0 2px 4px rgba(80, 60, 40, 0.25));
+
   --shadow-1: 0 8px 26px rgba(80, 60, 40, 0.12);
   --shadow-2: 0 12px 40px rgba(80, 60, 40, 0.16);
   --shadow-3: 0 20px 50px rgba(80, 60, 40, 0.2);
-  --shadow-icon: drop-shadow(0 2px 4px rgba(80, 60, 40, 0.22));
   --ink: rgba(80, 60, 40, 0.1);
   --ink-soft: rgba(80, 60, 40, 0.06);
   --ink-faint: rgba(80, 60, 40, 0.04);
@@ -172,10 +182,12 @@
   --scroll-track: #eef1f4;
   --scroll-thumb: #c6cdd5;
 
+  /* tema claro: o ícone escuro já aparece bem, só um drop-shadow suave */
+  --icon-filter: brightness(1) drop-shadow(0 2px 4px rgba(31, 35, 40, 0.2));
+
   --shadow-1: 0 8px 26px rgba(31, 35, 40, 0.1);
   --shadow-2: 0 12px 40px rgba(31, 35, 40, 0.14);
   --shadow-3: 0 20px 50px rgba(31, 35, 40, 0.18);
-  --shadow-icon: drop-shadow(0 2px 4px rgba(31, 35, 40, 0.18));
   --ink: rgba(31, 35, 40, 0.08);
   --ink-soft: rgba(31, 35, 40, 0.05);
   --ink-faint: rgba(31, 35, 40, 0.03);
@@ -496,7 +508,9 @@ body::before {
 
 .hero {
   text-align: center;
-  padding: 15vh 0 72px;
+  /* clamp: em janelas baixas o vh cresce justamente quando falta espaço,
+     e o Safari não rola até o elemento focável (pulando as pastas no Tab) */
+  padding: clamp(24px, 15vh, 140px) 0 clamp(32px, 8vh, 72px);
 }
 
 .hero h1 {
@@ -1070,7 +1084,7 @@ button.card-soft {
   width: 30px;
   height: 30px;
   pointer-events: none;
-  filter: var(--shadow-icon);
+  filter: var(--icon-filter);
   transition: transform 0.18s ease;
 }
 
@@ -1181,6 +1195,7 @@ button.card-soft {
 .dock-pop-item img {
   width: 20px;
   height: 20px;
+  filter: var(--icon-filter);
 }
 
 .dock-pop-item:focus-visible {
@@ -1226,7 +1241,7 @@ button.card-soft {
 .folder img {
   width: 46px;
   height: 46px;
-  filter: var(--shadow-icon);
+  filter: var(--icon-filter);
   transition: transform 0.2s ease;
 }
 
@@ -2079,7 +2094,7 @@ body.chrome-dim .editor-bar {
 .finder-file .file-icon {
   width: 24px;
   height: 24px;
-  filter: var(--shadow-icon);
+  filter: var(--icon-filter);
 }
 
 .finder-file .file-name {

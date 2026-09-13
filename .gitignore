@@ -41,6 +41,13 @@ env/
 *.log
 *.tmp
 
+# pacotes de ícones baixados (não versionados) — NÃO use padrões que casem
+# assets/icons/, que É versionado
+*.zip
+*.zip.download/
+*.tar.gz
+papirus-icon-theme*
+
 # gerados pelo build.js (SEO)
 sitemap.xml
 posts/**/*.html

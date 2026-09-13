@@ -1,7 +1,7 @@
 // file manager
 import { fmOverlay, state } from './state.js';
 import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon } from './data.js';
-import { resetWindow, setBackdropInert } from './windows.js';
+import { resetWindow, notifyOverlayChange, makeTabbable } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
 
 export function updateDockActive(key) {
@@ -24,8 +24,7 @@ export function openFolder(segments) {
   renderFinder();
   resetWindow(document.querySelector('#fm-overlay .finder'));
   fmOverlay.classList.add('open');
-  setBackdropInert(true);
-  document.body.style.overflow = 'hidden';
+  notifyOverlayChange();
   const closeBtn = document.getElementById('fm-close');
   if (closeBtn) closeBtn.focus();
   updateDockActive(state.currentPath.length ? state.currentPath[0] : 'home');
@@ -77,6 +76,7 @@ export function renderFinder() {
       const row = document.createElement('button');
       row.className = 'finder-file finder-folder';
       row.type = 'button';
+      makeTabbable(row);
       row.setAttribute('data-folder', folder);
 
       const icon = document.createElement('img');
@@ -98,11 +98,12 @@ export function renderFinder() {
       const row = document.createElement('button');
       row.className = 'finder-file';
       row.type = 'button';
+      makeTabbable(row);
       row.setAttribute('data-file', path);
 
       const icon = document.createElement('img');
       icon.className = 'file-icon';
-      icon.src = 'assets/icons/file.svg';
+      icon.src = 'assets/icons/lucide/file.svg';
       icon.alt = '';
 
       const name = document.createElement('span');
@@ -137,8 +138,7 @@ export function closeFolder() {
   state.articleFromFinder = false;
   fmOverlay.classList.remove('open');
   fmOverlay.classList.remove('dimmed');
-  setBackdropInert(false);
-  document.body.style.overflow = '';
+  notifyOverlayChange();
   setHash('#/');
   if (state.lastFocus && state.lastFocus.focus) state.lastFocus.focus();
   updateDockActive(null);

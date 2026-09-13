@@ -1,5 +1,5 @@
 // terminal
-import { loadManifest, getPostIndex, getAllPosts } from './data.js';
+import { getPostIndex, getAllPosts } from './data.js';
 
 const PROMPT = 'guest@coffeeOS:~$';
 const THEMES = ['blue', 'brown', 'black', 'cream', 'light'];

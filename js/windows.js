@@ -114,8 +114,49 @@ export function trapFocus(container, e) {
   }
 }
 
-// conteúdo de trás fica inerte quando há modal
-export function setBackdropInert(on) {
+// lista de overlays conhecidos, na ordem em que costumam se sobrepor
+const OVERLAY_IDS = [
+  'img-overlay', 'term-overlay', 'settings-overlay', 'notes-overlay',
+  'overlay', 'fm-overlay'
+];
+
+// devolve o overlay aberto de maior z-index (a janela da frente), ou null
+export function frontOverlay() {
+  const ids = OVERLAY_IDS;
+  const open = ids
+    .map(function (id) { return document.getElementById(id); })
+    .filter(function (el) { return el && el.classList.contains('open'); });
+  if (!open.length) return null;
+  return open.reduce(function (a, b) {
+    const za = parseInt(getComputedStyle(a).zIndex, 10) || 0;
+    const zb = parseInt(getComputedStyle(b).zIndex, 10) || 0;
+    return zb >= za ? b : a;
+  });
+}
+
+// Safari (macOS) não inclui <button> na navegação por Tab — só inputs, links e
+// selects. Um tabindex explícito devolve os botões à ordem do Tab, e não muda
+// nada nos navegadores onde já funcionavam. Use em qualquer <button> criado
+// em runtime (os estáticos do index.html já vêm com tabindex no HTML).
+export function makeTabbable(el) {
+  if (el && el.tagName === 'BUTTON' && !el.hasAttribute('tabindex')) {
+    el.setAttribute('tabindex', '0');
+  }
+  return el;
+}
+
+// evento: um overlay mudou de estado (abriu/fechou). Quem centraliza o
+// inert/scroll escuta e reavalia qual janela está na frente (ver main.js).
+export function notifyOverlayChange() {
+  document.dispatchEvent(new CustomEvent('coffee:overlay'));
+}
+
+// conteúdo de trás fica inerte quando há modal.
+//
+// Marca inert em tudo que é "fundo" (main, dock, topbar) e nos OUTROS overlays
+// abertos, pra que o leitor de tela e o Tab só alcancem a janela da frente.
+// `activeEl` é o overlay da janela em uso (ou null pra liberar tudo).
+export function setBackdropInert(on, activeEl) {
   const background = [
     document.querySelector('main'),
     document.querySelector('.dock'),
@@ -126,5 +167,10 @@ export function setBackdropInert(on) {
       if (on) el.setAttribute('inert', '');
       else el.removeAttribute('inert');
     }
+  });
+
+  document.querySelectorAll('.overlay').forEach(function (ov) {
+    if (on && ov !== activeEl) ov.setAttribute('inert', '');
+    else ov.removeAttribute('inert');
   });
 }

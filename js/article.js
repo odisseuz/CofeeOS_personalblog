@@ -1,7 +1,7 @@
 // artigo (overlay) + notas
 import { articleOverlay, fmOverlay, originalTitle, state } from './state.js';
 import { escapeHtml, renderMarkdown, parseFrontmatter } from './markdown.js';
-import { resetWindow, setBackdropInert } from './windows.js';
+import { resetWindow, notifyOverlayChange, makeTabbable } from './windows.js';
 import { setHash, hashForFile, hashForFolder } from './routing.js';
 import { groupFromFile } from './data.js';
 import { updateDockActive } from './finder.js';
@@ -139,8 +139,7 @@ export function openArticle(file) {
     articleOverlay.classList.remove('over-finder');
   }
   articleOverlay.classList.add('open');
-  setBackdropInert(true);
-  document.body.style.overflow = 'hidden';
+  notifyOverlayChange();
   const closeBtn = document.getElementById('overlay-close');
   if (closeBtn) closeBtn.focus();
   setHash(hashForFile(file));
@@ -155,12 +154,11 @@ export function closeArticle() {
   if (state.articleFromFinder) {
     state.articleFromFinder = false;
     fmOverlay.classList.remove('dimmed');
-    document.body.style.overflow = 'hidden';
+    notifyOverlayChange();
     setHash(hashForFolder(state.currentPath));
     updateDockActive(state.currentPath.length ? state.currentPath[0] : 'home');
   } else {
-    setBackdropInert(false);
-    document.body.style.overflow = '';
+    notifyOverlayChange();
     setHash('#/');
     updateDockActive(null);
   }
@@ -176,7 +174,7 @@ function contactFormHtml() {
     '<textarea id="contact-message" aria-label="Message" placeholder="your message…" spellcheck="false"></textarea>' +
     '<div class="contact-form-row">' +
     '<input id="contact-email" type="email" aria-label="Your email" placeholder="your email (so I can reply)" autocomplete="off" spellcheck="false">' +
-    '<button id="contact-send" type="button">send</button>' +
+    '<button id="contact-send" type="button" tabindex="0">send</button>' +
     '</div>' +
     '</div>';
 }
@@ -231,6 +229,7 @@ function buildToc(container) {
     const link = document.createElement('button');
     link.type = 'button';
     link.className = 'toc-link toc-l' + level;
+    makeTabbable(link);
     link.textContent = h.textContent;
     link.addEventListener('click', function () {
       scrollBodyTo(container, h, reduceMotion);

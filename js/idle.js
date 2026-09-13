@@ -1,6 +1,7 @@
 // modo fantasma: parado um tempo, o chrome da janela do artigo esmaece.
 // volta ao normal com atividade real (mouse que se moveu de verdade, tecla, scroll, toque).
-import { articleOverlay, fmOverlay } from './state.js';
+import { articleOverlay } from './state.js';
+import { frontOverlay } from './windows.js';
 
 const IDLE_MS = 15000;
 
@@ -11,14 +12,7 @@ let lastY = null;
 
 // o artigo precisa estar aberto E ser a janela da frente
 function isArticleActive() {
-  if (!articleOverlay || !articleOverlay.classList.contains('open')) return false;
-  const others = ['#term-overlay', '#settings-overlay', '#notes-overlay', '#img-overlay'];
-  for (const sel of others) {
-    const el = document.querySelector(sel);
-    if (el && el.classList.contains('open')) return false;
-  }
-  if (fmOverlay && fmOverlay.classList.contains('open')) return false;
-  return true;
+  return !!articleOverlay && articleOverlay.classList.contains('open') && frontOverlay() === articleOverlay;
 }
 
 function wake() {

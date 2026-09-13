@@ -2,6 +2,7 @@
 import { getAllPosts, getPostIndex } from './data.js';
 import { state } from './state.js';
 import { openArticle } from './article.js';
+import { makeTabbable } from './windows.js';
 
 function byNewest(a, b) {
   if (!a.date && !b.date) return 0;
@@ -98,6 +99,7 @@ export function setupSearch() {
           const btn = document.createElement('button');
           btn.className = 'search-item';
           btn.type = 'button';
+          makeTabbable(btn);
           btn.setAttribute('data-file', post.path);
 
           const title = document.createElement('span');

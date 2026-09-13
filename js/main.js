@@ -1,5 +1,5 @@
 // wiring
-import { makeWindow, resetWindow, makeMaximize, trapFocus } from './windows.js';
+import { makeWindow, resetWindow, makeMaximize, trapFocus, setBackdropInert, frontOverlay } from './windows.js';
 import { articleOverlay, fmOverlay, state } from './state.js';
 import { closeArticle, openArticle, setNotesMode, downloadNotes, saveNotes } from './article.js';
 import { closeFolder, navigateUp, navigateInto, renderFinder, applyFinderFilter, openFolder } from './finder.js';
@@ -11,6 +11,28 @@ import { initNotepad, focusNotepad } from './notepad.js';
 import { initIdleChrome } from './idle.js';
 import './theme.js';
 import { setTheme } from './theme.js';
+
+// sincroniza inert/scroll: nada de fundo focável enquanto houver janela aberta
+function syncInert() {
+  const front = frontOverlay();
+  setBackdropInert(!!front, front);
+  document.body.style.overflow = front ? 'hidden' : '';
+}
+
+// acessibilidade: guarda quem tinha o foco ao abrir uma janela e devolve ao
+// fechar — pro teclado não voltar pro topo da página sem aviso.
+let focusBefore = null;
+function rememberFocus() {
+  const el = document.activeElement;
+  focusBefore = (el && el !== document.body) ? el : null;
+}
+function restoreFocus() {
+  if (!frontOverlay() && focusBefore && focusBefore.focus) focusBefore.focus();
+  focusBefore = null;
+}
+
+// os módulos avisam quando um overlay abre/fecha; aqui a gente reavalia.
+document.addEventListener('coffee:overlay', syncInert);
 
 (function () {
   makeWindow(
@@ -46,13 +68,17 @@ import { setTheme } from './theme.js';
   function closeImageViewer() {
     if (imgOverlay) imgOverlay.classList.remove('open');
     if (imgView) imgView.removeAttribute('src');
+    syncInert();
+    restoreFocus();
   }
   function openImageViewer(src) {
     if (!imgOverlay || !imgView) return;
+    rememberFocus();
     resetWindow(imgViewer);
     imgView.src = src;
     if (imgFilename) imgFilename.textContent = src.split('/').pop() || 'image';
     imgOverlay.classList.add('open');
+    syncInert();
     if (imgClose) imgClose.focus();
   }
 
@@ -75,11 +101,15 @@ import { setTheme } from './theme.js';
 
   function closeTerminal() {
     if (termOverlay) termOverlay.classList.remove('open');
+    syncInert();
+    restoreFocus();
   }
   function openTerminal() {
     if (!termOverlay) return;
+    rememberFocus();
     resetWindow(termWindow);
     termOverlay.classList.add('open');
+    syncInert();
     focusTerminal();
   }
   if (termClose) termClose.addEventListener('click', closeTerminal);
@@ -120,11 +150,15 @@ import { setTheme } from './theme.js';
 
   function closeSettings() {
     if (settingsOverlay) settingsOverlay.classList.remove('open');
+    syncInert();
+    restoreFocus();
   }
   function openSettings() {
     if (!settingsOverlay) return;
+    rememberFocus();
     resetWindow(settingsWindow);
     settingsOverlay.classList.add('open');
+    syncInert();
     if (settingsClose) settingsClose.focus();
   }
   if (settingsToggle) settingsToggle.addEventListener('click', openSettings);
@@ -141,11 +175,15 @@ import { setTheme } from './theme.js';
 
   function closeNotepad() {
     if (notesOverlay) notesOverlay.classList.remove('open');
+    syncInert();
+    restoreFocus();
   }
   function openNotepad() {
     if (!notesOverlay) return;
+    rememberFocus();
     resetWindow(notepadWindow);
     notesOverlay.classList.add('open');
+    syncInert();
     focusNotepad();
   }
   if (notepadClose) notepadClose.addEventListener('click', closeNotepad);
@@ -250,13 +288,26 @@ import { setTheme } from './theme.js';
     }
     if (e.key !== 'Tab') return;
 
-    let container = null;
-    if (articleOverlay && articleOverlay.classList.contains('open')) {
-      container = articleOverlay.querySelector('.editor');
-    } else if (fmOverlay && fmOverlay.classList.contains('open')) {
-      container = fmOverlay.querySelector('.finder');
+    // trava o foco dentro da janela da frente (qualquer uma, não só artigo/finder)
+    const front = frontOverlay();
+    if (!front) return;
+    const dialog = front.querySelector('[role="dialog"]');
+    if (dialog) trapFocus(dialog, e);
+  });
+
+  // Safari (janelas baixas) não rola até o elemento focado — o Tab então pula
+  // o que está fora da vista e o foco "some". Rolar aqui resolve pra todos.
+  document.addEventListener('focusin', function (e) {
+    const el = e.target;
+    if (!el || el === document.body) return;
+    if (el.closest('.overlay')) return;          // janelas têm o seu próprio scroll
+    const r = el.getBoundingClientRect();
+    const margem = 24;
+    if (r.top < margem) {
+      window.scrollBy({ top: r.top - margem });
+    } else if (r.bottom > window.innerHeight - margem) {
+      window.scrollBy({ top: r.bottom - window.innerHeight + margem });
     }
-    if (container) trapFocus(container, e);
   });
 
   document.addEventListener('click', function (e) {

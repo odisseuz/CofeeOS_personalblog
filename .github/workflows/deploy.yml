@@ -29,6 +29,8 @@ jobs:
         run: python3 .github/scripts/check_manifest.py
       - name: Smoke test (markdown)
         run: node .github/scripts/check_render.js
+      - name: Test CLI
+        run: bash .github/scripts/check_cli.sh
 
   deploy:
     needs: validate

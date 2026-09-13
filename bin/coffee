@@ -1,0 +1,235 @@
+#!/usr/bin/env bash
+#
+# coffee — CLI do midnight coffee
+#
+#   coffee new <grupo>/[subpasta/]nome.md   cria o .md e registra no manifest
+#   coffee rm  <grupo>/[subpasta/]nome.md   remove o .md e tira do manifest
+#   coffee ls [grupo]                       lista os posts
+#   coffee status                           visão geral
+#   coffee check                            valida (igual ao CI)
+#   coffee serve [porta]                    servidor local, sem cache
+#
+# Bash 3.2 (o do macOS) + python3 (que o build já usa).
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+POSTS="$ROOT/posts"
+MANIFEST="$POSTS/manifest.json"
+TOOL="$ROOT/bin/lib/manifest_tool.py"
+KNOW="readings art games science"
+
+die() { printf 'coffee: %s\n' "$*" >&2; exit 1; }
+
+usage() {
+  cat <<'EOF'
+coffee — midnight coffee
+
+  new <grupo>/[subpasta/]nome.md   cria o .md e registra no manifest
+  rm  <grupo>/[subpasta/]nome.md   remove o .md e tira do manifest
+  ls [grupo]                       lista os posts (título e data)
+  status                           visão geral: o que está ok e o que falta
+  check                            valida manifest + frontmatter (igual ao CI)
+  verify                           roda todas as checagens
+  serve [porta]                    servidor local, sem cache (padrão 8000)
+EOF
+}
+
+# aceita "science/x.md", "posts/science/x.md", "/science/x.md", sem o .md
+norm() {
+  local p="$1"
+  p="${p#posts/}"; p="${p#/}"
+  case "$p" in *.md) ;; *) p="$p.md" ;; esac
+  printf '%s' "$p"
+}
+
+cmd_new() {
+  [ $# -ge 1 ] || die "uso: coffee new <grupo>/[subpasta/]nome.md"
+  local rel group inner abs
+  rel="$(norm "$1")"
+  group="${rel%%/*}"
+  inner="${rel#*/}"
+  abs="$POSTS/$rel"
+
+  [ "$group" != "$rel" ] || die "comece com um grupo (ex.: science/meu-post.md)"
+  [ -e "$abs" ] && die "já existe: posts/$rel"
+
+  case " $KNOW " in
+    *" $group "*) ;;
+    *) printf 'aviso: "%s" não é um grupo da home (%s)\n' "$group" "$KNOW" >&2
+       printf 'continuar? [y/N] ' >&2
+       read -r ans
+       case "$ans" in y|Y) ;; *) die "cancelado" ;; esac ;;
+  esac
+
+  mkdir -p "$(dirname "$abs")"
+  printf -- '---\ntitle: %s\ndate: %s\n---\n\n' "$(basename "$rel" .md)" "$(date +%Y-%m-%d)" > "$abs"
+  local has=0
+  python3 "$TOOL" has "$rel" || has=$?
+  [ "$has" = 2 ] && die "criei o arquivo, mas posts/manifest.json está inválido — corrija e registre manualmente"
+  if [ "$has" = 1 ]; then
+    python3 "$TOOL" add "$group" "$inner" || die "criei o arquivo, mas falhei ao registrar no manifest — confira posts/manifest.json"
+  fi
+
+  printf 'criado: posts/%s\n' "$rel"
+}
+
+cmd_rm() {
+  [ $# -ge 1 ] || die "uso: coffee rm <grupo>/[subpasta/]nome.md"
+  local rel abs dir
+  rel="$(norm "$1")"
+  abs="$POSTS/$rel"
+  [ -f "$abs" ] || die "não encontrei: posts/$rel"
+
+  rm -f "$abs"
+  # tira do manifest; se o manifest estiver inválido, avisa (o arquivo já foi removido)
+  local has=0
+  python3 "$TOOL" has "$rel" || has=$?
+  [ "$has" = 2 ] && die "removi o arquivo, mas posts/manifest.json está inválido — tire a entrada manualmente"
+  if [ "$has" = 0 ]; then
+    python3 "$TOOL" remove "$rel" || die "removi o arquivo, mas falhei ao atualizar o manifest — confira posts/manifest.json"
+  fi
+
+  dir="$(dirname "$abs")"          # limpa subpastas que ficaram vazias
+  while [ "$dir" != "$POSTS" ] && [ -d "$dir" ]; do
+    rmdir "$dir" 2>/dev/null || break
+    dir="$(dirname "$dir")"
+  done
+  printf 'removido: posts/%s\n' "$rel"
+}
+
+cmd_ls() {
+  python3 - "$MANIFEST" "${1:-}" <<'PY'
+import json, os, re, sys
+manifest, only = sys.argv[1], sys.argv[2]
+data = json.load(open(manifest, encoding="utf-8"))
+base = os.path.dirname(manifest)
+rows = []
+for g, items in data.items():
+    if only and g != only:
+        continue
+    for it in items:
+        p = os.path.join(base, g, it)
+        title = date = ""
+        try:
+            m = re.match(r"^---\n(.*?)\n---", open(p, encoding="utf-8").read(), re.S)
+            for line in (m.group(1).splitlines() if m else []):
+                k, _, v = line.partition(":")
+                if k.strip() == "title": title = v.strip()
+                if k.strip() == "date": date = v.strip()
+        except OSError:
+            pass
+        rows.append((g, it, title or it, date))
+if not rows:
+    print("(nenhum post" + (f" em {only}" if only else "") + ")")
+    sys.exit(0)
+for g, it, title, date in sorted(rows):
+    print(f"{g:<10} {date:<12} {title}")
+    print(f"  {g}/{it}")
+PY
+}
+
+cmd_check() {
+  python3 "$ROOT/.github/scripts/check_manifest.py"
+}
+
+cmd_status() {
+  cmd_check || true
+  python3 - "$MANIFEST" "$POSTS" <<'PY'
+import json, os, sys
+manifest, posts = sys.argv[1], sys.argv[2]
+data = json.load(open(manifest, encoding="utf-8"))
+total = sum(len(v) for v in data.values())
+print(f"\n{total} post(s)")
+for g, items in data.items():
+    print(f"  {g:<10} {len(items) if items else '(vazio)'}")
+PY
+}
+
+# roda tudo que dava pra esquecer antes de commitar. Cada passo falha
+# independente, e no fim sai o resumo. Sem flags, sem opções.
+cmd_verify() {
+  local failed=0
+  step() { printf '%-32s' "$1"; }
+
+  step "bash"; if bash -n "$ROOT/bin/coffee" 2>/dev/null && bash -n "$ROOT/.github/scripts/check_cli.sh" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "js"; local jsok=1; for f in "$ROOT"/js/*.js "$ROOT"/*.js; do node --check "$f" 2>/dev/null || jsok=0; done; [ "$jsok" = 1 ] && echo "ok" || { echo "FALHOU"; failed=1; }
+  step "manifest + frontmatter"; if python3 "$ROOT/.github/scripts/check_manifest.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "testes da CLI"; if bash "$ROOT/.github/scripts/check_cli.sh" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "testes do markdown"; if node "$ROOT/.github/scripts/check_render.js" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "build + SEO"; local buildok=1
+  ( cd "$ROOT" && BASE_URL=https://odisseuz.github.io/CofeeOS_personalblog node build.js > /dev/null 2>&1 ) || buildok=0
+  if [ "$buildok" = 1 ]; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  rm -f "$ROOT/sitemap.xml" "$ROOT/posts/index.json"; find "$ROOT/posts" -name '*.html' -delete 2>/dev/null
+  # arquivos do site que o git estaria ignorando (foi assim que o lucide* passou).
+  # ignora os artefatos que devem mesmo ser ignorados (.pyc, index.json, etc).
+  step "gitignore"
+  local hidden=""
+  hidden=$(cd "$ROOT" && find index.html style.css js assets bin -type f 2>/dev/null \
+    | grep -v '__pycache__' \
+    | grep -v '\.pyc$' \
+    | while read -r p; do
+        if git check-ignore -q "$p" 2>/dev/null; then echo "$p"; fi
+      done) || true
+  if [ -z "$hidden" ]; then
+    echo "ok"
+  else
+    echo "FALHOU"
+    echo "$hidden" | sed 's/^/    ignorado: /'
+    failed=1
+  fi
+
+  # Safari não navega por Tab entre <button> sem tabindex explícito. Checa o
+  # HTML estático e os pontos de runtime que criam botão.
+  step "tabindex (botões)"
+  local semti
+  semti=$(python3 - "$ROOT" <<'PY'
+import re, sys, os
+root = sys.argv[1]
+faltando = []
+for rel in ['index.html']:
+    p = os.path.join(root, rel)
+    if not os.path.isfile(p):
+        continue
+    src = open(p, encoding='utf-8').read()
+    for m in re.finditer(r'<button\b[^>]*>', src):
+        if 'tabindex' not in m.group(0):
+            linha = src[:m.start()].count('\n') + 1
+            faltando.append(f'{rel}:{linha}')
+print('\n'.join(faltando))
+PY
+) || true
+  if [ -z "$semti" ]; then
+    echo "ok"
+  else
+    echo "FALHOU"
+    echo "$semti" | sed 's/^/    <button> sem tabindex: /'
+    failed=1
+  fi
+
+  rm -rf "$ROOT/bin/lib/__pycache__" "$ROOT/bin/__pycache__" "$ROOT/__pycache__"
+  echo
+  [ "$failed" = 0 ] && echo "tudo ok" || { echo "algo falhou"; return 1; }
+}
+
+cmd_serve() {
+  local port="${1:-8000}"
+  lsof -i ":$port" > /dev/null 2>&1 && die "porta $port em uso (tente: coffee serve 8080)"
+  printf 'servindo http://localhost:%s (Ctrl+C para parar)\n' "$port"
+  python3 "$ROOT/bin/serve" "$port"
+}
+
+[ $# -ge 1 ] || { usage; exit 1; }
+cmd="$1"; shift
+case "$cmd" in
+  new)    cmd_new "$@" ;;
+  rm)     cmd_rm "$@" ;;
+  ls)     cmd_ls "$@" ;;
+  status) cmd_status "$@" ;;
+  check)  cmd_check "$@" ;;
+  verify) cmd_verify "$@" ;;
+  serve)  cmd_serve "$@" ;;
+  -h|--help|help) usage ;;
+  *) die "comando desconhecido: $cmd (tente: coffee help)" ;;
+esac

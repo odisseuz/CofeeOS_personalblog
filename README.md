@@ -4,6 +4,32 @@
 
 Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem bundler nem CDN em runtime (as dependências ficam vendorizadas em `js/vendor/`; só um `build.js` leve roda no CI pra gerar HTML de SEO).
 
+## Início rápido
+
+Toda a administração é feita pela CLI `bin/coffee`, rodada **na raiz do projeto**:
+
+```bash
+cd ~/Downloads/neocities-andregomes     # ou onde você clonou
+
+./bin/coffee help                       # lista todos os comandos
+./bin/coffee serve                      # abre o site em localhost:8000
+```
+
+**Escrever um post:**
+
+```bash
+./bin/coffee new science/education/meu-post.md
+# → cria o .md (com título e data) e registra no manifest automaticamente
+# → depois é só abrir o arquivo e escrever
+
+./bin/coffee status                     # confere se está tudo certo antes do push
+```
+
+> O `./` deixa explícito que é um arquivo da pasta atual (e não um comando do sistema).
+> O site precisa do `./bin/coffee serve` pra funcionar — abrir o `index.html` direto (via `file://`) quebra o `fetch`.
+
+Veja a seção **CLI** mais abaixo pro restante (`ls`, `status`, `check`).
+
 ## Estrutura
 
 ```
@@ -11,6 +37,9 @@ index.html
 style.css
 build.js        # gera HTML estático dos posts (SEO) + sitemap.xml + posts/index.json
 package.json    # "type": "module" (node roda os módulos ES)
+bin/coffee      # CLI: new/rm/ls/status/check/verify/serve
+bin/serve       # servidor de dev (no-cache)
+bin/lib/        # helper python da CLI (manifest)
 js/
   state.js      # estado global compartilhado
   markdown.js   # renderer de markdown (marked) + frontmatter
@@ -19,9 +48,11 @@ js/
   windows.js    # arrastar/resize/maximize/focus-trap
   routing.js    # hash routing
   finder.js     # file manager
-  article.js    # artigo + notas
+  article.js    # artigo + notas + formulário de contato
   theme.js      # relógio + tema + fontes
+  idle.js       # modo fantasma (esmaece a barra quando parado)
   terminal.js   # terminal
+  notepad.js    # bloco de notas (scratch.md)
   search.js     # busca + recent
   main.js       # wiring (conecta tudo)
 posts/          # conteúdo em .md + manifest.json
@@ -31,6 +62,16 @@ posts/          # conteúdo em .md + manifest.json
 Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada — `js/main.js`, carregado via `<script type="module">`. Sem bundler, sem CDN — as dependências (marked) são vendorizadas.
 
 ## Como escrever um post
+
+O jeito mais rápido é a CLI (veja **`./bin/coffee`** mais abaixo):
+
+```bash
+./bin/coffee new science/education/meu-post.md
+```
+
+Isso cria o `.md` com o frontmatter já preenchido (título e data de hoje) e registra no `posts/manifest.json` automaticamente. Depois é só abrir o arquivo e escrever.
+
+Pra fazer na mão, o processo é:
 
 1. Cria o arquivo em `posts/<grupo>/<subpasta>/nome-do-post.md` (grupo = `readings`, `art`, `games` ou `science`; a subpasta é opcional):
 
@@ -60,45 +101,99 @@ Se esquecer de registrar um post (ou registrar um que não existe), o CI falha n
 python3 .github/scripts/check_manifest.py
 ```
 
+## CLI (`bin/coffee`)
+
+Uma CLI pequena pra escrever posts sem editar o manifest na mão. Bash (Bash 3.2, o do macOS) com um helper em `python3` — sem dependências novas, já que o `python3` é usado pelo build e pelo CI.
+
+Rode **da raiz do projeto**:
+
+```bash
+./bin/coffee <comando>
+```
+
+```
+new <grupo>/[subpasta/]nome.md   cria o .md e registra no manifest
+rm  <grupo>/[subpasta/]nome.md   remove o .md e tira do manifest
+ls [grupo]                       lista os posts (título e data)
+
+status                           visão geral: o que está ok e o que falta
+check                            manifest + frontmatter (igual ao CI)
+verify                           roda todas as checagens
+
+serve [porta]                    servidor local, sem cache (padrão 8000)
+```
+
+O caminho aceita variações (`posts/science/x.md`, `/science/x.md`, sem o `.md`). O `rm` também limpa subpastas que ficaram vazias.
+
+O `status` é o comando do dia a dia: mostra a contagem por grupo e aponta problemas (órfãos, entradas quebradas, frontmatter inválido). Se o `./bin/coffee status` estiver limpo, está tudo certo.
+
+### `verify`
+
+Antes de commitar, um comando só:
+
+```bash
+./bin/coffee verify
+```
+
+```
+bash                            ok
+python                          ok
+js                              ok
+manifest + frontmatter          ok
+testes da CLI                   ok
+testes do markdown              ok
+build + SEO                     ok
+gitignore                       ok
+tabindex (botões)               ok
+
+tudo ok
+```
+
+Roda sintaxe (bash/python/js), os testes, o build, e duas checagens que pegam erro que já aconteceu aqui:
+
+- **`gitignore`** — um padrão `lucide*` no `.gitignore` deixava todos os ícones fora do git, e o site viria sem ícones num clone.
+- **`tabindex`** — o Safari no macOS não navega por Tab entre `<button>` sem `tabindex` explícito. Se você adicionar um botão novo sem o atributo, o `verify` aponta o arquivo e a linha.
+
+## Acessibilidade e o Safari
+
+O Safari (com a configuração padrão do macOS) **não inclui `<button>` na navegação por Tab** — só inputs, links, selects e textareas. Sem correção, quem usa teclado não alcança as pastas da home, o dock, nem os botões das janelas.
+
+Por isso **todo `<button>` leva `tabindex="0"`**:
+
+- Os do `index.html` têm o atributo no próprio HTML.
+- Os criados em runtime (finder, busca, índice do artigo, formulário de contato) usam `makeTabbable()` do `js/windows.js`.
+
+Ao criar um `<button>` novo, adicione o `tabindex` junto (ou chame `makeTabbable()`). O `./bin/coffee verify` avisa se esquecer.
+
 ## Grupos, pastas e ícones
 
-Os grupos (as "pastas" da home e do dock) são fixos: `readings`, `art`, `games`, `science`. Pra **adicionar um grupo novo** (ex.: `music`):
+Os grupos (as "pastas" da home) são: `readings`, `art`, `games`, `science`.
 
-1. Cria `posts/music/` e registra no `manifest.json` (uma chave nova):
+### Adicionar uma pasta principal
 
-   ```json
-   { "music": ["album-review.md"] }
-   ```
+São três edições manuais:
 
-2. Em `index.html`, adiciona o grupo em **dois** lugares (copiando o padrão dos que já existem):
-   - **home**: um `<button class="folder" data-group="music">` com ícone, `<span class="folder-name">` e `<span class="folder-count" data-count="music">`.
-   - **dock**: um `<button class="dock-item" data-group="music" aria-label="...">` com ícone e tooltip.
+1. Uma chave nova no `manifest.json`: `{ "music": [] }`.
+2. Na home (`index.html`), um `<button class="folder" data-group="music">` com ícone, `<span class="folder-name">` e `<span class="folder-count" data-count="music">` — copie o padrão de um grupo existente.
+3. Em `js/data.js`, a linha no mapa `groupIcon`: `music: 'assets/icons/lucide/music.svg',`.
 
-3. Coloca um ícone em `assets/icons/music.svg` (SVG).
+Depois é só copiar um SVG do [Lucide](https://lucide.dev) pra `assets/icons/lucide/music.svg` e criar os posts normalmente:
 
-4. Em `js/data.js`, adiciona o grupo no mapa `groupIcon`:
-
-   ```js
-   music: 'assets/icons/music.svg',
-   ```
-
-**Trocar o ícone** de um grupo existente: substitui o `.svg` em `assets/icons/` (mantendo o nome) ou aponta outro caminho no `groupIcon`. Os ícones atuais são SVGs estilo Papirus — dá pra baixar outros e jogar em `assets/icons/`.
-
-**Renomear um grupo** (ex.: `science` → `philosophy`):
-
-1. Renomeia a pasta `posts/science/` → `posts/philosophy/`.
-2. No `manifest.json`, muda a chave `"science"` → `"philosophy"`.
-3. No `index.html`, atualiza `data-group` (e `id`, ícone, nome, `aria-label`) nos botões da home e do dock.
-4. No `js/data.js`, atualiza a chave no `groupIcon`.
-
-**Remover um grupo:**
-
-1. Apaga a pasta `posts/<grupo>/`.
-2. Remove a chave do `manifest.json`.
-3. Remove o botão `.folder` da home e o `.dock-item` do dock em `index.html`.
-4. Remove a linha do `groupIcon` em `js/data.js`.
+```bash
+./bin/coffee new music/album-review.md
+```
 
 O card de "recent", o file manager, a busca e o terminal leem o `manifest.json`, então o grupo novo aparece neles automaticamente.
+
+### Remover uma pasta principal
+
+Apaga a pasta `posts/<grupo>/`, tira a chave do `manifest.json`, o `<button>` da home e a linha do `groupIcon`.
+
+### Outras operações
+
+**Trocar o ícone** de um grupo existente: substitui o `.svg` em `assets/icons/lucide/` (mantendo o nome) ou aponta outro caminho no `groupIcon`. Os ícones são do [Lucide](https://lucide.dev) (`stroke="#1b1b1b"` assado, sem `width`/`height` no `<svg>`) e o CSS os recolore por tema via `--icon-filter`.
+
+**Renomear um grupo** (ex.: `science` → `philosophy`): renomeia a pasta `posts/science/`, muda a chave no `manifest.json`, o `data-group`/`id`/ícone na home, e a chave no `groupIcon`.
 
 ## Imagens
 
@@ -137,24 +232,60 @@ No painel de notas:
 - **preview / edit** — alterna entre editar (textarea) e ver renderizado em markdown.
 - menu **⋮** — **download** (baixa como `.md`), **quote** (copia a seleção do artigo como citação) e **clear** (limpa).
 
+### Índice do artigo
+
+O botão `☰` na barra do artigo abre um painel lateral com o índice, montado a partir dos headings (`#`, `##`, `###`…). Clicar num item rola até a seção.
+
+### Terminal
+
+O `terminal` (no popover `apps ▸` do dock, ou digitando no prompt da home) tem um punhado de comandos:
+
+| comando | o que faz |
+| --- | --- |
+| `open <post>` | abre um post (aceita caminho parcial) |
+| `ls [-l]` | lista os posts |
+| `cat <post>` | mostra o markdown cru |
+| `random` | abre um post aleatório |
+| `grep <termo>` | busca nos títulos e no corpo |
+| `theme <nome>` | troca o tema |
+| `notes` | abre o notepad |
+| `history` | comandos já usados |
+| `uname`, `coffee`, `help`, `clear` | o resto |
+| `whoami`, `pwd`, `date`, `echo`, `neofetch` | mais easter eggs :)|
+
+`Tab` completa comandos e caminhos de posts.
+
+### Notepad
+
+Um bloco de notas solto (ícone `notes` no popover `apps`), pra escrever sem abrir um artigo. Fica salvo no localStorage sob `coffeeos:notes:scratch`, e tem preview em markdown e download.
+
 ## Temas
 
-Quatro temas: **dark** (o padrão, azul), **brown** (café), **all black** e **gray**. O botão no topo abre um menu (hover) com as opções, e a escolha fica salva no **localStorage**. As cores vivem como variáveis CSS — o padrão no `:root`, e os outros em `[data-theme="brown"]`, `[data-theme="black"]` e `[data-theme="gray"]`. Pra adicionar um tema, é só criar um bloco desses no `style.css` e registrar a opção no menu.
+Cinco temas: **blue** (o padrão), **brown** (café), **all black**, **cream** e **light**. O botão `⚙` no topo abre o menu com as opções, e a escolha fica salva no **localStorage**. As cores vivem como variáveis CSS — o padrão no `:root`, e os outros em `[data-theme="brown"]`, `[data-theme="black"]`, `[data-theme="cream"]` e `[data-theme="light"]`.
+
+Pra **adicionar um tema**, é só criar um bloco desses no `style.css` (copiando um existente e trocando os tokens), incluir o nome no array `THEMES` em `js/theme.js` e registrar a opção no menu `⚙` em `index.html`.
+
+Os ícones do Lucide são monocromáticos e se adaptam ao tema via `--icon-filter` (declarado por tema): nos escuros, um `invert` deixa o ícone claro; nos claros, a cor assada escura já basta. É esse filtro que faz os mesmos `.svg` funcionarem nos cinco temas.
 
 ## Fonte e tamanho
 
-- **Família**: menu `Aa` no topo alterna entre **Sans** (padrão), **Serif** e **Mono** — útil pra acessibilidade, tudo via `html[data-font="serif"]` / `html[data-font="mono"]`. Dentro do artigo, o botão `Aa` na barra da janela faz a mesma troca (sincronizado).
-- **Tamanho (site)**: menu `A` alterna Normal / Large / Extra large (`html[data-font-size=...]`, escala em `rem`).
-- **Tamanho (artigo)**: dentro do artigo, os botões `A−`/`A+` ajustam só o corpo do texto (7 níveis, 75%–175%).
+Tudo isso vive no **`⚙` (System Settings)** no topo, junto com os temas:
+
+- **Família do site**: **Sans** (padrão), **Serif** e **Mono** — útil pra acessibilidade, tudo via `html[data-font="serif"]` / `html[data-font="mono"]`.
+- **Tamanho do site**: Normal / Large / Extra large (`html[data-font-size=...]`, escala em `rem`).
+- **Dentro do artigo**: o botão `Aa` na barra da janela troca a família (sincronizado com o site), e `A−`/`A+` ajustam só o corpo do texto (7 níveis, 75%–175%). O tamanho do artigo é **independente** do tamanho do site, pra quem precisa de texto grande no artigo sem ampliar o chrome.
 
 Todas as escolhas ficam salvas no **localStorage**. O corpo do artigo usa `--font-body` (segue a família escolhida), os títulos usam `--font-display`, e código/blocos usam `--font-mono` sempre.
 
 ## Acessibilidade
 
-- Foco preso dentro dos modais (artigo e file manager) — `Tab`/`Shift+Tab` não escapam.
-- Conteúdo de trás fica `inert` (não focável / não anunciado) enquanto um modal está aberto.
+- **Navegação por teclado em todos os navegadores.** O Safari do macOS não alcança `<button>` pelo Tab por padrão, então todo botão tem `tabindex="0"` (ver a seção **Acessibilidade e o Safari** acima).
+- Foco preso dentro da **janela da frente** (artigo, file manager, terminal, settings, notes e visualizador de imagem) — `Tab`/`Shift+Tab` não escapam.
+- Tudo que está atrás vira `inert` (não focável / não anunciado) enquanto uma janela está aberta, incluindo os outros overlays.
+- O foco **volta** pro lugar de origem ao fechar uma janela, e a página rola sozinha se o elemento focado estiver fora da vista.
 - Itens do dock são `<button>` (não links falsos), com `aria-label`.
-- `aria-live`, `prefers-reduced-motion`, retorno de foco ao fechar, e `Escape` pra fechar.
+- `aria-live`, `prefers-reduced-motion`, e `Escape` pra fechar.
+- Modo fantasma (a barra do artigo esmaece após 15s parado) só age quando o **artigo** é a janela da frente.
 
 ## Links diretos (deep links)
 
@@ -167,6 +298,24 @@ Cada post e pasta tem uma URL própria via hash — dá pra compartilhar/favorit
 - `#/about` — a nota about
 
 O caminho do hash segue a estrutura de `posts/` (com subpastas, ex.: `#~/art/photography/foto.md` ou `#~/readings/fiction/meu-post.md`).
+
+## Testes
+
+Pra rodar **tudo** de uma vez (sintaxe, testes, build e gitignore):
+
+```bash
+./bin/coffee verify
+```
+
+Individualmente:
+
+```bash
+node .github/scripts/check_render.js  # smoke test do markdown (25 casos)
+bash .github/scripts/check_cli.sh      # testes da CLI (14 casos)
+python3 .github/scripts/check_manifest.py   # manifest + frontmatter
+```
+
+Os testes de CLI e markdown rodam no CI antes de qualquer deploy (`.github/workflows/deploy.yml`, job `validate`). O `check_cli.sh` roda cada caso numa **cópia isolada do projeto** num diretório temporário — não toca nos seus arquivos. Ele cobre `new`/`rm`, caminhos variantes, integridade do JSON e o código de saída do `check`.
 
 ## Deploy no GitHub Pages
 
@@ -201,11 +350,14 @@ Os `.html` gerados, o `sitemap.xml` e o `posts/index.json` ficam no `.gitignore`
 
 ## Rodar localmente
 
-```
-python3 -m http.server
+```bash
+./bin/coffee serve          # http://localhost:8000
+./bin/coffee serve 8080     # se a 8000 estiver ocupada
 ```
 
-e abre `http://localhost:8000` (o `fetch` não funciona abrindo por `file://`).
+O servidor manda `Cache-Control: no-store`, então editar um `.js` ou `.css` e dar F5 já mostra a mudança. Isso importa: sem os headers, o navegador segura **módulos ES antigos** e você vê erros como `doesn't provide an export named X` — que parecem bug de código mas são só cache.
+
+**Não abra o `index.html` clicando nele** (via `file://`): por segurança do navegador, `fetch` e módulos ES não funcionam assim, e a página aparece mas nada é clicável.
 
 ## Licença
 

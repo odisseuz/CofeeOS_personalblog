@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+#
+# teste da CLI (bin/coffee) — roda no CI pra pegar regressão.
+#
+# Cada caso roda numa cópia isolada do projeto (num diretório temporário),
+# então nada fora do /tmp é tocado. Sai com 1 se qualquer caso falhar.
+
+set -uo pipefail
+
+SRC="$(cd "$(dirname "$0")/../.." && pwd)"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+pass_count=0
+fail_count=0
+
+pass() { printf 'PASS | %s\n' "$1"; pass_count=$((pass_count + 1)); }
+fail() {
+  printf 'FAIL | %s\n' "$1"; fail_count=$((fail_count + 1))
+  [ -n "${2:-}" ] && printf '  %s\n' "$2"
+}
+
+# cria uma cópia mínima e limpa do projeto pra testar
+sandbox() {
+  local d="$TMP/$1"
+  mkdir -p "$d/posts/science/education" "$d/bin/lib" "$d/.github/scripts"
+  if ! cp "$SRC/bin/coffee" "$d/bin/coffee" \
+     || ! cp "$SRC/bin/lib/"*.py "$d/bin/lib/" \
+     || ! cp "$SRC/.github/scripts/check_manifest.py" "$d/.github/scripts/" \
+     || ! cp "$SRC/posts/manifest.json" "$d/posts/manifest.json" \
+     || ! cp "$SRC/posts/science/education/teaching-zotero.md" "$d/posts/science/education/"; then
+    printf 'ERRO: sandbox não conseguiu copiar os arquivos de %s\n' "$SRC" >&2
+    exit 2
+  fi
+  printf '%s' "$d"
+}
+
+# ---------------------------------------------------------------------------
+
+echo "=== coffee new ==="
+D="$(sandbox new)"
+# sanidade: se o sandbox não tem o script, todo o resto dá falso positivo
+if [ ! -x "$D/bin/coffee" ]; then
+  printf 'ERRO: sandbox sem bin/coffee executável\n' >&2
+  exit 2
+fi
+out="$(cd "$D" && ./bin/coffee new art/poetry/haiku.md 2>&1)"
+if [ -f "$D/posts/art/poetry/haiku.md" ]; then pass "new cria o arquivo"; else fail "new cria o arquivo" "$out"; fi
+if grep -q '"poetry/haiku.md"' "$D/posts/manifest.json"; then pass "new registra no manifest"; else fail "new registra no manifest" "$(cat "$D/posts/manifest.json")"; fi
+if head -1 "$D/posts/art/poetry/haiku.md" | grep -q '^---$'; then pass "new gera frontmatter"; else fail "new gera frontmatter"; fi
+if grep -q '^date: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}$' "$D/posts/art/poetry/haiku.md"; then pass "new gera date ISO"; else fail "new gera date ISO"; fi
+
+# nao sobrescreve arquivo existente
+(cd "$D" && ./bin/coffee new art/poetry/haiku.md > /dev/null 2>&1)
+if [ "$(cd "$D" && ./bin/coffee new art/poetry/haiku.md 2>&1 | grep -c 'já existe')" = "1" ]; then
+  pass "new recusa sobrescrever"
+else
+  fail "new recusa sobrescrever"
+fi
+
+echo ""
+echo "=== coffee rm ==="
+# garante que o arquivo existe antes de testar a remoção
+if [ ! -f "$D/posts/art/poetry/haiku.md" ]; then
+  fail "pré-condição: arquivo existe pra testar rm" "new não criou o arquivo"
+else
+  (cd "$D" && ./bin/coffee rm art/poetry/haiku.md > /dev/null 2>&1)
+  if [ ! -f "$D/posts/art/poetry/haiku.md" ]; then pass "rm apaga o arquivo"; else fail "rm apaga o arquivo"; fi
+  if ! grep -q 'haiku' "$D/posts/manifest.json"; then pass "rm tira do manifest"; else fail "rm tira do manifest" "$(cat "$D/posts/manifest.json")"; fi
+  if [ ! -d "$D/posts/art" ]; then pass "rm limpa pasta vazia"; else fail "rm limpa pasta vazia"; fi
+fi
+
+echo ""
+echo "=== manifest continua JSON valido ==="
+D2="$(sandbox json)"
+(cd "$D2" && ./bin/coffee new art/a.md > /dev/null 2>&1)
+(cd "$D2" && ./bin/coffee new games/b.md > /dev/null 2>&1)
+(cd "$D2" && ./bin/coffee rm art/a.md > /dev/null 2>&1)
+if python3 -c "import json,sys; json.load(open('$D2/posts/manifest.json'))" 2>/dev/null; then
+  pass "manifest valido apos add/rm"
+else
+  fail "manifest valido apos add/rm" "$(cat "$D2/posts/manifest.json")"
+fi
+
+echo ""
+echo "=== caminhos aceitos ==="
+D5="$(sandbox paths)"
+(cd "$D5" && ./bin/coffee new posts/readings/p1.md > /dev/null 2>&1)
+(cd "$D5" && ./bin/coffee new /readings/p2.md > /dev/null 2>&1)
+(cd "$D5" && ./bin/coffee new readings/p3 > /dev/null 2>&1)
+if [ -f "$D5/posts/readings/p1.md" ] && [ -f "$D5/posts/readings/p2.md" ] && [ -f "$D5/posts/readings/p3.md" ]; then
+  pass "new aceita posts/, / e sem .md"
+else
+  fail "new aceita posts/, / e sem .md" "$(ls "$D5/posts/readings" 2>&1)"
+fi
+
+echo ""
+echo "=== coffee check (integra com o check_manifest) ==="
+D6="$(sandbox check)"
+if (cd "$D6" && ./bin/coffee check > /dev/null 2>&1); then
+  pass "check passa num estado limpo"
+else
+  fail "check passa num estado limpo"
+fi
+(cd "$D6" && ./bin/coffee new art/orfao-nao-registrado.md > /dev/null 2>&1)
+# remove do manifest pra simular orfao
+python3 -c "
+import json
+p='$D6/posts/manifest.json'
+d=json.load(open(p)); d['art']=[]; json.dump(d,open(p,'w'))
+" 2>/dev/null
+if (cd "$D6" && ./bin/coffee check > /dev/null 2>&1); then
+  fail "check falha com post orfao" "deveria ter falhado"
+else
+  pass "check falha com post orfao"
+fi
+
+echo ""
+echo "=== coffee ls/status ==="
+D7="$(sandbox listar)"
+out_ls="$(cd "$D7" && ./bin/coffee ls 2>&1 || true)"
+if echo "$out_ls" | grep -q 'Teaching Zotero'; then
+  pass "ls mostra o titulo"
+else
+  fail "ls mostra o titulo" "$out_ls"
+fi
+out_st="$(cd "$D7" && ./bin/coffee status 2>&1 || true)"
+if echo "$out_st" | grep -q 'manifest check OK'; then
+  pass "status reporta saude"
+else
+  fail "status reporta saude" "$out_st"
+fi
+
+# ---------------------------------------------------------------------------
+
+echo ""
+if [ "$fail_count" -gt 0 ]; then
+  printf '%d falha(s), %d passaram\n' "$fail_count" "$pass_count"
+  exit 1
+fi
+printf 'CLI test OK (%d)\n' "$pass_count"

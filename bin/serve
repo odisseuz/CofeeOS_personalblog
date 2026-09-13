@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Servidor de desenvolvimento do midnight coffee.
+
+Serve os arquivos com no-cache, pro navegador não segurar módulos ES antigos
+(que causam erros como "doesn't provide an export named X" depois de editar).
+
+Uso:
+    bin/serve [porta]        # padrão 8000
+"""
+import http.server
+import os
+import socketserver
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=ROOT, **kwargs)
+
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+        super().end_headers()
+
+    def log_message(self, format, *args):
+        # silencia o log por requisição: só avisa se for uma porta/erro relevante
+        pass
+
+
+def main():
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+    socketserver.TCPServer.allow_reuse_address = True
+    try:
+        with socketserver.TCPServer(("", port), NoCacheHandler) as httpd:
+            print(f"servindo {ROOT} em http://localhost:{port}")
+            print("(no-cache: edições aparecem no F5)")
+            httpd.serve_forever()
+    except OSError as e:
+        print(f"erro na porta {port}: {e}", file=sys.stderr)
+        print(f"tente outra: bin/serve {port + 1}", file=sys.stderr)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        pass
+
+
+if __name__ == "__main__":
+    main()

@@ -110,12 +110,15 @@ export function flattenManifest(manifest) {
 
 export function groupIcon(group) {
   const icons = {
-    readings: 'assets/icons/books.svg',
-    art: 'assets/icons/art.svg',
-    games: 'assets/icons/games.svg',
-    science: 'assets/icons/science.svg'
+    readings: 'assets/icons/lucide/readings.svg',
+    art: 'assets/icons/lucide/art.svg',
+    games: 'assets/icons/lucide/games.svg',
+    science: 'assets/icons/lucide/science.svg'
   };
-  return icons[group] || 'assets/icons/books.svg';
+  if (!icons[group]) {
+    console.warn('groupIcon: no icon for group "' + group + '" — falling back to readings. Add it to groupIcon().');
+  }
+  return icons[group] || 'assets/icons/lucide/readings.svg';
 }
 
 export function listLevel(paths, segments) {

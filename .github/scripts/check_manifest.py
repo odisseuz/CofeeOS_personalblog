@@ -17,7 +17,7 @@ POSTS = os.path.join(ROOT, "posts")
 MANIFEST = os.path.join(POSTS, "manifest.json")
 
 # Root-level files that aren't part of any group.
-SPECIAL = {"about.md", "example.md"}
+SPECIAL = {"about.md"}
 
 # .md files that aren't posts (no frontmatter is not required) — skipped entirely.
 IGNORE = {"LICENSE.md", "LICENSE-MIT.md"}
