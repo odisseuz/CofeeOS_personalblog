@@ -1,7 +1,7 @@
 // artigo (overlay) + notas
 import { articleOverlay, fmOverlay, originalTitle, state } from './state.js';
 import { escapeHtml, renderMarkdown, parseFrontmatter } from './markdown.js';
-import { resetWindow, notifyOverlayChange, makeTabbable } from './windows.js';
+import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
 import { setHash, hashForFile, hashForFolder } from './routing.js';
 import { groupFromFile } from './data.js';
 import { updateDockActive } from './finder.js';
@@ -152,6 +152,8 @@ export function openArticle(file) {
     editor.classList.remove('show-notes');
     editor.classList.remove('show-toc');
     editor.classList.toggle('is-about', file === 'posts/about.md');
+    // no celular a janela abre em tela cheia (senão o texto fica espremido)
+    if (isNarrow()) maximize(editor);
   }
   if (state.articleFromFinder) {
     articleOverlay.classList.add('over-finder');

@@ -1,7 +1,7 @@
 // file manager
 import { fmOverlay, state } from './state.js';
 import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon, isGroup } from './data.js';
-import { resetWindow, notifyOverlayChange, makeTabbable } from './windows.js';
+import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
 
 export function updateDockActive(key) {
@@ -22,7 +22,9 @@ export function openFolder(segments) {
   if (searchInput) searchInput.value = '';
   fmOverlay.classList.remove('dimmed');
   renderFinder();
-  resetWindow(document.querySelector('#fm-overlay .finder'));
+  const finder = document.querySelector('#fm-overlay .finder');
+  resetWindow(finder);
+  if (isNarrow()) maximize(finder);
   fmOverlay.classList.add('open');
   notifyOverlayChange();
   const closeBtn = document.getElementById('fm-close');

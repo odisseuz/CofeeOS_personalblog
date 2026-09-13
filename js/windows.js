@@ -88,6 +88,25 @@ export function makeMaximize(win, btn) {
   });
 }
 
+// em telas pequenas não dá pra arrastar/redimensionar nem enxergar a alça, e a
+// janela encolhida atrapalha a leitura — abre já em tela cheia.
+// O botão ⤢ continua funcionando pra voltar ao tamanho normal.
+export const isNarrow = function () {
+  return window.matchMedia && window.matchMedia('(max-width: 560px)').matches;
+};
+
+export function maximize(win) {
+  if (!win || win.classList.contains('maximized')) return;
+  win.classList.add('maximized');
+  win.style.transform = '';
+  const btn = win.querySelector('.maximize-btn');
+  if (btn) {
+    btn.textContent = '⤡';
+    btn.setAttribute('aria-label', 'Restore');
+    btn.setAttribute('title', 'Restore');
+  }
+}
+
 // mantém o foco dentro de um modal
 export function trapFocus(container, e) {
   const focusable = container.querySelectorAll(
