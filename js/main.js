@@ -8,6 +8,7 @@ import { loadRecentPosts, setupSearch } from './search.js';
 import { loadManifest } from './data.js';
 import { initTerminal, focusTerminal, runCommand } from './terminal.js';
 import { initNotepad, focusNotepad } from './notepad.js';
+import { initIdleChrome } from './idle.js';
 import './theme.js';
 
 (function () {
@@ -149,6 +150,7 @@ import './theme.js';
   if (notepadClose) notepadClose.addEventListener('click', closeNotepad);
   if (notesBackdrop) notesBackdrop.addEventListener('click', closeNotepad);
   initNotepad();
+  initIdleChrome();
 
   // popover de apps no dock
   const appsPop = document.getElementById('apps-pop');

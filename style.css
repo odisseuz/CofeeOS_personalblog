@@ -916,15 +916,6 @@ button.card-soft {
   color: var(--caramel);
 }
 
-#zen-link {
-  color: var(--muted);
-  text-decoration: none;
-}
-
-#zen-link:hover {
-  color: var(--caramel);
-}
-
 .footer-link:focus-visible {
   outline: 2px solid var(--caramel);
   outline-offset: 2px;
@@ -1287,6 +1278,15 @@ button.card-soft {
   border-bottom: 1px solid rgb(var(--cream-rgb) / 0.08);
 }
 
+/* modo foco: parado um tempo, só o chrome de cima esmaece */
+body.chrome-dim .editor-bar {
+  opacity: 0.18;
+}
+
+.editor-bar {
+  transition: opacity 0.5s ease;
+}
+
 .editor-filename {
   color: var(--muted);
   flex: 1 1 auto;
@@ -1523,17 +1523,29 @@ button.card-soft {
   justify-content: space-between;
   gap: 12px;
   flex-shrink: 0;
-  padding: 8px 14px;
+  padding: 6px 12px 6px 14px;
   background: rgb(var(--cream-rgb) / 0.05);
   border-top: 1px solid rgb(var(--cream-rgb) / 0.08);
   color: var(--muted);
   font-size: 0.75rem;
 }
 
+.editor-status #status {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
 .status-right {
   display: flex;
   align-items: baseline;
   gap: 8px;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 
@@ -1632,9 +1644,39 @@ button.card-soft {
   display: flex;
   align-items: center;
   gap: 2px;
-  margin-right: 6px;
-  padding-right: 6px;
-  border-right: 1px solid rgb(var(--cream-rgb) / 0.12);
+}
+
+#zen-post {
+  margin-left: 10px;
+  padding-left: 12px;
+  border-left: 1px solid rgb(var(--cream-rgb) / 0.12);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* na barra de baixo, o menu de fonte abre pra cima */
+.editor-status .pill-options {
+  top: auto;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: auto;
+  transform: translateY(4px);
+}
+
+.editor-status .pill-menu.open .pill-options,
+.editor-status .pill-menu:focus-within .pill-options {
+  transform: translateY(0);
+}
+
+#zen-post:hover {
+  color: var(--caramel);
+}
+
+#zen-post[hidden] {
+  display: none;
 }
 
 .reader-size {
@@ -2278,6 +2320,24 @@ button.card-soft {
 
   .editor-main {
     flex-direction: column;
+  }
+
+  .editor-status {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    padding: 6px 10px;
+  }
+
+  .editor-status #status {
+    order: 3;
+    flex: 1 1 100%;
+    margin-left: 0;
+    font-size: 0.66rem;
+  }
+
+  #zen-post {
+    margin-left: 6px;
+    padding-left: 8px;
   }
 
   .notes-panel {

@@ -67,7 +67,7 @@
     </section>
 
     <footer class="site-footer">
-      <p>© 2026 André Gomes · <button class="footer-link" type="button" data-note="posts/about.md">about</button> · <a href="#" id="zen-link" hidden>zen</a> · code: <button class="footer-link" type="button" data-note="posts/LICENSE-MIT.md">MIT</button> · content: <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></p>
+      <p>© 2026 André Gomes · <button class="footer-link" type="button" data-note="posts/about.md">about</button> · code: <button class="footer-link" type="button" data-note="posts/LICENSE-MIT.md">MIT</button> · content: <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></p>
     </footer>
   </main>
 
@@ -108,19 +108,6 @@
       <div class="editor-bar">
         <span class="editor-filename" id="filename">note</span>
         <div class="editor-actions">
-          <div class="reader-font">
-            <div class="pill-menu" id="article-font-menu">
-              <button class="editor-btn" id="article-font-toggle" type="button" aria-label="Font: sans" aria-haspopup="true">Aa</button>
-              <div class="pill-options" role="group" aria-label="Font">
-                <button class="pill-option" type="button" data-font-family="sans" aria-pressed="false">Sans</button>
-                <button class="pill-option" type="button" data-font-family="serif" aria-pressed="false">Serif</button>
-                <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false">Mono</button>
-              </div>
-            </div>
-            <button class="editor-btn" id="font-down" type="button" aria-label="Decrease text size">A−</button>
-            <span class="reader-size" id="reader-size">1×</span>
-            <button class="editor-btn" id="font-up" type="button" aria-label="Increase text size">A+</button>
-          </div>
           <button class="editor-btn" id="toc-toggle" type="button" aria-label="Table of contents">☰</button>
           <button class="editor-btn" id="notes-toggle" type="button" aria-label="Notes">✎</button>
           <button class="editor-btn maximize-btn" id="editor-maximize" type="button" aria-label="Maximize">⤢</button>
@@ -147,6 +134,20 @@
         </aside>
       </div>
       <div class="editor-status">
+        <div class="reader-font">
+          <div class="pill-menu" id="article-font-menu">
+            <button class="editor-btn" id="article-font-toggle" type="button" aria-label="Font: sans" aria-haspopup="true">Aa</button>
+            <div class="pill-options" role="group" aria-label="Font">
+              <button class="pill-option" type="button" data-font-family="sans" aria-pressed="false">Sans</button>
+              <button class="pill-option" type="button" data-font-family="serif" aria-pressed="false">Serif</button>
+              <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false">Mono</button>
+            </div>
+          </div>
+          <button class="editor-btn" id="font-down" type="button" aria-label="Decrease text size">A−</button>
+          <span class="reader-size" id="reader-size">1×</span>
+          <button class="editor-btn" id="font-up" type="button" aria-label="Increase text size">A+</button>
+          <a class="editor-btn" id="zen-post" href="#" target="_blank" rel="noopener" aria-label="Read the clean version" hidden>zen ↗</a>
+        </div>
         <span id="status">…</span>
         <span class="status-right">
           <span class="clock-time">03:15</span><span class="ampm">AM</span>

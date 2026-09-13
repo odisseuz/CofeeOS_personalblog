@@ -39,6 +39,15 @@ export function loadNote(file, body, filenameEl, statusEl) {
         body.insertAdjacentHTML('beforeend', contactFormHtml());
         wireContactForm();
       }
+      // "zen": a versão limpa (HTML estático) — só pros posts de verdade
+      const zen = document.getElementById('zen-post');
+      if (zen) {
+        const isPost = file.indexOf('posts/') === 0 &&
+          file.indexOf('posts/about.md') !== 0 &&
+          file.indexOf('LICENSE') === -1;
+        zen.hidden = !isPost;
+        if (isPost) zen.href = file.replace(/\.md$/, '.html');
+      }
       const words = parsed.body.trim() ? parsed.body.trim().split(/\s+/).length : 0;
       if (statusEl) statusEl.textContent = '"' + filename + '" ' + words + ' words';
     })
