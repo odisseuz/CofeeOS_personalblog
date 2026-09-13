@@ -13,7 +13,7 @@ In the last semester, I had the opportunity to get to know many people from this
 
 China is one of the world's oldest continuous civilizations, but its full history would need a whole blog post. For now, all we need to know is that "Chinese" isn't a single language.
 
-The most crucial distinction to avoid confusion (and getting beaten by either side!) is between the **spoken varieties** and the **writing systems**. On the spoken side, people may speak Mandarin, Cantonese, or other regional varieties the Han ethnic group is the largest. On the written side, characters come in **Simplified** (standardized in mainland China) and **Traditional** (used in places like Hong Kong and Taiwan) forms.
+The most crucial distinction to avoid confusion (and getting beaten by either side!) is between the **spoken varieties** and the **writing systems**. On the spoken side, people may speak Mandarin, Cantonese, or other regional varieties — the Han ethnic group is the largest, but far from the only one. On the written side, characters come in **Simplified** (standardized in mainland China) and **Traditional** (used in places like Hong Kong and Taiwan) forms.
 
 ## Hanyu - 汉语
 

@@ -355,22 +355,36 @@ O workflow roda um job `validate` antes do deploy: confere que `posts/manifest.j
 
 Como o site usa só caminhos relativos, ele funciona tanto em `usuario.github.io` (raiz) quanto em `usuario.github.io/repo` (project site).
 
+### Trocar de domínio
+
+O domínio vive num lugar só: a variável `BASE_URL` no `.github/workflows/deploy.yml`. Ela é o único ponto de verdade — o `build.js` gera dela o `sitemap.xml`, o `robots.txt` e todas as metas de SEO (`canonical`, `og:url`, `og:image`).
+
+```yaml
+env:
+  BASE_URL: https://odisseuz.github.io/${{ github.event.repository.name }}
+```
+
+Pra apontar pra outro endereço, muda **só essa linha**. Não edite o `robots.txt`: ele é gerado no build (e está no `.gitignore`). Rodando local sem `BASE_URL`, o `robots.txt` sai sem a linha do `Sitemap` — porque o padrão exige URL absoluta.
+
 ## SEO (build.js)
 
-Os posts são carregados via `fetch` no navegador, o que os deixa invisíveis pra buscadores. O `build.js` resolve isso gerando, pra cada post, uma página HTML estática com `<title>`, meta description, Open Graph/Twitter e canonical — além de um `sitemap.xml`.
+Os posts são carregados via `fetch` no navegador, o que os deixa invisíveis pra buscadores. O `build.js` resolve isso gerando, pra cada post, uma página HTML estática com `<title>`, meta description, Open Graph/Twitter e canonical.
 
-Ele também gera o **`posts/index.json`**: uma lista leve com `path`, `group`, `title` e `date` de cada post (sem o corpo). A home usa esse índice pro card de "recent" e o file manager, evitando baixar todos os `.md` no carregamento. A busca e o `grep` do terminal procuram primeiro no índice (título/grupo) e só baixam os corpos se nada casar.
+Ele gera também:
+
+- **`sitemap.xml`** e **`robots.txt`** — ambos derivados do `BASE_URL` (ver *Trocar de domínio* acima).
+- **`posts/index.json`** — uma lista leve com `path`, `group`, `title` e `date` de cada post (sem o corpo). A home usa esse índice pro card de "recent" e o file manager, evitando baixar todos os `.md` no carregamento. A busca e o `grep` do terminal procuram primeiro no índice (título/grupo) e só baixam os corpos se nada casar.
 
 Se o `index.json` não existir (ex.: rodando localmente sem build), o app cai automaticamente pro `manifest.json` + frontmatters.
 
 Pra rodar:
 
 ```
-node build.js                                          # gera posts/**/*.html + sitemap.xml (URLs relativas)
+node build.js                                          # gera posts/**/*.html + sitemap.xml + robots.txt (URLs relativas)
 BASE_URL=https://usuario.github.io/repo node build.js  # URLs absolutas
 ```
 
-Os `.html` gerados, o `sitemap.xml` e o `posts/index.json` ficam no `.gitignore` e são **regenerados no CI** antes do deploy (o workflow roda `node build.js` com o `BASE_URL` correto).
+Os `.html` gerados, o `sitemap.xml`, o `robots.txt` e o `posts/index.json` ficam no `.gitignore` e são **regenerados no CI** antes do deploy (o workflow roda `node build.js` com o `BASE_URL` correto).
 
 ## Rodar localmente
 

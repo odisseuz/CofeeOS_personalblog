@@ -48,7 +48,8 @@ env/
 *.tar.gz
 papirus-icon-theme*
 
-# gerados pelo build.js (SEO)
+# gerados pelo build.js (SEO + robots com o dominio do BASE_URL)
 sitemap.xml
+robots.txt
 posts/**/*.html
 posts/index.json

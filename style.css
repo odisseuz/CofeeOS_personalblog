@@ -248,6 +248,10 @@ body {
   font-family: var(--font-body);
   line-height: 1.6;
   padding-bottom: 150px;
+  /* o fundo "de verdade" é o gradiente do ::before; esta cor existe pro
+     navegador (e o Lighthouse) saberem a cor de base atrás do texto, em vez
+     de assumir branco. O gradiente cobre ela por completo. */
+  background-color: var(--bg-0);
 }
 
 /* fundo fixo numa camada própria (background-attachment: fixed causa jank no scroll) */
@@ -536,7 +540,8 @@ body::before {
   color: var(--muted);
   font-family: var(--font-mono);
   font-size: 0.8rem;
-  opacity: 0.75;
+  /* sem opacity: ela derrubava o contraste pra 3.9:1 (abaixo do mínimo 4.5).
+     A discrição vem do tamanho pequeno e do --muted, não da transparência. */
 }
 
 /* item mais recente, em destaque dentro do card "recent" */
@@ -958,7 +963,7 @@ button.card-soft {
   color: var(--muted);
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  opacity: 0.8;
+  /* sem opacity: ela deixava os links de licença em 4.3:1 (abaixo do mínimo) */
 }
 
 .site-footer a {

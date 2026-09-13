@@ -164,7 +164,44 @@ const index = posts.map(function (p) {
 });
 writeFileSync(join(ROOT, 'posts', 'index.json'), JSON.stringify(index, null, 2) + '\n');
 
-console.log('build: ' + entries.length + ' páginas HTML + sitemap.xml + posts/index.json');
+// robots.txt gerado a partir do mesmo BASE_URL do sitemap — assim trocar de
+// domínio é editar UM lugar só (a env do workflow), sem arquivos esquecidos.
+// O "Sitemap:" exige URL absoluta, então sem BASE_URL ele não é escrito.
+const robots = [
+  '# This file tells search engines and bots what they are allowed to see on your site.',
+  '',
+  '# This is the default rule, which allows search engines to crawl your site (recommended).',
+  'User-agent: *',
+  'Allow: /',
+  '',
+  '# If you do not want AI bots to crawl your site, remove the # from the following lines:',
+  '#User-agent: AI2Bot',
+  '#User-agent: Amazonbot',
+  '#User-agent: anthropic-ai',
+  '#User-agent: Applebot-Extended',
+  '#User-agent: Bytespider',
+  '#User-agent: CCBot',
+  '#User-agent: ChatGPT-User',
+  '#User-agent: ClaudeBot',
+  '#User-agent: cohere-ai',
+  '#User-agent: Diffbot',
+  '#User-agent: Google-Extended',
+  '#User-agent: GPTBot',
+  '#User-agent: Meta-ExternalAgent',
+  '#User-agent: OAI-SearchBot',
+  '#User-agent: PerplexityBot',
+  '#User-agent: PetalBot',
+  '#User-agent: Scrapy',
+  '#User-agent: YouBot',
+  '#Disallow: /',
+  '',
+].join('\n');
+writeFileSync(
+  join(ROOT, 'robots.txt'),
+  robots + (baseUrl ? 'Sitemap: ' + baseUrl + 'sitemap.xml\n' : '')
+);
+
+console.log('build: ' + entries.length + ' páginas HTML + sitemap.xml + robots.txt + posts/index.json');
 if (!baseUrl) {
   console.log('  (aviso: BASE_URL não definida — canonical/og/sitemap ficaram com URL relativa)');
 }
