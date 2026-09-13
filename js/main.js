@@ -6,8 +6,8 @@ import { closeFolder, navigateUp, navigateInto, renderFinder, applyFinderFilter,
 import { route } from './routing.js';
 import { loadRecentPosts, setupSearch } from './search.js';
 import { loadManifest } from './data.js';
+import { initTerminal, focusTerminal, runCommand } from './terminal.js';
 import './theme.js';
-import './terminal.js';
 
 (function () {
   makeWindow(
@@ -77,11 +77,30 @@ import './terminal.js';
     if (!termOverlay) return;
     resetWindow(termWindow);
     termOverlay.classList.add('open');
-    if (window.__termFocus) window.__termFocus();
-    else if (termClose) termClose.focus();
+    focusTerminal();
   }
   if (termClose) termClose.addEventListener('click', closeTerminal);
   if (termBackdrop) termBackdrop.addEventListener('click', closeTerminal);
+
+  // terminal de verdade (só inicializa depois dos elementos existirem)
+  initTerminal();
+
+  // hom prompt: digitar na home abre a janela e roda o comando lá
+  const homeTerm = document.getElementById('home-term');
+  const homeTermInput = document.getElementById('home-term-input');
+  if (homeTerm && homeTermInput) {
+    homeTerm.addEventListener('click', function () {
+      homeTermInput.focus();
+    });
+    homeTermInput.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      const value = homeTermInput.value.trim();
+      homeTermInput.value = '';
+      if (!value) { openTerminal(); return; }
+      openTerminal();
+      runCommand(value);
+    });
+  }
 
   // menu de display (Aa): abre no clique, fecha fora/Esc
   const displayMenu = document.getElementById('display-menu');

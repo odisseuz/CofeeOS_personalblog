@@ -10,7 +10,9 @@ function tick() {
   const m = String(now.getMinutes()).padStart(2, '0');
   const ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12 || 12;
-  const time = h + ':' + m;
+  // o ":" pisca a cada segundo, como num relógio de verdade
+  const sep = now.getSeconds() % 2 === 0 ? ':' : '\u00a0';
+  const time = h + sep + m;
   timeEls.forEach(function (el) { el.textContent = time; });
   ampmEls.forEach(function (el) { el.textContent = ampm; });
 }

@@ -622,6 +622,11 @@ body::before {
   transition: border-color 0.25s ease, background 0.25s ease;
 }
 
+/* acento sutil no card de conteúdo */
+#recent {
+  border-color: rgb(var(--caramel-rgb) / 0.12);
+}
+
 .card-soft:hover {
   background: rgb(var(--cream-rgb) / 0.04);
   border-color: rgb(var(--caramel-rgb) / 0.18);
@@ -838,7 +843,7 @@ button.card-flat {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  margin: 34px 0;
+  margin: 34px 0 10px;
 }
 
 .folder {
@@ -871,6 +876,11 @@ button.card-flat {
   width: 46px;
   height: 46px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+  transition: transform 0.2s ease;
+}
+
+.folder:hover img {
+  transform: translateY(-3px) scale(1.06);
 }
 
 .folder-name {
@@ -885,6 +895,62 @@ button.card-flat {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   white-space: nowrap;
+}
+
+/* convite pro terminal: o próprio prompt, digitável */
+.home-term {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 0 auto 34px;
+  padding: 8px 16px;
+  background: rgb(var(--glass-term) / 0.5);
+  border: 1px solid rgb(var(--cream-rgb) / 0.08);
+  border-radius: 10px;
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  cursor: text;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.home-term:hover,
+.home-term:focus-within {
+  border-color: rgb(var(--caramel-rgb) / 0.35);
+  background: rgb(var(--glass-term) / 0.7);
+}
+
+.home-term .prompt {
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.home-term-input {
+  width: 9ch;
+  padding: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--cream);
+  font-family: inherit;
+  font-size: inherit;
+  caret-color: var(--caramel);
+}
+
+.home-term-input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.home-term-cursor {
+  color: var(--caramel);
+  animation: cursor-blink 1.1s steps(1) infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 /* === 9. Janela de artigo (editor) === */
