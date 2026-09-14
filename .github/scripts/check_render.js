@@ -44,6 +44,12 @@ eq('frontmatter.order (string do parser)', fmSeries.data.order, '2');
 eq('order vira numero no build', Number(fmSeries.data.order), 2);
 eq('sem series', parseFrontmatter('---\ntitle: T\n---\nx').data.series, undefined);
 
+// titulo com `:` precisa de aspas no YAML — e elas sao sintaxe, nao conteudo
+eq('frontmatter: tira aspas duplas', parseFrontmatter('---\ntitle: "Ch 1: Cause and Effect"\n---\nx').data.title, 'Ch 1: Cause and Effect');
+eq('frontmatter: tira aspas simples', parseFrontmatter("---\ntitle: 'Ch 1'\n---\nx").data.title, 'Ch 1');
+eq('frontmatter: aspas no meio ficam', parseFrontmatter('---\ntitle: the "real" thing\n---\nx').data.title, 'the "real" thing');
+eq('frontmatter: aspas so de um lado ficam', parseFrontmatter('---\ntitle: "incompleto\n---\nx').data.title, '"incompleto');
+
 // blocos
 has('heading', renderMarkdown('# título'), '<h1>título</h1>');
 has('parágrafo', renderMarkdown('texto'), '<p>texto</p>');

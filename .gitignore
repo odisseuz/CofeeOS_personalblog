@@ -60,3 +60,7 @@ posts/index.json
 # testes temporarios na raiz (nao devem ser commitados)
 _*.mjs
 _*.html
+
+# drafts de posts: ficam no disco, nao sobem pro GitHub.
+# quando o texto estiver pronto, comente esta linha, registre no manifest e commite.
+posts/science/causal-inference/

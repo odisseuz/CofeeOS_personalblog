@@ -123,8 +123,12 @@ for g, items in data.items():
             m = re.match(r"^---\n(.*?)\n---", open(p, encoding="utf-8").read(), re.S)
             for line in (m.group(1).splitlines() if m else []):
                 k, _, v = line.partition(":")
-                if k.strip() == "title": title = v.strip()
-                if k.strip() == "date": date = v.strip()
+                # value entre aspas (titulo com `:` precisa delas): tira as aspas
+                v = v.strip()
+                if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+                    v = v[1:-1]
+                if k.strip() == "title": title = v
+                if k.strip() == "date": date = v
         except OSError:
             pass
         rows.append((g, it, title or it, date))

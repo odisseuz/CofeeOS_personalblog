@@ -26,6 +26,18 @@ DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$")
 
 
+def desquote(v):
+    """Tira as aspas de um valor de frontmatter.
+
+    Um título com `:` (ex.: `title: "Ch 1: Cause and Effect"`) precisa das
+    aspas no YAML, senão o `:` seria lido como separador. As aspas são
+    sintaxe, não conteúdo.
+    """
+    if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+        return v[1:-1]
+    return v
+
+
 def frontmatter_errors(rel, abs_path):
     errors = []
     with open(abs_path, encoding="utf-8") as f:
@@ -54,7 +66,7 @@ def frontmatter_errors(rel, abs_path):
                 f"(expected 'key: value' with no leading spaces): {line!r}"
             )
             continue
-        data[m.group(1)] = m.group(2).strip()
+        data[m.group(1)] = desquote(m.group(2).strip())
 
     if "title" not in data:
         errors.append(f"{rel}: missing 'title' in frontmatter")

@@ -47,9 +47,24 @@ export function parseFrontmatter(text) {
   let i = 1;
   while (i < lines.length && lines[i].trim() !== '---') {
     const m = /^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/.exec(lines[i]);
-    if (m) data[m[1]] = m[2].trim();
+    if (m) data[m[1]] = desquote(m[2].trim());
     i++;
   }
   if (i < lines.length) i++;
   return { data: data, body: lines.slice(i).join('\n') };
+}
+
+// Tira as aspas de um valor de frontmatter. Necessário porque um título com
+// `:` (ex.: `title: "Ch 1: Cause and Effect"`) precisa das aspas no YAML —
+// sem isso, o `:` seria lido como separador. O valor é literal, então as
+// aspas são sintaxe, não conteúdo.
+function desquote(v) {
+  if (v.length >= 2) {
+    const primeiro = v[0];
+    const ultimo = v[v.length - 1];
+    if ((primeiro === '"' && ultimo === '"') || (primeiro === "'" && ultimo === "'")) {
+      return v.slice(1, -1);
+    }
+  }
+  return v;
 }
