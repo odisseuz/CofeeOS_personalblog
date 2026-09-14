@@ -67,6 +67,10 @@ function renderBody(md) {
   });
 }
 
+// Nome do site. Fixo de propósito: o <h1> mostra "midnight coffee" e a bebida
+// escolhida aparece ao lado da tagline como um detalhe (ver js/sitename.js).
+const SITE_NAME = 'midnight coffee';
+
 function firstImage(html) {
   const m = /<img[^>]*src="([^"]+)"/.exec(html);
   return m ? m[1] : '';
@@ -117,14 +121,14 @@ function page(relMd, data, bodyHtml, recent, hasFormula) {
     '<head>\n' +
     '<meta charset="UTF-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
-    '<title>' + esc(title) + ' — midnight coffee</title>\n' +
+    '<title>' + esc(title) + ' — ' + SITE_NAME + '</title>\n' +
     '<meta name="description" content="' + esc(desc) + '">\n' +
     '<link rel="canonical" href="' + esc(url) + '">\n' +
     '<meta property="og:type" content="article">\n' +
     '<meta property="og:title" content="' + esc(title) + '">\n' +
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:url" content="' + esc(url) + '">\n' +
-    '<meta property="og:site_name" content="midnight coffee">\n' +
+    '<meta property="og:site_name" content="' + SITE_NAME + '">\n' +
     '<meta name="twitter:card" content="' + twitterCard + '">\n' +
     ogImageMeta +
     '<script type="application/ld+json">' + jsonLd + '</script>\n' +
@@ -141,7 +145,7 @@ function page(relMd, data, bodyHtml, recent, hasFormula) {
     '  </article>\n' +
     '  <p class="static-back"><a href="' + esc(up + 'index.html#~/' + relMd.replace(/^posts\//, '')) + '">← open in coffeeOS</a></p>\n' +
     '  <footer class="static-footer">\n' +
-    '    <p class="static-home"><a href="' + esc(up + 'index.html') + '">← midnight coffee</a></p>\n' +
+    '    <p class="static-home"><a href="' + esc(up + 'index.html') + '">← ' + SITE_NAME + '</a></p>\n' +
     '    <p class="static-recent-title">recent</p>\n' +
     '    <ul class="static-recent">\n' +
     links + '\n' +

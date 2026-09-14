@@ -1,4 +1,5 @@
 // relógio + tema + fontes (preferências de aparência)
+import { setBrewFromTheme } from './sitename.js';
 
 // relógio
 const timeEls = document.querySelectorAll('.clock-time');
@@ -52,6 +53,8 @@ export function setTheme(name, animar) {
   if (name === PADRAO) root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', name);
   themeAtual = name;
+  // o selo da bebida no hero acompanha o tema
+  setBrewFromTheme(name);
 
   // a UI do cardápio sincroniza SEMPRE, mesmo se o tema não mudou
   document.querySelectorAll('#theme-menu .menu-item').forEach(function (opt) {

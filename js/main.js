@@ -9,6 +9,7 @@ import { loadManifest } from './data.js';
 import { initTerminal, focusTerminal, runCommand } from './terminal.js';
 import { initNotepad, focusNotepad } from './notepad.js';
 import { initIdleChrome } from './idle.js';
+import { onBrewChange } from './sitename.js';
 import './theme.js';
 import { setTheme } from './theme.js';
 
@@ -153,15 +154,27 @@ document.addEventListener('coffee:overlay', syncInert);
     syncInert();
     restoreFocus();
   }
-  function openSettings() {
+  function openSettings(abrirCardapio) {
     if (!settingsOverlay) return;
     rememberFocus();
     resetWindow(settingsWindow);
     settingsOverlay.classList.add('open');
     syncInert();
+    // vindo do selo da bebida, já abre o cardápio: é o que a pessoa quer ver
+    const picker = document.getElementById('theme-picker');
+    if (picker) picker.open = !!abrirCardapio;
     if (settingsClose) settingsClose.focus();
   }
-  if (settingsToggle) settingsToggle.addEventListener('click', openSettings);
+  if (settingsToggle) settingsToggle.addEventListener('click', function () { openSettings(false); });
+
+  // o chip da bebida no hero abre o settings com o cardápio já expandido
+  // o selo da bebida no hero acompanha o tema escolhido. É também a pista de
+  // que os temas existem (o cardápio fica no ⚙) e um atalho pra abrir ele.
+  const brewTag = document.getElementById('brew-tag');
+  if (brewTag) brewTag.addEventListener('click', function () { openSettings(true); });
+  onBrewChange(function (bebida) {
+    if (brewTag) brewTag.textContent = bebida;
+  });
   if (settingsClose) settingsClose.addEventListener('click', closeSettings);
   if (settingsBackdrop) settingsBackdrop.addEventListener('click', closeSettings);
 
@@ -221,7 +234,7 @@ document.addEventListener('coffee:overlay', syncInert);
   };
   window.__openApp = function (app) {
     if (app === 'notes') { closeTerminal(); openNotepad(); }
-    else if (app === 'settings') { closeTerminal(); openSettings(); }
+    else if (app === 'settings') { closeTerminal(); openSettings(false); }
   };
   window.__setTheme = setTheme;
 
