@@ -2509,6 +2509,19 @@ body.chrome-dim .editor-bar {
     right: auto;
   }
 
+  /* o dropdown de resultados tem 260px fixos e é `right: 0` do container
+     .search — que no celular é mais estreito que isso. Resultado: ele
+     transbordava pra esquerda, saindo da tela.
+     Aqui ele ancora na ESQUERDA do container e cresce ate a direita da tela
+     (menos a margem de 12px do topbar), aproveitando a largura toda. */
+  .search-results {
+    left: 0;
+    right: auto;
+    width: max-content;
+    min-width: 100%;
+    max-width: calc(100vw - 36px);
+  }
+
   .pill-options {
     max-width: calc(100vw - 24px);
   }
