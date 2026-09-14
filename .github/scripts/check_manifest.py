@@ -146,9 +146,24 @@ def main():
     checkable = {p for p in files if p not in SPECIAL}
     errors = []
 
+    # Um post declarado no manifest mas ignorado pelo git (draft ainda no
+    # disco, ver README secao Drafts) nao e "faltando": o arquivo existe,
+    # so nao esta rastreado ainda. So conta como missing se o arquivo nem
+    # existir de verdade no disco.
+    declared_paths = {
+        os.path.join("posts", p).replace(os.sep, "/"): p for p in declared
+    }
+    missing_de_verdade = set()
+    for full, rel in declared_paths.items():
+        if rel in checkable:
+            continue
+        if full in ignorados and os.path.isfile(os.path.join(POSTS, rel)):
+            continue  # draft: existe no disco, so esta fora do git
+        missing_de_verdade.add(rel)
+
     for path in sorted(checkable - declared):
         errors.append(f"orphan post (on disk but not in manifest): {path}")
-    for path in sorted(declared - checkable):
+    for path in sorted(missing_de_verdade):
         errors.append(f"missing post (in manifest but no file): {path}")
 
     for rel in sorted(files):

@@ -1,6 +1,6 @@
 # midnight coffee ☕
 
-![deploy](https://img.shields.io/github/actions/workflow/status/odisseuz/CofeeOS_personalblog/deploy.yml?branch=main&label=deploy) ![license](https://img.shields.io/github/license/odisseuz/CofeeOS_personalblog) ![static](https://img.shields.io/badge/site-static-8b949e) ![coffee](https://img.shields.io/badge/made%20with-coffee-c98d5a)
+![deploy](https://img.shields.io/github/actions/workflow/status/odisseuz/CofeeOS_personalblog/deploy.yml?branch=main&label=deploy) ![license](https://img.shields.io/github/license/odisseuz/CofeeOS_personalblog) ![static](https://img.shields.io/badge/site-static-8b949e) ![deps](https://img.shields.io/badge/runtime%20deps-0-79c0ff) ![coffee](https://img.shields.io/badge/made%20with-coffee-c98d5a)
 
 Blog pessoal com estética "coffeeOS" — HTML/CSS/JS puro, sem bundler nem CDN em runtime (as dependências ficam vendorizadas em `js/vendor/`; só um `build.js` leve roda no CI pra gerar HTML de SEO).
 
