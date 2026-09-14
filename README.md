@@ -352,7 +352,7 @@ Dez temas, todos com **nome de bebida**. O botão `⚙` no topo abre o System Se
 └──────────────────────────────────────┘
 ```
 
-Abrindo o primeiro, os itens aparecem **agrupados por tipo de bebida** (`coffee`, `tea`, `cold brew & single origin`, `with milk`). Escolher um fecha o cardápio de novo.
+Abrindo o primeiro, os itens aparecem **agrupados por o que a bebida é** (`coffee`, `tea`, `single origin & brew`). Escolher um fecha o cardápio de novo.
 
 ### O chip da bebida no hero
 
