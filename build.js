@@ -212,33 +212,19 @@ writeFileSync(join(ROOT, 'posts', 'index.json'), JSON.stringify(index, null, 2) 
 // robots.txt gerado a partir do mesmo BASE_URL do sitemap — assim trocar de
 // domínio é editar UM lugar só (a env do workflow), sem arquivos esquecidos.
 // O "Sitemap:" exige URL absoluta, então sem BASE_URL ele não é escrito.
+//
+// Bots de IA NÃO são bloqueados, de propósito. O raciocínio está no próprio
+// arquivo gerado (quem pergunta isso abre o robots.txt, não o código).
 const robots = [
-  '# This file tells search engines and bots what they are allowed to see on your site.',
-  '',
-  '# This is the default rule, which allows search engines to crawl your site (recommended).',
+  '# Search engines are welcome: the point of a blog is being found.',
   'User-agent: *',
   'Allow: /',
   '',
-  '# If you do not want AI bots to crawl your site, remove the # from the following lines:',
-  '#User-agent: AI2Bot',
-  '#User-agent: Amazonbot',
-  '#User-agent: anthropic-ai',
-  '#User-agent: Applebot-Extended',
-  '#User-agent: Bytespider',
-  '#User-agent: CCBot',
-  '#User-agent: ChatGPT-User',
-  '#User-agent: ClaudeBot',
-  '#User-agent: cohere-ai',
-  '#User-agent: Diffbot',
-  '#User-agent: Google-Extended',
-  '#User-agent: GPTBot',
-  '#User-agent: Meta-ExternalAgent',
-  '#User-agent: OAI-SearchBot',
-  '#User-agent: PerplexityBot',
-  '#User-agent: PetalBot',
-  '#User-agent: Scrapy',
-  '#User-agent: YouBot',
-  '#Disallow: /',
+  '# AI crawlers are deliberately not blocked. robots.txt is voluntary: the',
+  '# crawlers that obey it are the ones that cite and link back, and the rest',
+  '# ignore it anyway. Google also warns that a page blocked this way can still',
+  '# be indexed, just without a description — strictly worse than allowing it.',
+  '',
   '',
 ].join('\n');
 writeFileSync(
