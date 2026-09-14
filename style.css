@@ -917,8 +917,18 @@ body::before {
   padding: 0 14px 12px;
 }
 
+/* O prompt é `white-space: nowrap` (não encolhe) e o input tem `flex: 1`.
+   Sem `min-width: 0` no input, ele não cede abaixo do tamanho do conteúdo —
+   e em tela estreita (320/360px) a linha estoura o terminal pela direita. */
+.term-inputline .term-input,
+.term-inputline .prompt {
+  min-width: 0;
+}
+
 .term-inputline .prompt {
   white-space: nowrap;
+  flex-shrink: 1;
+  overflow: hidden;
 }
 
 .term-input {
@@ -2317,7 +2327,10 @@ body.chrome-dim .editor-bar {
 
 .editor.maximized,
 .finder.maximized,
-.img-viewer.maximized {
+.img-viewer.maximized,
+.term-window.maximized,
+.settings-window.maximized,
+.notepad-window.maximized {
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
