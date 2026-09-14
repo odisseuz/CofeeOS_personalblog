@@ -335,11 +335,56 @@ Um bloco de notas solto (ícone `notes` no popover `apps`), pra escrever sem abr
 
 ## Temas
 
-Cinco temas: **blue** (o padrão), **brown** (café), **all black**, **cream** e **light**. O botão `⚙` no topo abre o menu com as opções, e a escolha fica salva no **localStorage**. As cores vivem como variáveis CSS — o padrão no `:root`, e os outros em `[data-theme="brown"]`, `[data-theme="black"]`, `[data-theme="cream"]` e `[data-theme="light"]`.
+Dez temas, todos com **nome de bebida** — o menu de temas é um cardápio de cafeteria. O botão `⚙` no topo abre o System Settings; o cardápio fica no topo dele, **fechado por padrão**, mostrando só o pedido atual:
 
-Pra **adicionar um tema**, é só criar um bloco desses no `style.css` (copiando um existente e trocando os tokens), incluir o nome no array `THEMES` em `js/theme.js` e registrar a opção no menu `⚙` em `index.html`.
+```
+┌──────────────────────────────────┐
+│ What is your order today?        │
+│               Blue Mountain  ●   │
+├──────────────────────────────────┤
+│ font                             │
+│ [Sans] [Serif] [Mono]           │
+└──────────────────────────────────┘
+```
 
-Os ícones do Lucide são monocromáticos e se adaptam ao tema via `--icon-filter` (declarado por tema): nos escuros, um `invert` deixa o ícone claro; nos claros, a cor assada escura já basta. É esse filtro que faz os mesmos `.svg` funcionarem nos cinco temas.
+Clicando, abre o cardápio completo com os itens agrupados (`coffee`, `tea`, `cold brew & single origin`, `with milk`). Escolher um fecha de novo.
+
+| Nome no cardápio | `data-theme` | Caráter |
+|---|---|---|
+| **Blue Mountain** | `blue` (padrão, vive no `:root`) | azul frio, luz de tela |
+| **Mocha** | `mocha` | marrom café, o mais escuro dos quentes |
+| **Cappuccino** | `cappuccino` | marrom médio, acento cremoso |
+| **Latte** | `latte` | claro médio, texto escuro |
+| **Black Honey** | `blackhoney` | quase preto, acento dourado |
+| **Matcha** | `matcha` | verde dessaturado |
+| **Puerh** | `puerh` | rosa-vinho, terroso |
+| **Cold Brew** | `black` | preto neutro, sem matiz |
+| **Ethiopian** | `ethiopian` | roxo, frutado |
+| **Cortado** | `cream` | claro, papel quente |
+
+### Preview e transição
+
+Passar o mouse num item do cardápio **aplica o tema na hora**, e sair dele restaura o escolhido — dá pra "provar antes de pedir". Duas salvaguardas:
+
+- O preview só roda com o cardápio **aberto**, e é **desligado no toque** (`hover: none`): no celular, só o clique.
+- Escolher (clique) aplica com uma **transição de 0.5s**. O preview é instantâneo de propósito — animar a cada passada de mouse viraria borrão.
+
+Quem tem **"reduzir movimento"** ligado no sistema recebe tudo instantâneo: o bloco `prefers-reduced-motion` zera as transições.
+
+### Adicionar um tema
+
+1. Um bloco `[data-theme="nome-da-bebida"] { ... }` no `style.css`, copiando um existente e trocando os tokens.
+2. O nome no array `THEMES` em `js/theme.js`.
+3. Um botão `.menu-item` no `#theme-menu` (`index.html`) **e** no mapa `NOMES` do `theme.js` (o nome exibido no cabeçalho fechado).
+4. Um `.sw-NOME { background: ... }` com a cor de referência.
+
+**Sobre o swatch:** use o `--caramel` do tema nos temas **escuros** e o `--bg-0` nos **claros**. O acento de um tema claro é escuro por necessidade (contraste), e sumiria contra o menu escuro.
+
+### Contraste
+
+Os dez passam WCAG AA (4.5:1). O pior caso é o `cappuccino` no token `muted`, com 4.65:1. Como os tokens são variáveis CSS, o `Lighthouse` enxerga o fundo real — e vale lembrar que o fundo do site vive no `body::before`.
+
+Os ícones do Lucide são monocromáticos e se adaptam via `--icon-filter` (declarado por tema): nos escuros, um `invert` deixa o ícone claro; nos claros, a cor assada escura já basta.
 
 ## Fonte e tamanho
 

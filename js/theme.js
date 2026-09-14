@@ -20,23 +20,55 @@ setInterval(tick, 1000);
 
 // tema
 const THEME_KEY = 'coffeeos:theme';
-const THEMES = ['blue', 'brown', 'black', 'cream', 'light'];
+const THEMES = ['blue', 'black', 'blackhoney', 'mocha', 'ethiopian', 'puerh', 'matcha', 'cappuccino', 'latte', 'cream'];
 
 // aplica (e salva) o tema — usado pelo menu de settings e pelo terminal
 export function setTheme(name) {
   const root = document.documentElement;
-  if (THEMES.indexOf(name) === -1) name = 'blue';
+  if (name !== 'blue' && THEMES.indexOf(name) === -1) name = 'blue';
+  // transição suave só no clique: sem ela a troca de tema dá um flash seco
+  root.classList.add('theme-switching');
+  clearTimeout(setTheme._t);
+  setTheme._t = setTimeout(function () { root.classList.remove('theme-switching'); }, 400);
   // "blue" é o padrão: vive no :root, sem atributo
   if (name === 'blue') root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', name);
-  document.querySelectorAll('#theme-menu .pill-option').forEach(function (opt) {
+  document.querySelectorAll('#theme-menu .menu-item').forEach(function (opt) {
     opt.setAttribute('aria-pressed', opt.getAttribute('data-theme') === name ? 'true' : 'false');
   });
   try { localStorage.setItem(THEME_KEY, name); } catch (e) {}
 }
 
+// Aplica o tema só enquanto o mouse está em cima ("provar antes de pedir").
+// Guarda o tema real pra restaurar na saída.
+let themeAtual = 'blue';
+function previewTheme(name) {
+  const root = document.documentElement;
+  if (name === 'blue') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', name);
+}
+function endPreview() {
+  previewTheme(themeAtual);
+}
+
 (function () {
-  const options = document.querySelectorAll('#theme-menu .pill-option');
+  const options = document.querySelectorAll('#theme-menu .menu-item');
+
+  // nome do tema atual, mostrado no summary quando o cardápio está fechado
+  const NOMES = {
+    blue: 'Blue Mountain', black: 'Cold Brew', blackhoney: 'Black Honey',
+    mocha: 'Mocha', ethiopian: 'Ethiopian', puerh: 'Puerh', matcha: 'Matcha',
+    cappuccino: 'Cappuccino', latte: 'Latte', cream: 'Cortado'
+  };
+
+  function pintarAtual(name) {
+    const nome = document.getElementById('current-theme-name');
+    const sw = document.getElementById('current-theme-swatch');
+    if (nome) nome.textContent = NOMES[name] || name;
+    if (sw) {
+      sw.className = 'menu-swatch sw-' + name;
+    }
+  }
 
   function savedTheme() {
     try {
@@ -48,13 +80,40 @@ export function setTheme(name) {
 
   const stored = savedTheme();
   const current = (THEMES.indexOf(stored) !== -1) ? stored : 'blue';
+  themeAtual = current;
   setTheme(current);
+  pintarAtual(current);
+
+  // preview no hover: o site inteiro muda enquanto o mouse está no item.
+  // Só quando o cardápio está ABERTO — fechado, o hover não teria alvo, e
+  // trocar o tema sem intenção é pesado pros olhos.
+  const semHover = window.matchMedia && window.matchMedia('(hover: none)').matches;
+  const picker = document.getElementById('theme-picker');
 
   options.forEach(function (opt) {
+    const nome = opt.getAttribute('data-theme');
     opt.addEventListener('click', function () {
-      setTheme(opt.getAttribute('data-theme'));
+      themeAtual = nome;
+      setTheme(nome);
+      pintarAtual(nome);
+      // fecha o cardápio: escolheu, acabou. (O toggle dispara endPreview, mas
+      // o tema do clique já foi salvo, então nada é perdido.)
+      if (picker && picker.open) picker.open = false;
     });
+    if (semHover) return;   // toque não tem hover: só o clique
+    opt.addEventListener('mouseenter', function () {
+      if (picker && picker.open) previewTheme(nome);
+    });
+    opt.addEventListener('mouseleave', endPreview);
+    // teclado também "prova": foco é o hover de quem não usa mouse
+    opt.addEventListener('focus', function () {
+      if (picker && picker.open) previewTheme(nome);
+    });
+    opt.addEventListener('blur', endPreview);
   });
+
+  // fechar o cardápio com o mouse em cima tem que restaurar o tema
+  if (picker) picker.addEventListener('toggle', endPreview);
 })();
 
 // fonte (família)

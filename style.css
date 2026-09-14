@@ -65,32 +65,6 @@
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
-[data-theme="brown"] {
-  --bg-0: #0d0806;
-  --bg-1: #17100c;
-  --bg-2: #0a0605;
-
-  --cream: #efe1cc;
-  --cream-rgb: 239 225 204;
-  --muted: #b39a80;
-  --muted-rgb: 179 154 128;
-  --coffee: #c98d5a;
-  --caramel: #d6a36a;
-  --caramel-rgb: 214 163 106;
-
-  --surface: rgba(36, 24, 17, 0.55);
-
-  --glass-top: 24 15 11;
-  --glass-win: 20 13 9;
-  --glass-term: 13 8 6;
-  --glass-backdrop: 10 6 4;
-
-  --glow-rgb: 120 78 50;
-  --scroll-track: #140c08;
-  --scroll-thumb: #3a2618;
-
-  --icon-filter: invert(1) brightness(1.7) sepia(0.55) saturate(1.6) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
-}
 
 [data-theme="black"] {
   --bg-0: #000000;
@@ -121,32 +95,31 @@
 
 /* creme — papel quente, pra leitura longa */
 [data-theme="cream"] {
-  --bg-0: #f4ecdd;
-  --bg-1: #efe4d2;
-  --bg-2: #e8dcc6;
+  --bg-0: #e2d3b8;
+  --bg-1: #dccbae;
+  --bg-2: #d4c3a4;
 
-  --cream: #3b3228;
-  --cream-rgb: 59 50 40;
-  --muted: #6f6045;
-  --muted-rgb: 111 96 69;
-  --coffee: #a8724a;
-  --caramel: #8a5a2b;
-  --caramel-rgb: 138 90 43;
+  --cream: #2e271f;
+  --cream-rgb: 46 39 31;
+  --muted: #584b3a;
+  --muted-rgb: 88 75 58;
+  --coffee: #7d4e24;
+  --caramel: #6b421c;
+  --caramel-rgb: 107 66 28;
 
-  --surface: rgba(255, 252, 245, 0.7);
+  --surface: rgba(238, 228, 208, 0.7);
   --border: rgb(var(--cream-rgb) / 0.14);
 
-  --glass-top: 244 236 221;
-  --glass-win: 248 241 229;
-  --glass-term: 236 226 208;
-  --glass-backdrop: 228 216 196;
+  --glass-top: 226 211 184;
+  --glass-win: 232 219 196;
+  --glass-term: 216 202 176;
+  --glass-backdrop: 208 194 168;
 
-  --glow-rgb: 168 114 74;
-  --scroll-track: #e8dcc6;
-  --scroll-thumb: #c9b89c;
+  --glow-rgb: 150 100 55;
+  --scroll-track: #d4c3a4;
+  --scroll-thumb: #b8a586;
 
-  /* tema claro: o ícone escuro já aparece bem, só um drop-shadow suave */
-  --icon-filter: brightness(1) drop-shadow(0 2px 4px rgba(80, 60, 40, 0.25));
+  --icon-filter: brightness(0.85) saturate(1.4) drop-shadow(0 2px 4px rgba(80, 60, 40, 0.22));
 
   --shadow-1: 0 8px 26px rgba(80, 60, 40, 0.12);
   --shadow-2: 0 12px 40px rgba(80, 60, 40, 0.16);
@@ -157,41 +130,6 @@
 }
 
 /* light — branco frio */
-[data-theme="light"] {
-  --bg-0: #ffffff;
-  --bg-1: #f6f8fa;
-  --bg-2: #eef1f4;
-
-  --cream: #1f2328;
-  --cream-rgb: 31 35 40;
-  --muted: #656d76;
-  --muted-rgb: 101 109 118;
-  --coffee: #0969da;
-  --caramel: #0550ae;
-  --caramel-rgb: 5 80 174;
-
-  --surface: rgba(255, 255, 255, 0.8);
-  --border: rgb(var(--cream-rgb) / 0.12);
-
-  --glass-top: 255 255 255;
-  --glass-win: 255 255 255;
-  --glass-term: 246 248 250;
-  --glass-backdrop: 238 241 244;
-
-  --glow-rgb: 9 105 218;
-  --scroll-track: #eef1f4;
-  --scroll-thumb: #c6cdd5;
-
-  /* tema claro: o ícone escuro já aparece bem, só um drop-shadow suave */
-  --icon-filter: brightness(1) drop-shadow(0 2px 4px rgba(31, 35, 40, 0.2));
-
-  --shadow-1: 0 8px 26px rgba(31, 35, 40, 0.1);
-  --shadow-2: 0 12px 40px rgba(31, 35, 40, 0.14);
-  --shadow-3: 0 20px 50px rgba(31, 35, 40, 0.18);
-  --ink: rgba(31, 35, 40, 0.08);
-  --ink-soft: rgba(31, 35, 40, 0.05);
-  --ink-faint: rgba(31, 35, 40, 0.03);
-}
 
 html[data-font="serif"] {
   --font-body: Georgia, "Times New Roman", serif;
@@ -221,6 +159,23 @@ html {
   scroll-behavior: smooth;
   scrollbar-color: var(--coffee) var(--scroll-track); /* Firefox */
   scrollbar-width: thin;
+}
+
+/* Troca suave de tema. A classe é posta só no clique (não no preview do
+   hover, que precisa ser instantâneo). Evita o "flash" que incomoda quem tem
+   sensibilidade a mudança brusca de cor. */
+html.theme-switching,
+html.theme-switching body,
+html.theme-switching .editor,
+html.theme-switching .finder,
+html.theme-switching .term-window,
+html.theme-switching .settings-window,
+html.theme-switching .notepad-window {
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+}
+
+html.theme-switching body::before {
+  transition: background 0.5s ease;
 }
 
 ::-webkit-scrollbar {
@@ -2468,7 +2423,6 @@ body.chrome-dim .editor-bar {
     flex: 0 0 auto;
   }
 
-  #theme-menu .pill-options,
   #article-font-menu .pill-options {
     left: 0;
     right: auto;
@@ -2496,6 +2450,44 @@ body.chrome-dim .editor-bar {
   .dock {
     gap: 6px;
     padding: 8px 10px;
+  }
+
+  /* cardápio: ocupa a largura toda e o texto não aperta contra o swatch */
+  .menu-card {
+    margin: 4px 0 6px;
+  }
+
+  .menu-card[open] {
+    padding: 12px 12px 10px;
+  }
+
+  .menu-summary {
+    padding: 11px 12px;
+    font-size: 0.88rem;
+  }
+
+  .menu-current-name {
+    font-size: 0.7rem;
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .menu-item {
+    padding: 9px 6px;   /* alvo maior pro dedo */
+    font-size: 0.88rem;
+  }
+
+  .menu-swatch {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* o cardápio aberto é alto: deixa rolar dentro de si em vez de empurrar
+     font/text size pra fora da janela */
+  .settings-body {
+    max-height: calc(80vh - 52px);
   }
 
   .folders {
@@ -2562,3 +2554,382 @@ body.chrome-dim .editor-bar {
     scroll-behavior: auto;
   }
 }
+
+/* temas de bebida (ver README) */
+[data-theme="mocha"] {
+  --bg-0: #241b16;
+  --bg-1: #2e231c;
+  --bg-2: #1c1511;
+
+  --cream: #f5e9d8;
+  --cream-rgb: 245 233 216;
+  --muted: #c4a98d;
+  --muted-rgb: 196 169 141;
+  --coffee: #d49a63;
+  --caramel: #eab57a;
+  --caramel-rgb: 234 181 122;
+
+  --surface: rgba(58, 43, 32, 0.6);
+
+  --glass-top: 46 35 26;
+  --glass-win: 40 30 22;
+  --glass-term: 28 21 15;
+  --glass-backdrop: 22 16 12;
+
+  --glow-rgb: 160 108 68;
+  --scroll-track: #241b16;
+  --scroll-thumb: #57402c;
+
+  --icon-filter: invert(1) brightness(1.8) sepia(0.65) saturate(1.4) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+[data-theme="matcha"] {
+  --bg-0: #121a14;
+  --bg-1: #182219;
+  --bg-2: #0d140f;
+
+  --cream: #e3eddd;
+  --cream-rgb: 227 237 221;
+  --muted: #9bb196;
+  --muted-rgb: 155 177 150;
+  --coffee: #7fae6a;
+  --caramel: #a3cf87;
+  --caramel-rgb: 163 207 135;
+
+  --surface: rgba(30, 44, 33, 0.6);
+
+  --glass-top: 24 35 26;
+  --glass-win: 20 29 22;
+  --glass-term: 13 20 15;
+  --glass-backdrop: 10 16 12;
+
+  --glow-rgb: 100 150 80;
+  --scroll-track: #121a14;
+  --scroll-thumb: #33452f;
+
+  --icon-filter: invert(1) brightness(1.7) sepia(0.4) hue-rotate(55deg) saturate(1.8) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
+
+[data-theme="puerh"] {
+  --bg-0: #1a1010;
+  --bg-1: #241615;
+  --bg-2: #130b0b;
+
+  --cream: #eddcd6;
+  --cream-rgb: 237 220 214;
+  --muted: #b69692;
+  --muted-rgb: 182 150 146;
+  --coffee: #b5665c;
+  --caramel: #c97a86;
+  --caramel-rgb: 201 122 134;
+
+  --surface: rgba(46, 28, 27, 0.6);
+
+  --glass-top: 38 24 23;
+  --glass-win: 30 19 18;
+  --glass-term: 20 13 12;
+  --glass-backdrop: 15 9 9;
+
+  --glow-rgb: 150 60 80;
+  --scroll-track: #1a1010;
+  --scroll-thumb: #4a2e2c;
+
+  --icon-filter: invert(1) brightness(1.7) sepia(0.35) hue-rotate(320deg) saturate(1.7) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+
+[data-theme="cappuccino"] {
+  --bg-0: #4a3a2e;
+  --bg-1: #554436;
+  --bg-2: #3d3026;
+
+  --cream: #d8c8ae;
+  --cream-rgb: 216 200 174;
+  --muted: #bda68d;
+  --muted-rgb: 189 166 141;
+  --coffee: #cfa876;
+  --caramel: #e8d4b0;
+  --caramel-rgb: 232 212 176;
+
+  --surface: rgba(104, 83, 66, 0.55);
+
+  --glass-top: 94 75 60;
+  --glass-win: 86 68 54;
+  --glass-term: 70 55 43;
+  --glass-backdrop: 58 46 36;
+
+  --glow-rgb: 210 155 80;
+  --scroll-track: #463628;
+  --scroll-thumb: #6b5646;
+
+  --icon-filter: invert(1) brightness(1.55) sepia(0.65) saturate(1.4) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+[data-theme="latte"] {
+  --bg-0: #bfa88e;
+  --bg-1: #c9b39a;
+  --bg-2: #b39d84;
+
+  --cream: #2a2018;
+  --cream-rgb: 42 32 24;
+  --muted: #463725;
+  --muted-rgb: 70 55 37;
+  --coffee: #3a2a1c;
+  --caramel: #4a3520;
+  --caramel-rgb: 74 53 32;
+
+  --surface: rgba(205, 188, 166, 0.7);
+  --border: rgb(var(--cream-rgb) / 0.16);
+
+  --glass-top: 191 168 142;
+  --glass-win: 201 179 154;
+  --glass-term: 178 157 132;
+  --glass-backdrop: 165 145 122;
+
+  --glow-rgb: 120 85 50;
+  --scroll-track: #b39d84;
+  --scroll-thumb: #8a7458;
+
+  --icon-filter: brightness(0.5) saturate(1.5) drop-shadow(0 2px 4px rgba(60, 45, 30, 0.3));
+
+  --shadow-1: 0 8px 26px rgba(60, 45, 30, 0.16);
+  --shadow-2: 0 12px 40px rgba(60, 45, 30, 0.2);
+  --shadow-3: 0 20px 50px rgba(60, 45, 30, 0.24);
+  --ink: rgba(60, 45, 30, 0.12);
+  --ink-soft: rgba(60, 45, 30, 0.08);
+  --ink-faint: rgba(60, 45, 30, 0.05);
+}
+
+[data-theme="ethiopian"] {
+  --bg-0: #18121c;
+  --bg-1: #1f1724;
+  --bg-2: #120d15;
+
+  --cream: #e6dcef;
+  --cream-rgb: 230 220 239;
+  --muted: #ab9bbd;
+  --muted-rgb: 171 155 189;
+  --coffee: #9d7cc0;
+  --caramel: #b58ad0;
+  --caramel-rgb: 181 138 208;
+
+  --surface: rgba(38, 28, 46, 0.6);
+
+  --glass-top: 34 26 42;
+  --glass-win: 28 21 34;
+  --glass-term: 18 13 22;
+  --glass-backdrop: 14 10 17;
+
+  --glow-rgb: 140 100 180;
+  --scroll-track: #18121c;
+  --scroll-thumb: #40324d;
+
+  --icon-filter: invert(1) brightness(1.75) sepia(0.25) hue-rotate(230deg) saturate(1.8) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
+
+[data-theme="blackhoney"] {
+  --bg-0: #0a0906;
+  --bg-1: #121009;
+  --bg-2: #060504;
+
+  --cream: #ece3cf;
+  --cream-rgb: 236 227 207;
+  --muted: #b0a488;
+  --muted-rgb: 176 164 136;
+  --coffee: #d4a838;
+  --caramel: #e8c04f;
+  --caramel-rgb: 232 192 79;
+
+  --surface: rgba(26, 22, 12, 0.6);
+
+  --glass-top: 22 19 10;
+  --glass-win: 17 14 8;
+  --glass-term: 10 9 5;
+  --glass-backdrop: 7 6 3;
+
+  --glow-rgb: 190 150 40;
+  --scroll-track: #0a0906;
+  --scroll-thumb: #35301c;
+
+  --icon-filter: invert(1) brightness(1.8) sepia(0.75) saturate(2) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* cardápio de temas (settings) */
+.settings-group:has(#theme-menu) .settings-label {
+  display: none; /* o cardápio traz o próprio título */
+}
+
+.menu-card {
+  margin: 4px 0 8px;
+  padding: 0;
+  background: rgb(var(--cream-rgb) / 0.03);
+  border: 1px solid rgb(var(--cream-rgb) / 0.1);
+  border-radius: 12px;
+}
+
+.menu-card[open] {
+  padding: 14px 16px 12px;
+}
+
+/* linha de resumo: mostra o tema escolhido quando fecha, vira título quando abre */
+.menu-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--cream);
+}
+
+.menu-summary::-webkit-details-marker { display: none; }
+
+.menu-summary:hover {
+  background: rgb(var(--cream-rgb) / 0.05);
+}
+
+.menu-summary:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: -2px;
+}
+
+.menu-card[open] .menu-summary {
+  padding: 0 0 10px;
+  cursor: default;
+}
+
+.menu-card[open] .menu-summary:hover {
+  background: transparent;
+}
+
+.menu-sum-title {
+  font-family: var(--font-display);
+}
+
+/* o "pedido atual" fica visível mesmo com o cardápio fechado */
+.menu-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.menu-card[open] .menu-current {
+  display: none;
+}
+
+.menu-current-name {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+/* quando aberto, o título vira o cabeçalho centralizado */
+.menu-card[open] .menu-summary {
+  display: block;
+  text-align: center;
+}
+
+.menu-rule {
+  display: block;
+  margin: 0 0 4px;
+  border: none;
+  border-top: 1px solid rgb(var(--cream-rgb) / 0.12);
+}
+
+/* divisória de seção, tipo "coffee" num menu */
+.menu-section {
+  margin: 14px 0 4px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.menu-section:first-child {
+  margin-top: 6px;
+}
+
+/* cada item do cardápio: nome ....... swatch */
+.menu-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.menu-item:hover {
+  background: rgb(var(--cream-rgb) / 0.06);
+}
+
+.menu-item:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: -2px;
+}
+
+/* a linha pontilhada entre o nome e o swatch — o truque clássico de menu */
+.menu-dots {
+  flex: 1;
+  min-width: 12px;
+  border-bottom: 1px dotted rgb(var(--cream-rgb) / 0.22);
+  transform: translateY(-3px);
+}
+
+.menu-name {
+  white-space: nowrap;
+}
+
+.menu-swatch {
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--cream-rgb) / 0.25);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* o tema ativo ganha o "pedido marcado" */
+.menu-item[aria-pressed="true"] .menu-name {
+  color: var(--caramel);
+}
+
+.menu-item[aria-pressed="true"] .menu-swatch {
+  border-color: var(--caramel);
+  box-shadow: 0 0 0 2px rgb(var(--caramel-rgb) / 0.3);
+}
+
+.menu-foot {
+  margin: 14px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+/* swatches: a cor de acento de cada tema */
+.sw-blue       { background: #79c0ff; }  /* blue */
+.sw-black      { background: #c0c0c0; }  /* black */
+.sw-blackhoney { background: #e8c04f; }  /* black honey */
+.sw-mocha      { background: #eab57a; }  /* mocha */
+.sw-ethiopian  { background: #b58ad0; }  /* ethiopian */
+.sw-puerh      { background: #c97a86; }  /* puerh */
+.sw-matcha     { background: #a3cf87; }  /* matcha */
+.sw-cappuccino { background: #e8d4b0; }  /* cappuccino */
+.sw-latte      { background: #bfa88e; }  /* latte */
+.sw-cream      { background: #e2d3b8; }  /* cortado */

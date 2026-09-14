@@ -235,14 +235,33 @@
       </div>
       <div class="settings-body">
         <section class="settings-group">
-          <h3 class="settings-label">theme</h3>
-          <div class="settings-row" id="theme-menu">
-            <button class="pill-option" type="button" data-theme="blue" aria-pressed="false" tabindex="0">Blue</button>
-            <button class="pill-option" type="button" data-theme="brown" aria-pressed="false" tabindex="0">Brown</button>
-            <button class="pill-option" type="button" data-theme="black" aria-pressed="false" tabindex="0">All black</button>
-            <button class="pill-option" type="button" data-theme="cream" aria-pressed="false" tabindex="0">Cream</button>
-            <button class="pill-option" type="button" data-theme="light" aria-pressed="false" tabindex="0">Light</button>
-          </div>
+          <details class="menu-card" id="theme-picker">
+            <summary class="menu-summary">
+              <span class="menu-sum-title">What is your order today?</span>
+              <span class="menu-current"><span class="menu-current-name" id="current-theme-name">Blue Mountain</span><span class="menu-swatch sw-blue" id="current-theme-swatch"></span></span>
+            </summary>
+            <hr class="menu-rule">
+            <div class="menu-list" id="theme-menu">
+              <p class="menu-section">coffee</p>
+              <button class="menu-item" type="button" data-theme="blue" aria-pressed="false" tabindex="0"><span class="menu-name">Blue Mountain</span><span class="menu-dots"></span><span class="menu-swatch sw-blue"></span></button>
+              <button class="menu-item" type="button" data-theme="mocha" aria-pressed="false" tabindex="0"><span class="menu-name">Mocha</span><span class="menu-dots"></span><span class="menu-swatch sw-mocha"></span></button>
+              <button class="menu-item" type="button" data-theme="cappuccino" aria-pressed="false" tabindex="0"><span class="menu-name">Cappuccino</span><span class="menu-dots"></span><span class="menu-swatch sw-cappuccino"></span></button>
+              <button class="menu-item" type="button" data-theme="latte" aria-pressed="false" tabindex="0"><span class="menu-name">Latte</span><span class="menu-dots"></span><span class="menu-swatch sw-latte"></span></button>
+              <button class="menu-item" type="button" data-theme="blackhoney" aria-pressed="false" tabindex="0"><span class="menu-name">Black Honey</span><span class="menu-dots"></span><span class="menu-swatch sw-blackhoney"></span></button>
+
+              <p class="menu-section">tea</p>
+              <button class="menu-item" type="button" data-theme="matcha" aria-pressed="false" tabindex="0"><span class="menu-name">Matcha</span><span class="menu-dots"></span><span class="menu-swatch sw-matcha"></span></button>
+              <button class="menu-item" type="button" data-theme="puerh" aria-pressed="false" tabindex="0"><span class="menu-name">Puerh</span><span class="menu-dots"></span><span class="menu-swatch sw-puerh"></span></button>
+
+              <p class="menu-section">cold brew &amp; single origin</p>
+              <button class="menu-item" type="button" data-theme="black" aria-pressed="false" tabindex="0"><span class="menu-name">Cold Brew</span><span class="menu-dots"></span><span class="menu-swatch sw-black"></span></button>
+              <button class="menu-item" type="button" data-theme="ethiopian" aria-pressed="false" tabindex="0"><span class="menu-name">Ethiopian</span><span class="menu-dots"></span><span class="menu-swatch sw-ethiopian"></span></button>
+
+              <p class="menu-section">with milk</p>
+              <button class="menu-item" type="button" data-theme="cream" aria-pressed="false" tabindex="0"><span class="menu-name">Cortado</span><span class="menu-dots"></span><span class="menu-swatch sw-cream"></span></button>
+            </div>
+            <p class="menu-foot">all drinks served in the dark</p>
+          </details>
         </section>
         <section class="settings-group">
           <h3 class="settings-label">font</h3>
