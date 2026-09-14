@@ -552,6 +552,58 @@ O servidor manda `Cache-Control: no-store`, então editar um `.js` ou `.css` e d
 
 **Não abra o `index.html` clicando nele** (via `file://`): por segurança do navegador, `fetch` e módulos ES não funcionam assim, e a página aparece mas nada é clicável.
 
+## Adiado de propósito
+
+Coisas que foram consideradas, decididas e **deixadas pra depois** — com o motivo. Não é uma lista de desejos: cada item diz **quanto custa** e **o que precisa acontecer** pra valer a pena. Item sem gatilho é fantasia; com gatilho, é plano.
+
+### Modo OS de verdade
+
+As janelas hoje são **modais** — abrir uma torna o resto `inert`. O "modo OS" seria elas coexistindo: arrastar, sobrepor, duas abertas ao mesmo tempo.
+
+**Custo:** alto. A base toda (focus trap, `inert`, `frontOverlay()`) assume uma janela por vez.
+**Gatilho:** se o blog virar algo além de leitura — comparar dois posts, por exemplo.
+
+### LaTeX para operações
+
+O KaTeX já funciona pra fórmulas (ver *Markdown suportado → Matemática*). O que **não** foi resolvido é notação de operação: `\begin{cases}`, matrizes grandes, alinhamento complexo.
+
+**Custo:** nenhum a mais — o KaTeX já suporta, é só escrever.
+**Gatilho:** o primeiro post que precisar. Provavelmente inferência causal.
+
+### DAGs e gráficos
+
+O KaTeX **não desenha grafos**. Um DAG (setas entre variáveis) precisaria de SVG ou imagem.
+
+**Custo:** médio — SVG à mão por post, ou uma lib de grafos (dependência nova).
+**Gatilho:** quando um post precisar de um DAG que não dá pra descrever em texto.
+
+### Seletor de idiomas
+
+Hoje só inglês, sem i18n. O plano completo (idioma como pasta, seletor, por que sem hover) está na seção *Idiomas (futuro)*.
+
+**Gatilho:** quando houver conteúdo em outro idioma pra publicar.
+
+### O notepad como app de verdade
+
+Hoje ele é uma janela dentro do blog, com nota salva no localStorage. A ideia seria ser útil **fora** do blog: um editor markdown rápido, que baixa o `.md` e vai embora.
+
+**Custo:** médio. O código existe (`js/notepad.js`), o que falta é o site virar um app (ou uma página própria).
+**Gatilho:** se você usar o notepad e sentir falta dele fora daqui.
+
+### Coleções e tags
+
+Séries existem (`series`/`order` no frontmatter, ver *Como escrever um post*). **Tags** seriam outro eixo: um mesmo post pertencendo a vários recortes.
+
+**Custo:** médio — filtro no finder, lista no índice.
+**Gatilho:** quando houver posts demais pra navegar por pasta, ou quando um post pertencer a duas áreas.
+
+### Card de "novos posts"
+
+A home mostra o que é recente. Um card fixo de novidades seria outra coisa.
+
+**Custo:** baixo.
+**Gatilho:** provavelmente desnecessário — se a home já mostra o recente, o card seria redundante. Só vale se a home ganhar outros blocos e o recente ficar escondido.
+
 ## Licença
 
 Licença dupla:

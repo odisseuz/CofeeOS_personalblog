@@ -56,3 +56,7 @@ posts/index.json
 
 # pacotes de libs baixados pra vendorizar (o conteudo ja esta em js/vendor/)
 *.tgz
+
+# testes temporarios na raiz (nao devem ser commitados)
+_*.mjs
+_*.html
