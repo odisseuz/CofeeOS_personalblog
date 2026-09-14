@@ -176,6 +176,7 @@ js                              ok
 manifest + frontmatter          ok
 testes da CLI                   ok
 testes do markdown              ok
+imports                         ok
 metadados de imagem             ok
 build + SEO                     ok
 gitignore                       ok
@@ -184,8 +185,9 @@ tabindex (botões)               ok
 tudo ok
 ```
 
-Roda sintaxe (bash/python/js), os testes, o build, e três checagens que pegam erro que já aconteceu aqui:
+Roda sintaxe (bash/python/js), os testes, o build, e quatro checagens que pegam erro que já aconteceu aqui:
 
+- **`imports`** — confere se cada `import { x } from './y.js'` bate com os exports reais de `y.js`. O `node --check` valida só a **sintaxe**: um export renomeado passa no check e só quebra no navegador. Foi assim que o `makeTabbable` sumiu do `article.js` e do `finder.js` em duas ocasiões.
 - **`gitignore`** — um padrão `lucide*` no `.gitignore` deixava todos os ícones fora do git, e o site viria sem ícones num clone.
 - **`tabindex`** — o Safari no macOS não navega por Tab entre `<button>` sem `tabindex` explícito. Se você adicionar um botão novo sem o atributo, o `verify` aponta o arquivo e a linha.
 - **`metadados de imagem`** — foto exportada direto da câmera costuma carregar EXIF com GPS, modelo e número de série. O `verify` avisa (ver [Imagens](#imagens)).
@@ -487,6 +489,7 @@ Individualmente:
 ```bash
 node .github/scripts/check_render.js          # smoke test do markdown + math (42 casos)
 bash .github/scripts/check_cli.sh              # testes da CLI (16 casos)
+node .github/scripts/check_imports.mjs         # imports x exports de cada módulo
 python3 .github/scripts/check_manifest.py     # manifest + frontmatter
 python3 .github/scripts/check_images.py       # metadados (EXIF) em images/
 ```

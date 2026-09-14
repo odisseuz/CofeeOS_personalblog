@@ -29,6 +29,8 @@ jobs:
         run: python3 .github/scripts/check_manifest.py
       - name: Check image metadata
         run: python3 .github/scripts/check_images.py
+      - name: Check imports
+        run: node .github/scripts/check_imports.mjs
       - name: Smoke test (markdown)
         run: node .github/scripts/check_render.js
       - name: Test CLI

@@ -170,6 +170,10 @@ cmd_verify() {
   step "manifest + frontmatter"; if python3 "$ROOT/.github/scripts/check_manifest.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "testes da CLI"; if bash "$ROOT/.github/scripts/check_cli.sh" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "testes do markdown"; if node "$ROOT/.github/scripts/check_render.js" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "imports"; local impok=1
+  if ! node "$ROOT/.github/scripts/check_imports.mjs" > /tmp/coffee-imports.$$ 2>&1; then impok=0; fi
+  if [ "$impok" = 1 ]; then echo "ok"; else echo "FALHOU"; sed 's/^/    /' /tmp/coffee-imports.$$; failed=1; fi
+  rm -f /tmp/coffee-imports.$$
   step "metadados de imagem"; if python3 "$ROOT/.github/scripts/check_images.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "build + SEO"; local buildok=1
   ( cd "$ROOT" && BASE_URL=https://odisseuz.github.io/CofeeOS_personalblog node build.js > /dev/null 2>&1 ) || buildok=0
