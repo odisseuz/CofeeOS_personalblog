@@ -1,4 +1,5 @@
 // relógio + tema + fontes (preferências de aparência)
+import { setBrewFromTheme } from './sitename.js';
 
 // relógio
 const timeEls = document.querySelectorAll('.clock-time');
@@ -52,6 +53,8 @@ export function setTheme(name, animar) {
   if (name === PADRAO) root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', name);
   themeAtual = name;
+  // o selo da bebida no hero acompanha o tema
+  setBrewFromTheme(name);
 
   // a UI do cardápio sincroniza SEMPRE, mesmo se o tema não mudou
   document.querySelectorAll('#theme-menu .menu-item').forEach(function (opt) {
@@ -112,11 +115,18 @@ function endPreview() {
   options.forEach(function (opt) {
     const nome = opt.getAttribute('data-theme');
     opt.addEventListener('click', function () {
+      const cardapioAberto = picker && picker.open;
       setTheme(nome, true);   // clique anima
       pintarAtual(nome);
-      // fecha o cardápio: escolheu, acabou. (O toggle dispara endPreview, mas
-      // o tema do clique já foi salvo, então nada é perdido.)
-      if (picker && picker.open) picker.open = false;
+      // escolheu no cardápio: fecha ele. Se o settings foi aberto pelo chip
+      // da bebida, fecha a janela toda — a pessoa já conseguiu o que queria.
+      // Quem abriu o ⚙ sozinho continua nele (pode querer fonte/tamanho).
+      if (cardapioAberto) {
+        picker.open = false;
+        const overlay = document.getElementById('settings-overlay');
+        const doChip = overlay && overlay.getAttribute('data-from-chip') === '1';
+        if (doChip && window.__closeSettings) window.__closeSettings();
+      }
     });
     if (semHover) return;   // toque não tem hover: só o clique
     opt.addEventListener('mouseenter', function () {
@@ -139,9 +149,10 @@ function endPreview() {
   const FAMILY_KEY = 'coffeeos:font-family';
   const root = document.documentElement;
   const articleTrigger = document.getElementById('article-font-toggle');
-  const options = document.querySelectorAll('#font-family-menu .pill-option');
+  const options = document.querySelectorAll('#font-family-menu .menu-item');
   const articleOptions = document.querySelectorAll('#article-font-menu .pill-option');
   const families = ['sans', 'serif', 'mono'];
+  const NOMES = { sans: 'Sans', serif: 'Serif', mono: 'Mono' };
 
   function savedFamily() {
     try {
@@ -167,6 +178,9 @@ function endPreview() {
       articleTrigger.setAttribute('aria-label', 'Font: ' + name);
       articleTrigger.setAttribute('title', 'Font: ' + name);
     }
+    // o cabeçalho do cardápio de fonte mostra a escolha atual
+    const rotulo = document.getElementById('current-font-name');
+    if (rotulo) rotulo.textContent = NOMES[name] || name;
   }
 
   const stored = savedFamily();
@@ -194,8 +208,9 @@ function endPreview() {
 (function () {
   const FONT_KEY = 'coffeeos:font-size';
   const root = document.documentElement;
-  const options = document.querySelectorAll('#font-menu .pill-option');
+  const options = document.querySelectorAll('#font-menu .menu-item');
   const sizes = ['normal', 'large', 'xl'];
+  const NOMES = { normal: 'Normal', large: 'Large', xl: 'Extra large' };
 
   function savedSize() {
     try {
@@ -215,6 +230,9 @@ function endPreview() {
       const active = opt.getAttribute('data-font-size') === name;
       opt.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
+    // o cabeçalho do cardápio de tamanho mostra a escolha atual
+    const rotulo = document.getElementById('current-size-name');
+    if (rotulo) rotulo.textContent = NOMES[name] || name;
   }
 
   const stored = savedSize();

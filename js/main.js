@@ -9,6 +9,7 @@ import { loadManifest } from './data.js';
 import { initTerminal, focusTerminal, runCommand } from './terminal.js';
 import { initNotepad, focusNotepad } from './notepad.js';
 import { initIdleChrome } from './idle.js';
+import { onBrewChange } from './sitename.js';
 import './theme.js';
 import { setTheme } from './theme.js';
 
@@ -153,15 +154,30 @@ document.addEventListener('coffee:overlay', syncInert);
     syncInert();
     restoreFocus();
   }
-  function openSettings() {
+  function openSettings(abrirCardapio) {
     if (!settingsOverlay) return;
     rememberFocus();
     resetWindow(settingsWindow);
     settingsOverlay.classList.add('open');
     syncInert();
+    // vindo do chip da bebida, já abre o cardápio: é o que a pessoa quer ver.
+    // e marca que foi assim, pra escolher um tema fechar a janela toda — quem
+    // abriu o ⚙ por conta própria pode querer mexer em fonte/tamanho depois.
+    const picker = document.getElementById('theme-picker');
+    if (picker) picker.open = !!abrirCardapio;
+    settingsOverlay.setAttribute('data-from-chip', abrirCardapio ? '1' : '0');
     if (settingsClose) settingsClose.focus();
   }
-  if (settingsToggle) settingsToggle.addEventListener('click', openSettings);
+  if (settingsToggle) settingsToggle.addEventListener('click', function () { openSettings(false); });
+  // o theme.js fecha o settings ao escolher um tema no cardápio
+  window.__closeSettings = closeSettings;
+
+  // o chip da bebida no hero abre o settings com o cardápio já expandido
+  const brewTag = document.getElementById('brew-tag');
+  if (brewTag) brewTag.addEventListener('click', function () { openSettings(true); });
+  onBrewChange(function (bebida) {
+    if (brewTag) brewTag.textContent = bebida;
+  });
   if (settingsClose) settingsClose.addEventListener('click', closeSettings);
   if (settingsBackdrop) settingsBackdrop.addEventListener('click', closeSettings);
 
@@ -221,7 +237,7 @@ document.addEventListener('coffee:overlay', syncInert);
   };
   window.__openApp = function (app) {
     if (app === 'notes') { closeTerminal(); openNotepad(); }
-    else if (app === 'settings') { closeTerminal(); openSettings(); }
+    else if (app === 'settings') { closeTerminal(); openSettings(false); }
   };
   window.__setTheme = setTheme;
 

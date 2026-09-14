@@ -28,7 +28,7 @@
   <main class="page">
     <header class="hero" id="home">
       <h1>midnight coffee</h1>
-      <p class="tagline">a personal notebook</p>
+      <p class="tagline">a personal notebook <button class="brew" id="brew-tag" type="button" tabindex="0" aria-label="Change theme" title="Change theme">latte</button></p>
       <p class="tagline-sub">notes from my daily life</p>
     </header>
 
@@ -264,20 +264,32 @@
           </details>
         </section>
         <section class="settings-group">
-          <h3 class="settings-label">font</h3>
-          <div class="settings-row" id="font-family-menu">
-            <button class="pill-option" type="button" data-font-family="sans" aria-pressed="false" tabindex="0">Sans</button>
-            <button class="pill-option" type="button" data-font-family="serif" aria-pressed="false" tabindex="0">Serif</button>
-            <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false" tabindex="0">Mono</button>
-          </div>
+          <details class="menu-card" id="font-picker">
+            <summary class="menu-summary">
+              <span class="menu-sum-title">how do you like it printed?</span>
+              <span class="menu-current"><span class="menu-current-name" id="current-font-name">Sans</span></span>
+            </summary>
+            <hr class="menu-rule">
+            <div class="menu-list" id="font-family-menu">
+              <button class="menu-item" type="button" data-font-family="sans" aria-pressed="false" tabindex="0"><span class="menu-name">Sans</span><span class="menu-dots"></span></button>
+              <button class="menu-item" type="button" data-font-family="serif" aria-pressed="false" tabindex="0"><span class="menu-name">Serif</span><span class="menu-dots"></span></button>
+              <button class="menu-item" type="button" data-font-family="mono" aria-pressed="false" tabindex="0"><span class="menu-name">Mono</span><span class="menu-dots"></span></button>
+            </div>
+          </details>
         </section>
         <section class="settings-group">
-          <h3 class="settings-label">text size</h3>
-          <div class="settings-row" id="font-menu">
-            <button class="pill-option" type="button" data-font-size="normal" aria-pressed="false" tabindex="0">Normal</button>
-            <button class="pill-option" type="button" data-font-size="large" aria-pressed="false" tabindex="0">Large</button>
-            <button class="pill-option" type="button" data-font-size="xl" aria-pressed="false" tabindex="0">Extra large</button>
-          </div>
+          <details class="menu-card" id="size-picker">
+            <summary class="menu-summary">
+              <span class="menu-sum-title">what cup size?</span>
+              <span class="menu-current"><span class="menu-current-name" id="current-size-name">Normal</span></span>
+            </summary>
+            <hr class="menu-rule">
+            <div class="menu-list" id="font-menu">
+              <button class="menu-item" type="button" data-font-size="normal" aria-pressed="false" tabindex="0"><span class="menu-name">Normal</span><span class="menu-dots"></span></button>
+              <button class="menu-item" type="button" data-font-size="large" aria-pressed="false" tabindex="0"><span class="menu-name">Large</span><span class="menu-dots"></span></button>
+              <button class="menu-item" type="button" data-font-size="xl" aria-pressed="false" tabindex="0"><span class="menu-name">Extra large</span><span class="menu-dots"></span></button>
+            </div>
+          </details>
         </section>
       </div>
       <div class="resize-handle"></div>
