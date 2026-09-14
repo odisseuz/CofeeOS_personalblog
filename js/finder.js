@@ -1,6 +1,6 @@
 // file manager
 import { fmOverlay, state } from './state.js';
-import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon, isGroup } from './data.js';
+import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon, isGroup, groupBySeries } from './data.js';
 import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
 
@@ -51,6 +51,33 @@ export function applyFinderFilter() {
   });
 }
 
+// linha de arquivo no finder (título + data)
+function fileRow(item) {
+  const row = document.createElement('button');
+  row.className = 'finder-file';
+  row.type = 'button';
+  makeTabbable(row);
+  row.setAttribute('data-file', item.path);
+
+  const icon = document.createElement('img');
+  icon.className = 'file-icon';
+  icon.src = 'assets/icons/lucide/file.svg';
+  icon.alt = '';
+
+  const name = document.createElement('span');
+  name.className = 'file-name';
+  name.textContent = item.title;
+
+  const date = document.createElement('span');
+  date.className = 'file-date';
+  date.textContent = item.date || '';
+
+  row.appendChild(icon);
+  row.appendChild(name);
+  row.appendChild(date);
+  return row;
+}
+
 export function renderFinder() {
   setHash(hashForFolder(state.currentPath));
   const pathInput = document.getElementById('fm-path');
@@ -96,31 +123,26 @@ export function renderFinder() {
       bodyEl.appendChild(row);
     });
 
-    paths.forEach(function (path) {
+    // séries: cabeçalho por série + ordem pelo campo `order`
+    const blocks = groupBySeries(paths.map(function (path) {
       const post = byPath[path] || { title: path.split('/').pop().replace(/\.md$/, ''), date: '' };
-      const row = document.createElement('button');
-      row.className = 'finder-file';
-      row.type = 'button';
-      makeTabbable(row);
-      row.setAttribute('data-file', path);
+      return {
+        path: path,
+        title: post.title,
+        date: post.date,
+        series: post.series || '',
+        order: post.order === undefined ? null : post.order
+      };
+    }));
 
-      const icon = document.createElement('img');
-      icon.className = 'file-icon';
-      icon.src = 'assets/icons/lucide/file.svg';
-      icon.alt = '';
-
-      const name = document.createElement('span');
-      name.className = 'file-name';
-      name.textContent = post.title;
-
-      const date = document.createElement('span');
-      date.className = 'file-date';
-      date.textContent = post.date || '';
-
-      row.appendChild(icon);
-      row.appendChild(name);
-      row.appendChild(date);
-      bodyEl.appendChild(row);
+    blocks.forEach(function (block) {
+      if (block.series) {
+        const head = document.createElement('p');
+        head.className = 'finder-series';
+        head.textContent = block.series + ' (' + block.items.length + ')';
+        bodyEl.appendChild(head);
+      }
+      block.items.forEach(function (item) { bodyEl.appendChild(fileRow(item)); });
     });
 
     if (!level.folders.length && !paths.length) {

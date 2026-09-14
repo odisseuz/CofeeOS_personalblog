@@ -71,6 +71,14 @@ def frontmatter_errors(rel, abs_path):
             except ValueError:
                 errors.append(f"{rel}: 'date' is not a real date: {d!r}")
 
+    if "order" in data:
+        o = data["order"]
+        if not o.isdigit():
+            errors.append(f"{rel}: 'order' must be a positive integer (got {o!r})")
+
+    if "series" in data and not data["series"]:
+        errors.append(f"{rel}: 'series' is empty (remove the key or name the series)")
+
     return errors
 
 

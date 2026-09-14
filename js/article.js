@@ -3,7 +3,7 @@ import { articleOverlay, fmOverlay, originalTitle, state } from './state.js';
 import { escapeHtml, renderMarkdown, parseFrontmatter } from './markdown.js';
 import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
 import { setHash, hashForFile, hashForFolder } from './routing.js';
-import { groupFromFile } from './data.js';
+import { groupFromFile, getPostIndex, seriesPosition } from './data.js';
 import { updateDockActive } from './finder.js';
 
 let loadToken = 0;
@@ -30,7 +30,9 @@ export function loadNote(file, body, filenameEl, statusEl) {
         if (date) html += '<p class="note-date">' + escapeHtml(date) + '</p>';
       }
       html += renderMarkdown(parsed.body);
+      if (parsed.data.series) html += seriesNavHtml();
       body.innerHTML = html;
+      fillSeriesNav(file);
       body.scrollTop = 0;
       const tocPanel = document.getElementById('toc-panel');
       if (tocPanel) tocPanel.scrollTop = 0;
@@ -186,6 +188,55 @@ export function closeArticle() {
   }
   document.title = originalTitle;
   if (state.lastFocus && state.lastFocus.focus) state.lastFocus.focus();
+}
+
+// navegação de série no pé do artigo: "part 2 of 6" + prev/next.
+// Renderiza um container vazio e preenche via DOM (o corpo usa innerHTML,
+// então devolvemos só a marcação do container).
+function seriesNavHtml() {
+  return '<div class="series-nav" data-series-nav hidden></div>';
+}
+
+function fillSeriesNav(file) {
+  const el = document.querySelector('[data-series-nav]');
+  if (!el) return;
+  el.innerHTML = '';
+  el.hidden = true;
+  getPostIndex().then(function (all) {
+    const self = all.filter(function (p) { return p.path === file; })[0];
+    const pos = seriesPosition(self, all);
+    if (!pos) return;
+    const prev = pos.index > 1 ? pos.items[pos.index - 2] : null;
+    const next = pos.index < pos.total ? pos.items[pos.index] : null;
+
+    const label = document.createElement('p');
+    label.className = 'series-label';
+    label.textContent = pos.series + '\u00a0\u00b7\u00a0part ' + pos.index + ' of ' + pos.total;
+    el.appendChild(label);
+
+    const row = document.createElement('div');
+    row.className = 'series-links';
+    if (prev) {
+      const a = document.createElement('button');
+      a.type = 'button';
+      a.className = 'series-link';
+      makeTabbable(a);
+      a.textContent = '\u2190 ' + prev.title;
+      a.addEventListener('click', function () { openArticle(prev.path); });
+      row.appendChild(a);
+    }
+    if (next) {
+      const a = document.createElement('button');
+      a.type = 'button';
+      a.className = 'series-link series-next';
+      makeTabbable(a);
+      a.textContent = next.title + ' \u2192';
+      a.addEventListener('click', function () { openArticle(next.path); });
+      row.appendChild(a);
+    }
+    el.appendChild(row);
+    el.hidden = false;
+  });
 }
 
 // formulário de contato (página about)

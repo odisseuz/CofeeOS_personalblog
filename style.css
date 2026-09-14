@@ -1623,6 +1623,59 @@ body.chrome-dim .editor-bar {
   color: var(--cream);
 }
 
+/* navegação de série no pé do artigo */
+.editor-body .series-nav {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid rgb(var(--cream-rgb) / 0.08);
+}
+
+.editor-body .series-label {
+  margin: 0 0 0.6em;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+.editor-body .series-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.editor-body .series-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 12px;
+  background: rgb(var(--cream-rgb) / 0.04);
+  border: 1px solid rgb(var(--cream-rgb) / 0.1);
+  border-radius: 8px;
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-body .series-link:hover {
+  background: rgb(var(--cream-rgb) / 0.08);
+  border-color: rgb(var(--caramel-rgb) / 0.35);
+}
+
+.editor-body .series-link:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: 2px;
+}
+
+.editor-body .series-next {
+  text-align: right;
+}
+
 .editor-status {
   display: flex;
   align-items: center;
@@ -2158,6 +2211,21 @@ body.chrome-dim .editor-bar {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   text-align: center;
+}
+
+/* cabeçalho de série dentro do finder */
+.finder-series {
+  margin: 10px 0 4px;
+  padding: 0 12px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+}
+
+.finder-series:first-child {
+  margin-top: 0;
 }
 
 .finder-status {

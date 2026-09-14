@@ -86,6 +86,7 @@ Pra fazer na mão, o processo é:
 
    - `title` vira o nome no gerenciador de arquivos e o título do artigo.
    - `date` aparece no gerenciador e no card de "recent" (use `AAAA-MM-DD` pra ordenar certo).
+   - `series` e `order` são opcionais, e servem pra agrupar posts relacionados (ver **Séries** abaixo).
 
 2. Adiciona o caminho (com a subpasta, se houver) no array certo de `posts/manifest.json`:
 
@@ -95,11 +96,41 @@ Pra fazer na mão, o processo é:
 
 Pronto — ele aparece no file manager (com subpastas navegáveis) e no card de "recent". As subpastas são livres (`fiction/`, `poetry/`, `psychology/`, `chill-games/`…), mas precisam estar refletidas no caminho do manifest.
 
-Se esquecer de registrar um post (ou registrar um que não existe), o CI falha no push. Ele também checa o frontmatter (título presente e não-vazio, `date` no formato `YYYY-MM-DD`, e nenhuma indentação nas chaves). Pra rodar a checagem local:
+Se esquecer de registrar um post (ou registrar um que não existe), o CI falha no push. Ele também checa o frontmatter (título presente e não-vazio, `date` no formato `YYYY-MM-DD`, `order` inteiro quando existir, e nenhuma indentação nas chaves). Pra rodar a checagem local:
 
 ```
 python3 .github/scripts/check_manifest.py
 ```
+
+### Séries
+
+Uma série é um conjunto de posts que se leem em ordem, tipo "introdução às neurociências" fatiada em seis partes. Dois campos no frontmatter ligam isso:
+
+```markdown
+---
+title: What is a neuron
+date: 2026-09-10
+series: neuroscience
+order: 1
+---
+```
+
+- `series` é o nome da série (aparece como cabeçalho no file manager). Todos os posts com o mesmo valor ficam juntos.
+- `order` controla a posição. Sem ele, o post não entra na ordenação da série e cai pro critério de data.
+
+Com isso, o file manager mostra os posts da pasta agrupados sob o nome da série, **na ordem de `order`** (não na ordem de publicação), e cada artigo ganha no pé um `neuroscience · part 2 of 6` com links **previous** / **next**.
+
+O nome da série é livre, mas mantenha igual entre os arquivos (`neuroscience`, não `Neurociência` num e `neuroscience` no outro). A série não precisa viver numa pasta só: o agrupamento é pelo campo, não pelo caminho.
+
+### Convenção de nomes
+
+Os nomes de arquivo são a parte "localizável" dos dados: valem como identificadores e entram na URL (`#~/science/neuroscience/what-is-a-neuron.md`). A regra é simples:
+
+- minúsculas, palavras separadas por `-`, sem acento e sem espaço (`what-is-a-neuron.md`)
+- nome que descreva o conteúdo, não a posição (`part-1.md` envelhece mal quando você fatiar diferente)
+- a URL é permanente: renomear um arquivo quebra quem linkou. Se o conteúdo mudar de ideia, escreva outro post.
+
+Não há checagem automática de nome — depende de disciplina. O `date` é o que garante a ordem cronológica, não o nome.
 
 ## CLI (`bin/coffee`)
 

@@ -51,11 +51,13 @@ function buildIndexFromManifest() {
             path: entry.path,
             group: entry.group,
             title: parsed.data.title || entry.path.split('/').pop().replace(/\.md$/, ''),
-            date: parsed.data.date || ''
+            date: parsed.data.date || '',
+            series: parsed.data.series || '',
+            order: parsed.data.order === undefined ? null : Number(parsed.data.order)
           };
         })
         .catch(function () {
-          return { path: entry.path, group: entry.group, title: entry.path.split('/').pop().replace(/\.md$/, ''), date: '' };
+          return { path: entry.path, group: entry.group, title: entry.path.split('/').pop().replace(/\.md$/, ''), date: '', series: '', order: null };
         });
     }));
   });
@@ -85,11 +87,13 @@ export function getAllPosts() {
             group: entry.group,
             title: parsed.data.title || entry.name.replace(/\.md$/, ''),
             date: parsed.data.date || '',
+            series: parsed.data.series || '',
+            order: parsed.data.order === undefined ? null : Number(parsed.data.order),
             body: parsed.body
           };
         })
         .catch(function () {
-          return { path: entry.path, group: entry.group, title: entry.name.replace(/\.md$/, ''), date: '', body: '' };
+          return { path: entry.path, group: entry.group, title: entry.name.replace(/\.md$/, ''), date: '', series: '', order: null, body: '' };
         });
     })).then(function (posts) {
       postsCache = posts;
@@ -149,4 +153,52 @@ export function listLevel(paths, segments) {
 export function groupFromFile(file) {
   if (file === 'posts/about.md') return 'about';
   return (file || '').split('/')[1] || '';
+}
+
+// agrupa uma lista de posts em séries, na ordem definida pelo campo `order`.
+// Posts sem série (ou com order ausente) ficam no bloco solto, por data.
+// Retorna [{ series: '', items: [...] }, { series: 'x', items: [...] }]
+export function groupBySeries(posts) {
+  const loose = [];
+  const buckets = {};
+  const order = [];
+
+  posts.forEach(function (p) {
+    if (!p.series) { loose.push(p); return; }
+    if (!buckets[p.series]) { buckets[p.series] = []; order.push(p.series); }
+    buckets[p.series].push(p);
+  });
+
+  const byOrder = function (a, b) {
+    const ao = a.order === null || a.order === undefined;
+    const bo = b.order === null || b.order === undefined;
+    if (ao !== bo) return ao ? 1 : -1;                 // com order vem antes
+    if (!ao && a.order !== b.order) return a.order - b.order;
+    return String(b.date).localeCompare(String(a.date));
+  };
+
+  loose.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+  order.forEach(function (s) { buckets[s].sort(byOrder); });
+
+  const blocks = [];
+  if (loose.length) blocks.push({ series: '', items: loose });
+  order.forEach(function (s) { blocks.push({ series: s, items: buckets[s] }); });
+  return blocks;
+}
+
+// posição de um post dentro da sua série (1-based), ou null se não tem série
+export function seriesPosition(post, all) {
+  if (!post || !post.series) return null;
+  const items = (all || []).filter(function (p) { return p.series === post.series; })
+    .slice()
+    .sort(function (a, b) {
+      const ao = a.order === null || a.order === undefined;
+      const bo = b.order === null || b.order === undefined;
+      if (ao !== bo) return ao ? 1 : -1;
+      if (!ao && a.order !== b.order) return a.order - b.order;
+      return String(a.date).localeCompare(String(b.date));
+    });
+  const i = items.findIndex(function (p) { return p.path === post.path; });
+  if (i === -1) return null;
+  return { index: i + 1, total: items.length, items: items, series: post.series };
 }

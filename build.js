@@ -126,7 +126,9 @@ const posts = entries.map(function (relMd) {
     relMd: relMd,
     relHtml: relMd.replace(/\.md$/, '.html'),
     title: data.title || relMd.split('/').pop().replace(/\.md$/, ''),
-    date: data.date || ''
+    date: data.date || '',
+    series: data.series || '',
+    order: data.order === undefined ? null : Number(data.order)
   };
 });
 
@@ -160,7 +162,7 @@ writeFileSync(
 
 // índice leve (sem corpo) pra home/busca/finder não baixarem todos os .md
 const index = posts.map(function (p) {
-  return { path: p.relMd, group: p.relMd.split('/')[1], title: p.title, date: p.date };
+  return { path: p.relMd, group: p.relMd.split('/')[1], title: p.title, date: p.date, series: p.series, order: p.order };
 });
 writeFileSync(join(ROOT, 'posts', 'index.json'), JSON.stringify(index, null, 2) + '\n');
 

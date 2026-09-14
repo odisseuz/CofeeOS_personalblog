@@ -35,6 +35,13 @@ eq('frontmatter.title', fm.data.title, 'Teste');
 eq('frontmatter.body', fm.body, 'corpo');
 eq('sem frontmatter', parseFrontmatter('só texto').body, 'só texto');
 
+// séries: campos extras passam pelo parser genérico
+const fmSeries = parseFrontmatter('---\ntitle: T\nseries: neuroscience\norder: 2\n---\nx');
+eq('frontmatter.series', fmSeries.data.series, 'neuroscience');
+eq('frontmatter.order (string do parser)', fmSeries.data.order, '2');
+eq('order vira numero no build', Number(fmSeries.data.order), 2);
+eq('sem series', parseFrontmatter('---\ntitle: T\n---\nx').data.series, undefined);
+
 // blocos
 has('heading', renderMarkdown('# título'), '<h1>título</h1>');
 has('parágrafo', renderMarkdown('texto'), '<p>texto</p>');
