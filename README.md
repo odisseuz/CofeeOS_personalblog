@@ -50,6 +50,8 @@ js/
   finder.js     # file manager
   article.js    # artigo + notas + formulário de contato
   theme.js      # relógio + tema + fontes
+  sitename.js   # nome da bebida do tema atual (o chip no hero)
+  math.js       # extração de $...$ e ponte pro KaTeX (só carrega se houver fórmula)
   idle.js       # modo fantasma (esmaece a barra quando parado)
   terminal.js   # terminal
   notepad.js    # bloco de notas (scratch.md)
@@ -59,7 +61,7 @@ posts/          # conteúdo em .md + manifest.json
 .github/        # CI (deploy + validação)
 ```
 
-Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada — `js/main.js`, carregado via `<script type="module">`. Sem bundler, sem CDN — as dependências (marked) são vendorizadas.
+Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada — `js/main.js`, carregado via `<script type="module">`. Sem bundler, sem CDN — as dependências (marked e KaTeX) são vendorizadas em `js/vendor/`.
 
 ## Como escrever um post
 
@@ -335,19 +337,37 @@ Um bloco de notas solto (ícone `notes` no popover `apps`), pra escrever sem abr
 
 ## Temas
 
-Dez temas, todos com **nome de bebida** — o menu de temas é um cardápio de cafeteria. O botão `⚙` no topo abre o System Settings; o cardápio fica no topo dele, **fechado por padrão**, mostrando só o pedido atual:
+Dez temas, todos com **nome de bebida**. O botão `⚙` no topo abre o System Settings, que é uma **sequência de três cardápios** (tema, fonte e tamanho), todos com a mesma linguagem visual: fechados mostram a escolha atual, abertos listam as opções com linha pontilhada.
 
 ```
-┌──────────────────────────────────┐
-│ What is your order today?        │
-│               Blue Mountain  ●   │
-├──────────────────────────────────┤
-│ font                             │
-│ [Sans] [Serif] [Mono]           │
-└──────────────────────────────────┘
+┌──────────────────────────────────────┐
+│ What is your order today?            │
+│                          Latte   ●   │
+├──────────────────────────────────────┤
+│ how do you like it printed?          │
+│                           Sans       │
+├──────────────────────────────────────┤
+│ what cup size?                       │
+│                         Normal       │
+└──────────────────────────────────────┘
 ```
 
-Clicando, abre o cardápio completo com os itens agrupados (`coffee`, `tea`, `cold brew & single origin`, `with milk`). Escolher um fecha de novo.
+Abrindo o primeiro, os itens aparecem **agrupados por tipo de bebida** (`coffee`, `tea`, `cold brew & single origin`, `with milk`). Escolher um fecha o cardápio de novo.
+
+### O chip da bebida no hero
+
+O nome do site **não muda**: o `<h1>` é sempre `midnight coffee`. Ao lado da tagline há um **chip** mostrando o tema escolhido:
+
+```
+        midnight coffee
+   a personal notebook  ( ● latte )
+```
+
+Ele resolve o problema de **descoberta** — sem ele, os dez temas ficariam visíveis só pra quem abrisse o `⚙`. O chip também é o atalho: clicar abre o settings **com o cardápio já expandido**, e escolher um tema fecha a janela toda (quem abriu o `⚙` sozinho continua nele, e pode querer mexer em fonte/tamanho).
+
+A fonte única do nome da bebida é `js/sitename.js`: o `theme.js` avisa quando o tema muda, e o `main.js` escreve no chip.
+
+### Os dez
 
 | Nome no cardápio | `data-theme` | Caráter |
 |---|---|---|
@@ -388,17 +408,22 @@ Quem tem **"reduzir movimento"** ligado no sistema recebe tudo instantâneo: o b
 
 ### Contraste
 
-Os dez passam WCAG AA (4.5:1). O pior caso é o `cappuccino` no token `muted`, com 4.65:1. Como os tokens são variáveis CSS, o `Lighthouse` enxerga o fundo real — e vale lembrar que o fundo do site vive no `body::before`.
+Os dez passam WCAG AA (4.5:1). O pior caso é o `cappuccino` no token `muted`, com 5.05:1. Como os tokens são variáveis CSS, o `Lighthouse` enxerga o fundo real — e vale lembrar que o fundo do site vive no `body::before`.
+
+**O `body::before` tem um par de tokens só pra ele.** São dois radiais de brilho; num tema escuro o acento clareia o fundo (virando luz), mas nos temas **claros** o acento é escuro e transformaria o radial numa mancha escura. Por isso `--glow-rgb` e `--glow-2-rgb` existem separados do `--caramel` — nos claros eles são claros, nos escuros espelham o acento.
 
 Os ícones do Lucide são monocromáticos e se adaptam via `--icon-filter` (declarado por tema): nos escuros, um `invert` deixa o ícone claro; nos claros, a cor assada escura já basta.
 
 ## Fonte e tamanho
 
-Tudo isso vive no **`⚙` (System Settings)** no topo, junto com os temas:
+Vivem no **`⚙` (System Settings)**, como os dois últimos cardápios:
 
-- **Família do site**: **Sans** (padrão), **Serif** e **Mono** — útil pra acessibilidade, tudo via `html[data-font="serif"]` / `html[data-font="mono"]`.
-- **Tamanho do site**: Normal / Large / Extra large (`html[data-font-size=...]`, escala em `rem`).
-- **Dentro do artigo**: o botão `Aa` na barra da janela troca a família (sincronizado com o site), e `A−`/`A+` ajustam só o corpo do texto (7 níveis, 75%–175%). O tamanho do artigo é **independente** do tamanho do site, pra quem precisa de texto grande no artigo sem ampliar o chrome.
+- **Família do site** — *"how do you like it printed?"*: **Sans** (padrão), **Serif** e **Mono**. Tudo via `html[data-font="serif"]` / `html[data-font="mono"]`.
+- **Tamanho do site** — *"what cup size?"*: Normal / Large / Extra large (`html[data-font-size=...]`, escala em `rem`).
+
+As perguntas trazem o tom; as **opções continuam técnicas** (Sans/Serif/Mono), porque a pessoa precisa saber o que está escolhendo — um nome bonito que não descreve a fonte viraria charada.
+
+**Dentro do artigo** é diferente, e de propósito: o botão `Aa` na barra troca a família (sincronizado com o site) e `A−`/`A+` ajustam só o corpo do texto (7 níveis, 75%–175%). O menu do artigo fica nos pills, não em cardápio — com um artigo aberto, o foco é o conteúdo. O tamanho do artigo é **independente** do tamanho do site, pra quem precisa de texto grande no artigo sem ampliar o chrome.
 
 Todas as escolhas ficam salvas no **localStorage**. O corpo do artigo usa `--font-body` (segue a família escolhida), os títulos usam `--font-display`, e código/blocos usam `--font-mono` sempre.
 
@@ -410,6 +435,7 @@ Todas as escolhas ficam salvas no **localStorage**. O corpo do artigo usa `--fon
 - O foco **volta** pro lugar de origem ao fechar uma janela, e a página rola sozinha se o elemento focado estiver fora da vista.
 - Itens do dock são `<button>` (não links falsos), com `aria-label`.
 - `aria-live`, `prefers-reduced-motion`, e `Escape` pra fechar.
+- O **chip da bebida** no hero é um `<button>` com `aria-label="Change theme"` (não texto clicável), e no toque ganha alvo de 44px.
 - Modo fantasma (a barra do artigo esmaece após 15s parado) só age quando o **artigo** é a janela da frente.
 
 ## Links diretos (deep links)
@@ -459,12 +485,13 @@ Pra rodar **tudo** de uma vez (sintaxe, testes, build e gitignore):
 Individualmente:
 
 ```bash
-node .github/scripts/check_render.js  # smoke test do markdown (25 casos)
-bash .github/scripts/check_cli.sh      # testes da CLI (14 casos)
-python3 .github/scripts/check_manifest.py   # manifest + frontmatter
+node .github/scripts/check_render.js          # smoke test do markdown + math (42 casos)
+bash .github/scripts/check_cli.sh              # testes da CLI (16 casos)
+python3 .github/scripts/check_manifest.py     # manifest + frontmatter
+python3 .github/scripts/check_images.py       # metadados (EXIF) em images/
 ```
 
-Os testes de CLI e markdown rodam no CI antes de qualquer deploy (`.github/workflows/deploy.yml`, job `validate`). O `check_cli.sh` roda cada caso numa **cópia isolada do projeto** num diretório temporário — não toca nos seus arquivos. Ele cobre `new`/`rm`, caminhos variantes, integridade do JSON e o código de saída do `check`.
+Os testes rodam no CI antes de qualquer deploy (`.github/workflows/deploy.yml`, job `validate`). O `check_cli.sh` roda cada caso numa **cópia isolada do projeto** num diretório temporário — não toca nos seus arquivos. Ele cobre `new`/`rm`, caminhos variantes, integridade do JSON, o código de saída do `check` e a checagem de EXIF.
 
 ## Deploy no GitHub Pages
 
