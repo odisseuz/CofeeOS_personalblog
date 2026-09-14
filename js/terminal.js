@@ -204,7 +204,7 @@ const commands = {
     if (!chave) {
       return ['theme: ' + args.join(' ') + ': unknown', 'try: ' + nomes.join(', ')];
     }
-    window.__setTheme(chave);
+    window.__setTheme(chave, true);
     return ['theme \u2192 ' + pedido];
   },
 

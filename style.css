@@ -191,21 +191,18 @@ html {
   scrollbar-width: thin;
 }
 
-/* Troca suave de tema. A classe é posta só no clique (não no preview do
-   hover, que precisa ser instantâneo). Evita o "flash" que incomoda quem tem
-   sensibilidade a mudança brusca de cor. */
-html.theme-switching,
-html.theme-switching body,
+/* Troca de tema. A classe é posta só no clique (o preview do hover precisa ser
+   instantâneo). Anima POUCOS elementos: só as superfícies grandes.
+
+   Deliberadamente NÃO animamos `html`/`body` com `color` nem todos os filhos —
+   isso propaga a transição pra centenas de elementos e trava o mobile. As
+   superfícies de vidro carregam a maior parte da sensação de "troca suave". */
 html.theme-switching .editor,
 html.theme-switching .finder,
 html.theme-switching .term-window,
 html.theme-switching .settings-window,
 html.theme-switching .notepad-window {
-  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
-}
-
-html.theme-switching body::before {
-  transition: background 0.5s ease;
+  transition: background-color 0.45s ease, border-color 0.45s ease;
 }
 
 ::-webkit-scrollbar {
@@ -1570,6 +1567,14 @@ body.chrome-dim .editor-bar {
 .contact-form textarea:focus,
 .contact-form input:focus {
   border-color: rgb(var(--caramel-rgb) / 0.4);
+}
+
+/* sem isto o placeholder usa o cinza padrão do navegador (feito pra fundo
+   branco) e some nos temas claros — no latte dava 2:1 de contraste */
+.contact-form textarea::placeholder,
+.contact-form input::placeholder {
+  color: var(--muted);
+  opacity: 0.75;
 }
 
 .sr-only {

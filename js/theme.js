@@ -25,17 +25,35 @@ const THEME_KEY = 'coffeeos:theme';
 const PADRAO = 'latte';
 const THEMES = ['blue', 'black', 'blackhoney', 'mocha', 'ethiopian', 'puerh', 'matcha', 'cappuccino', 'cream'];
 
-// aplica (e salva) o tema — usado pelo menu de settings e pelo terminal
-export function setTheme(name) {
+// tema escolhido de verdade (o preview do hover não conta)
+let themeAtual = PADRAO;
+
+// aplica (e salva) o tema — usado pelo menu de settings e pelo terminal.
+// `animar = false` serve pra carga inicial: aplica sem transição.
+export function setTheme(name, animar) {
   const root = document.documentElement;
   if (name !== PADRAO && THEMES.indexOf(name) === -1) name = PADRAO;
-  // transição suave só no clique: sem ela a troca de tema dá um flash seco
-  root.classList.add('theme-switching');
-  clearTimeout(setTheme._t);
-  setTheme._t = setTimeout(function () { root.classList.remove('theme-switching'); }, 600);
+  const mudou = name !== themeAtual;
+
+  // Só anima quando o tema MUDA e o chamador quer (clique). Na carga inicial
+  // a página deve abrir direto no tema salvo, sem animação.
+  if (animar && mudou) {
+    root.classList.add('theme-switching');
+    // força um reflow: sem isso o navegador agrupa "ligar transição" e
+    // "trocar o tema" no mesmo frame, e a transição não pega.
+    void root.offsetWidth;
+    clearTimeout(setTheme._t);
+    setTheme._t = setTimeout(function () {
+      root.classList.remove('theme-switching');
+    }, 500);
+  }
+
   // o padrão vive no :root, sem atributo
   if (name === PADRAO) root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', name);
+  themeAtual = name;
+
+  // a UI do cardápio sincroniza SEMPRE, mesmo se o tema não mudou
   document.querySelectorAll('#theme-menu .menu-item').forEach(function (opt) {
     opt.setAttribute('aria-pressed', opt.getAttribute('data-theme') === name ? 'true' : 'false');
   });
@@ -44,7 +62,6 @@ export function setTheme(name) {
 
 // Aplica o tema só enquanto o mouse está em cima ("provar antes de pedir").
 // Guarda o tema real pra restaurar na saída.
-let themeAtual = PADRAO;
 function previewTheme(name) {
   const root = document.documentElement;
   if (name === PADRAO) root.removeAttribute('data-theme');
@@ -83,8 +100,7 @@ function endPreview() {
 
   const stored = savedTheme();
   const current = (THEMES.indexOf(stored) !== -1 || stored === PADRAO) ? stored : PADRAO;
-  themeAtual = current;
-  setTheme(current);
+  setTheme(current, false);   // sem animação na carga
   pintarAtual(current);
 
   // preview no hover: o site inteiro muda enquanto o mouse está no item.
@@ -96,8 +112,7 @@ function endPreview() {
   options.forEach(function (opt) {
     const nome = opt.getAttribute('data-theme');
     opt.addEventListener('click', function () {
-      themeAtual = nome;
-      setTheme(nome);
+      setTheme(nome, true);   // clique anima
       pintarAtual(nome);
       // fecha o cardápio: escolheu, acabou. (O toggle dispara endPreview, mas
       // o tema do clique já foi salvo, então nada é perdido.)
