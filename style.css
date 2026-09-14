@@ -20,13 +20,52 @@
 /* === 1. Design tokens & temas === */
 
 :root {
-  font-size: 100%;
+  --bg-0: #bfa88e;
+  --bg-1: #c9b39a;
+  --bg-2: #b39d84;
 
+  --cream: #2a2018;
+  --cream-rgb: 42 32 24;
+  --muted: #463725;
+  --muted-rgb: 70 55 37;
+  --coffee: #3a2a1c;
+  --caramel: #4a3520;
+  --caramel-rgb: 74 53 32;
+
+  --surface: rgba(205, 188, 166, 0.7);
+  --border: rgb(var(--cream-rgb) / 0.16);
+
+  --glass-top: 191 168 142;
+  --glass-win: 201 179 154;
+  --glass-term: 178 157 132;
+  --glass-backdrop: 165 145 122;
+
+  --glow-rgb: 120 85 50;
+  --scroll-track: #b39d84;
+  --scroll-thumb: #8a7458;
+
+  --icon-filter: brightness(0.5) saturate(1.5) drop-shadow(0 2px 4px rgba(60, 45, 30, 0.3));
+
+  --shadow-1: 0 8px 26px rgba(60, 45, 30, 0.16);
+  --shadow-2: 0 12px 40px rgba(60, 45, 30, 0.2);
+  --shadow-3: 0 20px 50px rgba(60, 45, 30, 0.24);
+  --ink: rgba(60, 45, 30, 0.12);
+  --ink-soft: rgba(60, 45, 30, 0.08);
+  --ink-faint: rgba(60, 45, 30, 0.05);
+
+  /* fontes: iguais em todos os temas */
+  --font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+/* blue: o tema antigo, agora explicitamente opcional */
+[data-theme="blue"] {
+  font-size: 100%;
   /* blue (padrão) */
   --bg-0: #0e1116;
   --bg-1: #161b22;
   --bg-2: #090c10;
-
   --cream: #e6edf3;
   --cream-rgb: 230 237 243;
   --muted: #8b949e;
@@ -34,24 +73,19 @@
   --coffee: #58a6ff;
   --caramel: #79c0ff;
   --caramel-rgb: 121 192 255;
-
   --surface: rgba(22, 27, 34, 0.55);
   --border: rgb(var(--cream-rgb) / 0.10);
-
   --glass-top: 22 27 34;
   --glass-win: 22 27 34;
   --glass-term: 13 17 23;
   --glass-backdrop: 9 12 16;
-
   --glow-rgb: 88 166 255;
   --scroll-track: #0d1117;
   --scroll-thumb: #30363d;
-
   /* ícones Lucide: cor assada escura; nos temas escuros invertemos pra claro.
      Sem opacity: ícone pequeno precisa de contraste, não de sutileza.
      O drop-shadow vive aqui dentro pra manter um único filter válido. */
   --icon-filter: invert(1) brightness(1.75) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
-
   /* sombras e escurecimentos — cada tema define os seus */
   --shadow-1: 0 8px 26px rgba(0, 0, 0, 0.35);
   --shadow-2: 0 12px 40px rgba(0, 0, 0, 0.5);
@@ -59,10 +93,6 @@
   --ink: rgba(0, 0, 0, 0.35);
   --ink-soft: rgba(0, 0, 0, 0.16);
   --ink-faint: rgba(0, 0, 0, 0.12);
-
-  --font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-  --font-display: Georgia, "Times New Roman", serif;
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
 
@@ -2639,9 +2669,9 @@ body.chrome-dim .editor-bar {
 
 
 [data-theme="cappuccino"] {
-  --bg-0: #4a3a2e;
-  --bg-1: #554436;
-  --bg-2: #3d3026;
+  --bg-0: #43352a;
+  --bg-1: #4e3e32;
+  --bg-2: #372b22;
 
   --cream: #d8c8ae;
   --cream-rgb: 216 200 174;
@@ -2653,51 +2683,16 @@ body.chrome-dim .editor-bar {
 
   --surface: rgba(104, 83, 66, 0.55);
 
-  --glass-top: 94 75 60;
-  --glass-win: 86 68 54;
-  --glass-term: 70 55 43;
-  --glass-backdrop: 58 46 36;
+  --glass-top: 86 69 55;
+  --glass-win: 78 62 49;
+  --glass-term: 62 49 38;
+  --glass-backdrop: 52 41 32;
 
   --glow-rgb: 210 155 80;
-  --scroll-track: #463628;
+  --scroll-track: #3f3124;
   --scroll-thumb: #6b5646;
 
   --icon-filter: invert(1) brightness(1.55) sepia(0.65) saturate(1.4) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-}
-
-[data-theme="latte"] {
-  --bg-0: #bfa88e;
-  --bg-1: #c9b39a;
-  --bg-2: #b39d84;
-
-  --cream: #2a2018;
-  --cream-rgb: 42 32 24;
-  --muted: #463725;
-  --muted-rgb: 70 55 37;
-  --coffee: #3a2a1c;
-  --caramel: #4a3520;
-  --caramel-rgb: 74 53 32;
-
-  --surface: rgba(205, 188, 166, 0.7);
-  --border: rgb(var(--cream-rgb) / 0.16);
-
-  --glass-top: 191 168 142;
-  --glass-win: 201 179 154;
-  --glass-term: 178 157 132;
-  --glass-backdrop: 165 145 122;
-
-  --glow-rgb: 120 85 50;
-  --scroll-track: #b39d84;
-  --scroll-thumb: #8a7458;
-
-  --icon-filter: brightness(0.5) saturate(1.5) drop-shadow(0 2px 4px rgba(60, 45, 30, 0.3));
-
-  --shadow-1: 0 8px 26px rgba(60, 45, 30, 0.16);
-  --shadow-2: 0 12px 40px rgba(60, 45, 30, 0.2);
-  --shadow-3: 0 20px 50px rgba(60, 45, 30, 0.24);
-  --ink: rgba(60, 45, 30, 0.12);
-  --ink-soft: rgba(60, 45, 30, 0.08);
-  --ink-faint: rgba(60, 45, 30, 0.05);
 }
 
 [data-theme="ethiopian"] {

@@ -20,18 +20,21 @@ setInterval(tick, 1000);
 
 // tema
 const THEME_KEY = 'coffeeos:theme';
-const THEMES = ['blue', 'black', 'blackhoney', 'mocha', 'ethiopian', 'puerh', 'matcha', 'cappuccino', 'latte', 'cream'];
+// o tema padrão vive no :root, SEM atributo (por isso `blue` não aparece aqui
+// como "especial": a lista é só dos que têm [data-theme="..."])
+const PADRAO = 'latte';
+const THEMES = ['blue', 'black', 'blackhoney', 'mocha', 'ethiopian', 'puerh', 'matcha', 'cappuccino', 'cream'];
 
 // aplica (e salva) o tema — usado pelo menu de settings e pelo terminal
 export function setTheme(name) {
   const root = document.documentElement;
-  if (name !== 'blue' && THEMES.indexOf(name) === -1) name = 'blue';
+  if (name !== PADRAO && THEMES.indexOf(name) === -1) name = PADRAO;
   // transição suave só no clique: sem ela a troca de tema dá um flash seco
   root.classList.add('theme-switching');
   clearTimeout(setTheme._t);
-  setTheme._t = setTimeout(function () { root.classList.remove('theme-switching'); }, 400);
-  // "blue" é o padrão: vive no :root, sem atributo
-  if (name === 'blue') root.removeAttribute('data-theme');
+  setTheme._t = setTimeout(function () { root.classList.remove('theme-switching'); }, 600);
+  // o padrão vive no :root, sem atributo
+  if (name === PADRAO) root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', name);
   document.querySelectorAll('#theme-menu .menu-item').forEach(function (opt) {
     opt.setAttribute('aria-pressed', opt.getAttribute('data-theme') === name ? 'true' : 'false');
@@ -41,10 +44,10 @@ export function setTheme(name) {
 
 // Aplica o tema só enquanto o mouse está em cima ("provar antes de pedir").
 // Guarda o tema real pra restaurar na saída.
-let themeAtual = 'blue';
+let themeAtual = PADRAO;
 function previewTheme(name) {
   const root = document.documentElement;
-  if (name === 'blue') root.removeAttribute('data-theme');
+  if (name === PADRAO) root.removeAttribute('data-theme');
   else root.setAttribute('data-theme', name);
 }
 function endPreview() {
@@ -79,7 +82,7 @@ function endPreview() {
   }
 
   const stored = savedTheme();
-  const current = (THEMES.indexOf(stored) !== -1) ? stored : 'blue';
+  const current = (THEMES.indexOf(stored) !== -1 || stored === PADRAO) ? stored : PADRAO;
   themeAtual = current;
   setTheme(current);
   pintarAtual(current);

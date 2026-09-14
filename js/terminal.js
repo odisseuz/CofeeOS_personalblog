@@ -2,7 +2,20 @@
 import { getPostIndex, getAllPosts } from './data.js';
 
 const PROMPT = 'guest@coffeeOS:~$';
-const THEMES = ['blue', 'brown', 'black', 'cream', 'light'];
+// a lista de temas do terminal. os nomes são os mesmos do cardápio (bebidas),
+// e a chave é o `data-theme` — o que o usuário digita é o nome da bebida.
+const THEMES = {
+  'blue mountain': 'blue',
+  'mocha': 'mocha',
+  'cappuccino': 'cappuccino',
+  'latte': 'latte',
+  'black honey': 'blackhoney',
+  'matcha': 'matcha',
+  'puerh': 'puerh',
+  'cold brew': 'black',
+  'ethiopian': 'ethiopian',
+  'cortado': 'cream'
+};
 let output = null;
 let input = null;
 let history = [];
@@ -82,7 +95,7 @@ const commands = {
       '  random        open a random post',
       '  grep <term>   search posts',
       '  notes         open the notepad',
-      '  theme <name>  switch theme (blue|brown|black|cream|light)',
+      '  theme <name>  switch theme (try: latte, mocha, matcha, cold brew)',
       '  whoami        print current user',
       '  pwd           print working directory',
       '  uname         print the OS name',
@@ -182,13 +195,17 @@ const commands = {
   },
 
   theme: function (args) {
-    if (!args.length) return ['themes: ' + THEMES.join(', ')];
-    const name = args[0].toLowerCase();
-    if (THEMES.indexOf(name) === -1) {
-      return ['theme: ' + args[0] + ': unknown', 'try: ' + THEMES.join(', ')];
+    const nomes = Object.keys(THEMES);
+    if (!args.length) return ['themes: ' + nomes.join(', ')];
+    const pedido = args.join(' ').toLowerCase();
+    // aceita tanto o nome da bebida quanto o data-theme
+    const chave = THEMES[pedido] ||
+      (Object.values(THEMES).indexOf(pedido) !== -1 ? pedido : null);
+    if (!chave) {
+      return ['theme: ' + args.join(' ') + ': unknown', 'try: ' + nomes.join(', ')];
     }
-    window.__setTheme(name);
-    return ['theme → ' + name];
+    window.__setTheme(chave);
+    return ['theme \u2192 ' + pedido];
   },
 
   history: function () {

@@ -351,16 +351,20 @@ Clicando, abre o cardápio completo com os itens agrupados (`coffee`, `tea`, `co
 
 | Nome no cardápio | `data-theme` | Caráter |
 |---|---|---|
-| **Blue Mountain** | `blue` (padrão, vive no `:root`) | azul frio, luz de tela |
+| **Latte** | *sem atributo* (**o padrão**, vive no `:root`) | claro médio, texto escuro |
+| **Blue Mountain** | `blue` | azul frio, luz de tela |
 | **Mocha** | `mocha` | marrom café, o mais escuro dos quentes |
 | **Cappuccino** | `cappuccino` | marrom médio, acento cremoso |
-| **Latte** | `latte` | claro médio, texto escuro |
 | **Black Honey** | `blackhoney` | quase preto, acento dourado |
 | **Matcha** | `matcha` | verde dessaturado |
 | **Puerh** | `puerh` | rosa-vinho, terroso |
 | **Cold Brew** | `black` | preto neutro, sem matiz |
 | **Ethiopian** | `ethiopian` | roxo, frutado |
 | **Cortado** | `cream` | claro, papel quente |
+
+O **`latte` é o padrão** e, como tal, **vive no `:root` sem atributo** — é o único que não tem bloco `[data-theme="..."]`. Todos os outros nove têm. Então o array `THEMES` em `js/theme.js` lista **nove**, e a constante `PADRAO` guarda o décimo. Isso é de propósito: um tema a menos pra manter em dois lugares, e a página abre sem `data-theme` (nada de flash na primeira pintura).
+
+No **terminal**, `theme` aceita o nome da **bebida** (`theme cold brew`) e também o `data-theme` cru (`theme black`) como atalho.
 
 ### Preview e transição
 
@@ -374,9 +378,11 @@ Quem tem **"reduzir movimento"** ligado no sistema recebe tudo instantâneo: o b
 ### Adicionar um tema
 
 1. Um bloco `[data-theme="nome-da-bebida"] { ... }` no `style.css`, copiando um existente e trocando os tokens.
-2. O nome no array `THEMES` em `js/theme.js`.
-3. Um botão `.menu-item` no `#theme-menu` (`index.html`) **e** no mapa `NOMES` do `theme.js` (o nome exibido no cabeçalho fechado).
+2. O nome no array `THEMES` em `js/theme.js` (o tema padrão **não** entra nesse array — ele vive no `:root`).
+3. Um botão `.menu-item` no `#theme-menu` (`index.html`), no mapa `NOMES` do `theme.js` e no `THEMES` do `terminal.js` (nome da bebida → `data-theme`).
 4. Um `.sw-NOME { background: ... }` com a cor de referência.
+
+**Trocar o tema padrão** é mais trabalhoso que adicionar um: o padrão mora no `:root`, então é preciso trocar os tokens dele com os do novo padrão, mover o antigo pra um bloco `[data-theme="..."]`, ajustar `PADRAO` no `theme.js` e o que o cabeçalho do cardápio mostra no `index.html`.
 
 **Sobre o swatch:** use o `--caramel` do tema nos temas **escuros** e o `--bg-0` nos **claros**. O acento de um tema claro é escuro por necessidade (contraste), e sumiria contra o menu escuro.
 
