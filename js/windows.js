@@ -55,6 +55,20 @@ export function makeWindow(win, handle, resizeHandle) {
   }
 }
 
+// O botão de maximizar é um toggle: o ícone (quadrado ↔ quadrados sobrepostos),
+// o aria-label e o title mudam juntos. Fica num lugar só porque antes isso era
+// reescrito em três (resetWindow, makeMaximize e maximize) — bastava um deles
+// esquecer pra o botão mentir sobre o próprio estado.
+export function setMaximizeState(win, maximized) {
+  if (!win) return;
+  const btn = win.querySelector('.maximize-btn');
+  if (!btn) return;
+  btn.classList.toggle('is-restore', !!maximized);
+  const label = maximized ? 'Restore' : 'Maximize';
+  btn.setAttribute('aria-label', label);
+  btn.setAttribute('title', label);
+}
+
 export function resetWindow(win) {
   if (!win) return;
   win.classList.remove('maximized');
@@ -63,34 +77,21 @@ export function resetWindow(win) {
   win.style.height = '';
   win.style.maxWidth = '';
   win.style.maxHeight = '';
-  const maxBtn = win.querySelector('.maximize-btn');
-  if (maxBtn) {
-    maxBtn.textContent = '⤢';
-    maxBtn.setAttribute('aria-label', 'Maximize');
-    maxBtn.setAttribute('title', 'Maximize');
-  }
+  setMaximizeState(win, false);
 }
 
 export function makeMaximize(win, btn) {
   if (!win || !btn) return;
   btn.addEventListener('click', function () {
     const maximized = win.classList.toggle('maximized');
-    if (maximized) {
-      win.style.transform = '';
-      btn.textContent = '⤡';
-      btn.setAttribute('aria-label', 'Restore');
-      btn.setAttribute('title', 'Restore');
-    } else {
-      btn.textContent = '⤢';
-      btn.setAttribute('aria-label', 'Maximize');
-      btn.setAttribute('title', 'Maximize');
-    }
+    if (maximized) win.style.transform = '';
+    setMaximizeState(win, maximized);
   });
 }
 
 // em telas pequenas não dá pra arrastar/redimensionar nem enxergar a alça, e a
 // janela encolhida atrapalha a leitura — abre já em tela cheia.
-// O botão ⤢ continua funcionando pra voltar ao tamanho normal.
+// O botão de maximizar continua funcionando pra voltar ao tamanho normal.
 export const isNarrow = function () {
   return window.matchMedia && window.matchMedia('(max-width: 560px)').matches;
 };
@@ -99,12 +100,7 @@ export function maximize(win) {
   if (!win || win.classList.contains('maximized')) return;
   win.classList.add('maximized');
   win.style.transform = '';
-  const btn = win.querySelector('.maximize-btn');
-  if (btn) {
-    btn.textContent = '⤡';
-    btn.setAttribute('aria-label', 'Restore');
-    btn.setAttribute('title', 'Restore');
-  }
+  setMaximizeState(win, true);
 }
 
 // mantém o foco dentro de um modal

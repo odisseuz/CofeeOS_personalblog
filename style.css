@@ -114,6 +114,7 @@
   --caramel-rgb: 192 192 192;
 
   --surface: rgba(15, 15, 15, 0.7);
+  --border: rgb(var(--cream-rgb) / 0.20);
 
   --glass-top: 10 10 10;
   --glass-win: 8 8 8;
@@ -2321,6 +2322,41 @@ body.chrome-dim .editor-bar {
   user-select: none;
 }
 
+/* controles de janela: quadrado (maximizar) e quadrados sobrepostos
+   (restaurar), desenhados inline pra não dependerem da fonte — o glifo antigo
+   (⤢, U+2922) é um caractere de seta, de outro bloco tipográfico que o resto da
+   barra. O divisor separa esse grupo dos botões de conteúdo (☰ ✎ ⋮ …), que
+   estavam todos na mesma fila, sem hierarquia nenhuma. */
+.bar-sep {
+  width: 1px;
+  height: 0.875rem;
+  margin: 0 0.25rem;
+  background: var(--border);
+}
+
+.ico {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+/* `1em` no ícone e `rem` no resto: acompanha o tamanho da fonte do site
+   (data-font-size), como os glifos de texto que eles substituíram. O font-size
+   iguala maximizar e fechar, que vinham de regras diferentes (0.95rem e 1rem). */
+.maximize-btn,
+.editor-close {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+/* qual dos dois ícones aparece é decisão do setMaximizeState (windows.js), que
+   põe e tira a classe — antes o glifo era reescrito como texto (textContent,
+   que apagaria o <svg>). */
+.maximize-btn .ico-restore { display: none; }
+.maximize-btn.is-restore .ico-max { display: none; }
+.maximize-btn.is-restore .ico-restore { display: block; }
+
 .overlay:has(.maximized) {
   padding: 0;
 }
@@ -2684,6 +2720,7 @@ body.chrome-dim .editor-bar {
   --caramel-rgb: 234 181 122;
 
   --surface: rgba(58, 43, 32, 0.6);
+  --border: rgb(var(--cream-rgb) / 0.14);
 
   --glass-top: 46 35 26;
   --glass-win: 40 30 22;
@@ -2712,6 +2749,7 @@ body.chrome-dim .editor-bar {
   --caramel-rgb: 163 207 135;
 
   --surface: rgba(30, 44, 33, 0.6);
+  --border: rgb(var(--cream-rgb) / 0.14);
 
   --glass-top: 24 35 26;
   --glass-win: 20 29 22;
@@ -2740,6 +2778,7 @@ body.chrome-dim .editor-bar {
   --caramel-rgb: 201 122 134;
 
   --surface: rgba(46, 28, 27, 0.6);
+  --border: rgb(var(--cream-rgb) / 0.14);
 
   --glass-top: 38 24 23;
   --glass-win: 30 19 18;
@@ -2769,6 +2808,7 @@ body.chrome-dim .editor-bar {
   --caramel-rgb: 232 212 176;
 
   --surface: rgba(104, 83, 66, 0.55);
+  --border: rgb(var(--cream-rgb) / 0.12);
 
   --glass-top: 86 69 55;
   --glass-win: 78 62 49;
@@ -2797,6 +2837,7 @@ body.chrome-dim .editor-bar {
   --caramel-rgb: 181 138 208;
 
   --surface: rgba(38, 28, 46, 0.6);
+  --border: rgb(var(--cream-rgb) / 0.14);
 
   --glass-top: 34 26 42;
   --glass-win: 28 21 34;
@@ -2825,6 +2866,7 @@ body.chrome-dim .editor-bar {
   --caramel-rgb: 232 192 79;
 
   --surface: rgba(26, 22, 12, 0.6);
+  --border: rgb(var(--cream-rgb) / 0.20);
 
   --glass-top: 22 19 10;
   --glass-win: 17 14 8;
