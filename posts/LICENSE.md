@@ -1,5 +1,5 @@
 ---
-title: Content — CC BY 4.0
+title: Content - CC BY 4.0
 ---
 
 The text and images in this folder and in `images/` are licensed under

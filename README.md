@@ -73,7 +73,7 @@ Isso cria o `.md` com o frontmatter já preenchido (título e data de hoje) e re
 
 Pra fazer na mão, o processo é:
 
-1. Cria o arquivo em `posts/<grupo>/<subpasta>/nome-do-post.md` (grupo = `readings`, `art`, `games` ou `science`; a subpasta é opcional):
+1. Cria o arquivo em `posts/<grupo>/<subpasta>/nome-do-post.md` (grupo = `readings`, `art`, `games`, `science` ou `culture`; a subpasta é opcional):
 
    ```markdown
    ---

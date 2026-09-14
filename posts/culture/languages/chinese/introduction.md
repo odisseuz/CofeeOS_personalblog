@@ -13,13 +13,13 @@ In the last semester, I had the opportunity to get to know many people from this
 
 China is one of the world's oldest continuous civilizations, but its full history would need a whole blog post. For now, all we need to know is that "Chinese" isn't a single language.
 
-The most crucial distinction to avoid confusion (and getting beaten by either side!) is between the **spoken varieties** and the **writing systems**. On the spoken side, people may speak Mandarin, Cantonese, or other regional varieties — the Han ethnic group is the largest, but far from the only one. On the written side, characters come in **Simplified** (standardized in mainland China) and **Traditional** (used in places like Hong Kong and Taiwan) forms.
+The most crucial distinction to avoid confusion (and getting beaten by either side!) is between the **spoken varieties** and the **writing systems**. On the spoken side, people may speak Mandarin, Cantonese, or other regional varieties. The Han ethnic group is the largest, but far from the only one. On the written side, characters come in **Simplified** (standardized in mainland China) and **Traditional** (used in places like Hong Kong and Taiwan) forms.
 
 ## Hanyu - 汉语
 
-The language spoken by the vast majority of people in China is Mandarin, known natively as **汉语** (*Hànyǔ*).
+The most widely spoken variety, and the one taught as the standard, is Mandarin, known natively as **汉语** (*Hànyǔ*).
 
-Just like *Zhōngguó*, this word is also really cool to understand: **汉** (*Hàn*) refers to the Han ethnic majority, and **语** (*yǔ*) means language. So, *Hànyǔ* literally means "the language of the Han people". That's the one we will talk about today.
+Just like *Zhōngguó*, this word is also really cool to understand: **汉** (*Hàn*) refers to the Han ethnic group, and **语** (*yǔ*) means language. So, *Hànyǔ* literally means "the language of the Han people". That's the one we will talk about today.
 
 ## pinyin - **汉语拼音**
 
@@ -88,11 +88,11 @@ And here is the golden rule you should never forget: **The tone mark always land
 
 There are four main tones, plus a fifth "neutral" one. The classic example every single student learns uses the syllable `ma`. Notice how the visual marks above the vowels ( ¯, ´, ˇ, ` ) literally draw the shape your voice should make!
 
-*   **1st Tone (Flat):** `mā` (妈) — **Mother**. Your voice stays high and steady, like singing a single note.
-*   **2nd Tone (Rising):** `má` (麻) — **Hemp / Numb**. Your voice goes up, like you are asking a question in surprise: *"What?"*
-*   **3rd Tone (Falling-Rising):** `mǎ` (马) — **Horse**. Your voice drops low and comes back up. 
-*   **4th Tone (Falling):** `mà` (骂) — **To scold**. Your voice drops sharply and forcefully, like a quick command: *"Stop!"*
-*   **Neutral Tone:** `ma` (吗) — **Question particle**. It has no mark. It is pronounced short and light, placed at the end of a sentence to turn it into a yes/no question.
+*   **1st Tone (Flat):** `mā` (妈) - **Mother**. Your voice stays high and steady, like singing a single note.
+*   **2nd Tone (Rising):** `má` (麻) - **Hemp / Numb**. Your voice goes up, like you are asking a question in surprise: *"What?"*
+*   **3rd Tone (Falling-Rising):** `mǎ` (马) - **Horse**. Your voice drops low and comes back up. 
+*   **4th Tone (Falling):** `mà` (骂) - **To scold**. Your voice drops sharply and forcefully, like a quick command: *"Stop!"*
+*   **Neutral Tone:** `ma` (吗) - **Question particle**. It has no mark. It is pronounced short and light, placed at the end of a sentence to turn it into a yes/no question.
 
 So yes, if you use the wrong tone, you might accidentally call your mother a horse. (Don't worry, context usually saves us, but it's a rite of passage for every beginner! *Me included*)
 
@@ -136,4 +136,4 @@ Here is a quick recap of every word and character we learned today:
 | 吗 | ma | (question particle) |
 | 谢谢 | xièxie | thank you |
 
-[^1]: Table from [ChineseLearning — Chinese spelling alphabet-initials table (sheng mu)](https://www.chineselearning.com/pinyin/chinese-spelling-alphabet-initials-table).
+[^1]: Table from [ChineseLearning - Chinese spelling alphabet-initials table (sheng mu)](https://www.chineselearning.com/pinyin/chinese-spelling-alphabet-initials-table).
