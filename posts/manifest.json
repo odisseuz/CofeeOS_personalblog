@@ -2,6 +2,6 @@
   "readings": [],
   "art": [],
   "games": [],
-  "science": ["education/teaching-zotero.md", "causal-inference/brave-and-true/ch01-cause-and-effect.md", "psychology/history/descartes-hume-and-kant.md"],
+  "science": ["education/teaching-zotero.md"],
   "culture": ["languages/chinese/introduction.md"]
 }
