@@ -1047,17 +1047,24 @@ button.card-soft {
   text-decoration: none;
 }
 
+/* O título pode ser longo (`Teaching Zotero using Documentation`) e a meta não
+   quebra (`white-space: nowrap`). Sem min-width: 0, o título não encolhe dentro
+   do flex e empurra a meta pra fora da caixa. Com ele, o título cede espaço. */
+.recent-item-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cream);
+  transition: color 0.15s ease;
+}
+
 .recent-list li:last-child .recent-item {
   border-bottom: none;
 }
 
 .recent-item:hover .recent-item-title {
   color: var(--caramel);
-}
-
-.recent-item-title {
-  color: var(--cream);
-  transition: color 0.15s ease;
 }
 
 .recent-item-meta {
