@@ -63,5 +63,5 @@ _*.html
 
 # drafts de posts: ficam no disco, nao sobem pro GitHub.
 # quando o texto estiver pronto, comente esta linha, registre no manifest e commite.
-#posts/science/causal-inference/
+posts/science/causal-inference/
 posts/science/psychology/
