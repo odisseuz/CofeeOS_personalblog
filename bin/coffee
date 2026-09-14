@@ -7,6 +7,7 @@
 #   coffee ls [grupo]                       lista os posts
 #   coffee status                           visão geral
 #   coffee check                            valida (igual ao CI)
+#   coffee images                           checa metadados (EXIF) em images/
 #   coffee serve [porta]                    servidor local, sem cache
 #
 # Bash 3.2 (o do macOS) + python3 (que o build já usa).
@@ -36,6 +37,7 @@ coffee — midnight coffee
   ls [grupo]                       lista os posts (título e data)
   status                           visão geral: o que está ok e o que falta
   check                            valida manifest + frontmatter (igual ao CI)
+  images                           checa metadados (EXIF/GPS) em images/
   verify                           roda todas as checagens
   serve [porta]                    servidor local, sem cache (padrão 8000)
 EOF
@@ -139,6 +141,10 @@ cmd_check() {
   python3 "$ROOT/.github/scripts/check_manifest.py"
 }
 
+cmd_images() {
+  python3 "$ROOT/.github/scripts/check_images.py"
+}
+
 cmd_status() {
   cmd_check || true
   python3 - "$MANIFEST" "$POSTS" <<'PY'
@@ -164,6 +170,7 @@ cmd_verify() {
   step "manifest + frontmatter"; if python3 "$ROOT/.github/scripts/check_manifest.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "testes da CLI"; if bash "$ROOT/.github/scripts/check_cli.sh" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "testes do markdown"; if node "$ROOT/.github/scripts/check_render.js" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "metadados de imagem"; if python3 "$ROOT/.github/scripts/check_images.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "build + SEO"; local buildok=1
   ( cd "$ROOT" && BASE_URL=https://odisseuz.github.io/CofeeOS_personalblog node build.js > /dev/null 2>&1 ) || buildok=0
   if [ "$buildok" = 1 ]; then echo "ok"; else echo "FALHOU"; failed=1; fi
@@ -234,6 +241,7 @@ case "$cmd" in
   ls)     cmd_ls "$@" ;;
   status) cmd_status "$@" ;;
   check)  cmd_check "$@" ;;
+  images) cmd_images "$@" ;;
   verify) cmd_verify "$@" ;;
   serve)  cmd_serve "$@" ;;
   -h|--help|help) usage ;;

@@ -27,6 +27,7 @@ sandbox() {
   if ! cp "$SRC/bin/coffee" "$d/bin/coffee" \
      || ! cp "$SRC/bin/lib/"*.py "$d/bin/lib/" \
      || ! cp "$SRC/.github/scripts/check_manifest.py" "$d/.github/scripts/" \
+     || ! cp "$SRC/.github/scripts/check_images.py" "$d/.github/scripts/" \
      || ! cp "$SRC/index.html" "$d/index.html" \
      || ! cp "$SRC/posts/manifest.json" "$d/posts/manifest.json"; then
     printf 'ERRO: sandbox não conseguiu copiar os arquivos de %s\n' "$SRC" >&2
@@ -144,6 +145,35 @@ if echo "$out_st" | grep -q 'manifest check OK'; then
   pass "status reporta saude"
 else
   fail "status reporta saude" "$out_st"
+fi
+
+echo ""
+echo "=== coffee images (EXIF) ==="
+D8="$(sandbox imagens)"
+if (cd "$D8" && ./bin/coffee images > /dev/null 2>&1); then
+  pass "images passa sem pasta images/"
+else
+  fail "images passa sem pasta images/"
+fi
+# JPEG sintético com EXIF (make + model + ponteiro de GPS), sem depender de Pillow
+python3 - "$D8" <<'PY'
+import os, struct, sys
+d = sys.argv[1]
+os.makedirs(os.path.join(d, 'images'), exist_ok=True)
+def ifd(entries):
+    out = struct.pack('>H', len(entries))
+    for tag in entries:
+        out += struct.pack('>HHI', tag, 3, 1) + struct.pack('>H', 1) + b'\x00\x00'
+    return out + struct.pack('>I', 0)
+tiff = b'MM\x00\x2a' + struct.pack('>I', 8) + ifd([0x010F, 0x0110, 0x8825]) + ifd([0x0001])
+payload = b'Exif\x00\x00' + tiff
+app1 = b'\xff\xe1' + struct.pack('>H', len(payload) + 2) + payload
+open(os.path.join(d, 'images', 'leaky.jpg'), 'wb').write(b'\xff\xd8' + app1 + b'\xff\xd9')
+PY
+if (cd "$D8" && ./bin/coffee images > /dev/null 2>&1); then
+  fail "images falha com EXIF presente" "deveria ter falhado"
+else
+  pass "images falha com EXIF presente"
 fi
 
 # ---------------------------------------------------------------------------

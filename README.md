@@ -118,6 +118,7 @@ ls [grupo]                       lista os posts (título e data)
 
 status                           visão geral: o que está ok e o que falta
 check                            manifest + frontmatter (igual ao CI)
+images                           checa metadados (EXIF/GPS) em images/
 verify                           roda todas as checagens
 
 serve [porta]                    servidor local, sem cache (padrão 8000)
@@ -142,6 +143,7 @@ js                              ok
 manifest + frontmatter          ok
 testes da CLI                   ok
 testes do markdown              ok
+metadados de imagem             ok
 build + SEO                     ok
 gitignore                       ok
 tabindex (botões)               ok
@@ -149,10 +151,11 @@ tabindex (botões)               ok
 tudo ok
 ```
 
-Roda sintaxe (bash/python/js), os testes, o build, e duas checagens que pegam erro que já aconteceu aqui:
+Roda sintaxe (bash/python/js), os testes, o build, e três checagens que pegam erro que já aconteceu aqui:
 
 - **`gitignore`** — um padrão `lucide*` no `.gitignore` deixava todos os ícones fora do git, e o site viria sem ícones num clone.
 - **`tabindex`** — o Safari no macOS não navega por Tab entre `<button>` sem `tabindex` explícito. Se você adicionar um botão novo sem o atributo, o `verify` aponta o arquivo e a linha.
+- **`metadados de imagem`** — foto exportada direto da câmera costuma carregar EXIF com GPS, modelo e número de série. O `verify` avisa (ver [Imagens](#imagens)).
 
 ## Acessibilidade e o Safari
 
@@ -204,6 +207,26 @@ Coloca em `images/` e referencia no markdown assim:
 ```
 
 Clicar numa imagem de um post abre ela num **visualizador em janela** (com o nome do arquivo na barra; arrastável, redimensionável e maximizável).
+
+### Antes de publicar
+
+Exporte a foto **para web** (por volta de 1600 px de largura, qualidade ~80) em vez de subir o original. Você ganha duas coisas: o site carrega rápido, e o original de alta resolução — que é o que alguém teria interesse em reusar — nunca entra no repositório.
+
+O export também limpa o **EXIF** (GPS de onde a foto foi tirada, modelo do aparelho, número de série). Pra conferir:
+
+```bash
+./bin/coffee images
+```
+
+```
+  - images/praia.jpg: EXIF present (GPS location, camera model) — strip before publishing
+
+image check: 1 file(s) with metadata (2 checked)
+```
+
+Sem saída de aviso, está limpo. O `./bin/coffee verify` roda isso junto com o resto, e o CI também — então uma foto com GPS não passa no deploy.
+
+A checagem lê só o bloco EXIF de JPEGs, sem dependências externas. Outros formatos (PNG, WebP) passam batido: eles normalmente não carregam esse tipo de metadado, mas se um dia isso mudar, é aí que o script cresce.
 
 ## Sobre (about)
 
