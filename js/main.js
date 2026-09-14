@@ -160,16 +160,19 @@ document.addEventListener('coffee:overlay', syncInert);
     resetWindow(settingsWindow);
     settingsOverlay.classList.add('open');
     syncInert();
-    // vindo do selo da bebida, já abre o cardápio: é o que a pessoa quer ver
+    // vindo do chip da bebida, já abre o cardápio: é o que a pessoa quer ver.
+    // e marca que foi assim, pra escolher um tema fechar a janela toda — quem
+    // abriu o ⚙ por conta própria pode querer mexer em fonte/tamanho depois.
     const picker = document.getElementById('theme-picker');
     if (picker) picker.open = !!abrirCardapio;
+    settingsOverlay.setAttribute('data-from-chip', abrirCardapio ? '1' : '0');
     if (settingsClose) settingsClose.focus();
   }
   if (settingsToggle) settingsToggle.addEventListener('click', function () { openSettings(false); });
+  // o theme.js fecha o settings ao escolher um tema no cardápio
+  window.__closeSettings = closeSettings;
 
   // o chip da bebida no hero abre o settings com o cardápio já expandido
-  // o selo da bebida no hero acompanha o tema escolhido. É também a pista de
-  // que os temas existem (o cardápio fica no ⚙) e um atalho pra abrir ele.
   const brewTag = document.getElementById('brew-tag');
   if (brewTag) brewTag.addEventListener('click', function () { openSettings(true); });
   onBrewChange(function (bebida) {
