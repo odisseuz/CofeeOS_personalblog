@@ -65,6 +65,25 @@ Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada �
 
 ## Como escrever um post
 
+### Drafts (escrever sem publicar)
+
+Um post em escrita não precisa subir pro GitHub. O jeito é colocar a pasta no `.gitignore`:
+
+```
+# no .gitignore
+posts/science/causal-inference/
+```
+
+Com isso o arquivo fica no seu disco (o site local mostra), mas o `git add -A` **não o pega** — nem eu nem acidente nenhum. O `check_manifest` entende: ele **ignora no disco o que o git ignora**, então um draft em escrita **não** conta como post órfão e não quebra o `verify`.
+
+Quando o texto estiver pronto, o caminho de volta:
+
+1. Apaga (ou comenta) a linha no `.gitignore`.
+2. Registra no `posts/manifest.json` — ou roda `./bin/coffee new` num arquivo novo, que ele registra.
+3. `./bin/coffee verify` e commit.
+
+### O caminho normal
+
 O jeito mais rápido é a CLI (veja **`./bin/coffee`** mais abaixo):
 
 ```bash

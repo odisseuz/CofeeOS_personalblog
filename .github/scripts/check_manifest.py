@@ -9,6 +9,7 @@ Catches, before deploy:
 import json
 import os
 import re
+import subprocess
 import sys
 from datetime import date
 
@@ -94,6 +95,29 @@ def frontmatter_errors(rel, abs_path):
     return errors
 
 
+def gitignored():
+    """Caminhos (relativos à raiz do repo) que o git está ignorando.
+
+    Rascunhos de post ficam no disco mas fora do git de propósito (ver README,
+    seção *Drafts*). Eles não são "posts órfãos" — são posts que ainda não
+    subiram. Sem isto, o draft em escrita quebraria o `verify` todo dia.
+    """
+    try:
+        saida = subprocess.run(
+            ["git", "check-ignore", "--stdin"],
+            input="\n".join(
+                os.path.join("posts", os.path.relpath(os.path.join(dp, f), POSTS))
+                .replace(os.sep, "/")
+                for dp, _dn, fns in os.walk(POSTS)
+                for f in fns
+            ),
+            capture_output=True, text=True, cwd=ROOT,
+        )
+        return set(saida.stdout.split())
+    except (OSError, subprocess.SubprocessError):
+        return set()          # sem git (ex.: tarball): não ignora nada
+
+
 def main():
     with open(MANIFEST, encoding="utf-8") as f:
         manifest = json.load(f)
@@ -104,6 +128,7 @@ def main():
             declared.add(os.path.join(group, name).replace(os.sep, "/"))
 
     files = {}  # rel path -> absolute path
+    ignorados = gitignored()
     for dirpath, _dirnames, filenames in os.walk(POSTS):
         for fn in filenames:
             if not fn.endswith(".md"):
@@ -111,6 +136,10 @@ def main():
             abs_path = os.path.join(dirpath, fn)
             rel = os.path.relpath(abs_path, POSTS).replace(os.sep, "/")
             if rel in IGNORE:
+                continue
+            # rascunho no .gitignore (ver README) nao e post orfao: esta no disco
+            # de proposito, pra escrita, e sobe quando estiver pronto.
+            if os.path.join("posts", rel) in ignorados:
                 continue
             files[rel] = abs_path
 
