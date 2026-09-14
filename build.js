@@ -3,6 +3,8 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderMarkdown, parseFrontmatter } from './js/markdown.js';
+import { extractMath, hasMath } from './js/math.js';
+import katex from './js/vendor/katex/katex.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const rawBase = (process.env.BASE_URL || '').trim().replace(/\/+$/, '');
@@ -16,8 +18,16 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
+// texto puro pra meta description / JSON-LD. O MathML precisa sair inteiro:
+// senão o TeX cru e as duplicatas de acessibilidade do KaTeX vazam pro Google.
 function excerpt(html) {
-  return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
+  return html
+    .replace(/<math[\s\S]*?<\/math>/g, ' ')
+    .replace(/<span class="katex-html"[\s\S]*?<\/span>/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
 }
 
 // qualquer URL relativa em src/href (images/, assets/, ...) precisa do prefixo
@@ -34,12 +44,35 @@ function rootRelative(html, depth) {
 }
 
 // primeira imagem do post (pra usar como og:image)
+// mesma extração do viewer, mas síncrona: o KaTeX já está carregado aqui.
+// Sem isso o marked come `_`, `*` e `\,` dentro da fórmula.
+function renderBody(md) {
+  const body = hasMath(md) ? extractMath(md) : null;
+  let html = renderMarkdown(body ? body.text : md);
+  if (!body) return html;
+  return html.replace(/\uE000MATH(\d+)\uE000/g, function (_m, i) {
+    const item = body.found[Number(i)];
+    if (!item) return '';
+    try {
+      return katex.renderToString(item.tex.trim(), {
+        displayMode: item.display,
+        throwOnError: false,
+        strict: false
+      });
+    } catch (e) {
+      return item.display
+        ? '<pre class="math-error">' + esc(item.tex) + '</pre>'
+        : '<code>' + esc(item.tex) + '</code>';
+    }
+  });
+}
+
 function firstImage(html) {
   const m = /<img[^>]*src="([^"]+)"/.exec(html);
   return m ? m[1] : '';
 }
 
-function page(relMd, data, bodyHtml, recent) {
+function page(relMd, data, bodyHtml, recent, hasFormula) {
   const relHtml = relMd.replace(/\.md$/, '.html');
   const depth = relHtml.split('/').length - 1;
   const up = '../'.repeat(depth);
@@ -48,6 +81,11 @@ function page(relMd, data, bodyHtml, recent) {
   const url = baseUrl + relHtml;
   const dateHtml = data.date ? '<p class="note-date">' + esc(data.date) + '</p>' : '';
   const body = rootRelative(bodyHtml, depth);
+
+  // KaTeX só entra em post com fórmula: 28 KB de CSS + fontes sob demanda
+  const mathCss = hasFormula
+    ? '<link rel="stylesheet" href="' + up + 'js/vendor/katex/katex.min.css">\n'
+    : '';
 
   const image = firstImage(bodyHtml);
   const ogImage = image ? baseUrl + image : '';
@@ -92,6 +130,7 @@ function page(relMd, data, bodyHtml, recent) {
     '<script type="application/ld+json">' + jsonLd + '</script>\n' +
     '<link rel="icon" type="image/svg+xml" href="' + up + 'favicon.svg">\n' +
     '<link rel="stylesheet" href="' + up + 'style.css">\n' +
+    mathCss +
     '</head>\n' +
     '<body>\n' +
     '<main class="page static-page">\n' +
@@ -141,7 +180,7 @@ const recent = posts.slice().sort(function (a, b) {
 for (const p of posts) {
   const absMd = join(ROOT, p.relMd);
   const { data, body } = parseFrontmatter(readFileSync(absMd, 'utf8'));
-  const html = page(p.relMd, data, renderMarkdown(body), recent);
+  const html = page(p.relMd, data, renderBody(body), recent, hasMath(body));
   const absHtml = join(ROOT, p.relHtml);
   mkdirSync(dirname(absHtml), { recursive: true });
   writeFileSync(absHtml, html);

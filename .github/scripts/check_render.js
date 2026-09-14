@@ -1,5 +1,7 @@
 // smoke test do renderer de markdown (marked) — roda no CI pra pegar regressão
 import { renderMarkdown, parseFrontmatter } from '../../js/markdown.js';
+import { extractMath, hasMath } from '../../js/math.js';
+import katex from '../../js/vendor/katex/katex.mjs';
 
 let failures = 0;
 const B = String.fromCharCode(92); // backslash
@@ -84,6 +86,25 @@ has('tabela', renderMarkdown('| a | b |\n| --- | --- |\n| 1 | 2 |'), '<table>');
 has('lista aninhada', renderMarkdown('- a\n  - b'), '<li>a<ul>');
 has('blockquote multi parágrafo', renderMarkdown('> one\n>\n> two'), '<p>two</p>');
 
+// math (KaTeX)
+const exm = extractMath('soma $\\sum_{i=1}^{n} x_i$ e $$\\int_0^1 f$$ fim');
+eq('math: extrai 2', exm.found.length, 2);
+eq('math: display primeiro', exm.found[0].display, true);
+eq('math: inline depois', exm.found[1].display, false);
+lacks('math: TeX sai do texto', exm.text, '\\sum');
+has('math: placeholder presente', exm.text, 'MATH0');
+eq('hasMath com $', hasMath('tem $x$'), true);
+eq('hasMath sem $', hasMath('texto'), false);
+// underscore/asterisco fora de math nao viram placeholder
+eq('math: so o math e extraido', extractMath('a_b e $x_i$').found.length, 1);
+has('math: texto normal fica', extractMath('a_b e $x_i$').text, 'a_b');
+// o KaTeX renderiza de verdade
+has('katex renderiza soma', katex.renderToString('\\sum_{i=1}^{n} x_i', { throwOnError: false }), 'class="katex"');
+has('katex display block', katex.renderToString('x', { displayMode: true }), 'katex-display');
+// formula invalida nao derruba o build
+has('katex tolera erro', katex.renderToString('\\frac{1}{', { throwOnError: false }), 'katex');
+// o TeX cru vive dentro de <annotation> (acessibilidade), nao visivel
+has('katex: TeX em annotation', katex.renderToString('x_1', {}), 'annotation');
 console.log('');
 if (failures) {
   console.log(failures + ' falha(s)');

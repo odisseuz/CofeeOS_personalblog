@@ -53,3 +53,6 @@ sitemap.xml
 robots.txt
 posts/**/*.html
 posts/index.json
+
+# pacotes de libs baixados pra vendorizar (o conteudo ja esta em js/vendor/)
+*.tgz

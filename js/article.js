@@ -1,12 +1,29 @@
 // artigo (overlay) + notas
 import { articleOverlay, fmOverlay, originalTitle, state } from './state.js';
 import { escapeHtml, renderMarkdown, parseFrontmatter } from './markdown.js';
+import { extractMath, injectMath, hasMath } from './math.js';
 import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
 import { setHash, hashForFile, hashForFolder } from './routing.js';
 import { groupFromFile, getPostIndex, seriesPosition } from './data.js';
 import { updateDockActive } from './finder.js';
 
 let loadToken = 0;
+let katexCssLoaded = false;
+
+// O CSS do KaTeX (e as fontes que ele referencia) só é baixado quando o primeiro
+// post com fórmula é aberto — as páginas estáticas já trazem o link no <head>.
+function ensureKatexCss() {
+  if (katexCssLoaded || document.querySelector('link[data-katex]')) {
+    katexCssLoaded = true;
+    return;
+  }
+  katexCssLoaded = true;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'js/vendor/katex/katex.min.css';
+  link.setAttribute('data-katex', '');
+  document.head.appendChild(link);
+}
 
 export function loadNote(file, body, filenameEl, statusEl) {
   const token = ++loadToken;
@@ -29,9 +46,19 @@ export function loadNote(file, body, filenameEl, statusEl) {
         html += '<h1 class="note-title">' + escapeHtml(title) + '</h1>';
         if (date) html += '<p class="note-date">' + escapeHtml(date) + '</p>';
       }
-      html += renderMarkdown(parsed.body);
+      // math primeiro: o marked destruiria o TeX (`_`, `*`, `\`)
+      const math = hasMath(parsed.body) ? extractMath(parsed.body) : null;
+      html += renderMarkdown(math ? math.text : parsed.body);
       if (parsed.data.series) html += seriesNavHtml();
       body.innerHTML = html;
+      if (math) {
+        ensureKatexCss();
+        injectMath(body.innerHTML, math.found).then(function (final) {
+          if (token !== loadToken) return;
+          body.innerHTML = final;
+          buildToc(body);
+        });
+      }
       fillSeriesNav(file);
       body.scrollTop = 0;
       const tocPanel = document.getElementById('toc-panel');

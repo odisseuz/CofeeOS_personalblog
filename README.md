@@ -275,8 +275,28 @@ O renderer é o [marked](https://marked.js.org/) (vendorizado em `js/vendor/`), 
 - **notas de rodapé** `[^1]` … `[^1]: texto`
 - **autolinks** `<https://exemplo.com>` e **escapes** `\*literal\*`
 - **código** com ou sem linguagem (`class="language-js"` quando declarada)
+- **matemática** com KaTeX (ver abaixo)
 
 Por segurança, HTML cru é escapado e URLs `javascript:`/`data:` são neutralizadas. Pra atualizar o marked, vê `js/vendor/README.md`.
+
+### Matemática
+
+Use `$...$` pra fórmula no meio do texto e `$$...$$` pra fórmula em bloco:
+
+```markdown
+O estimador é $\hat{\beta} = (X^\top X)^{-1} X^\top y$.
+
+$$
+\sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+```
+
+O KaTeX entra **só em posts que têm `$`**. Um post sem fórmula não baixa nada: nem o JS, nem o CSS, nem as fontes. Quando o post tem, o custo é ~270 KB de JS (uma vez, fica em cache) + 23 KB de CSS + as fontes dos símbolos que aparecerem de fato.
+
+Duas coisas que valem saber:
+
+- A fórmula é extraída do texto **antes** do marked. Sem isso, o `_` de `x_i` viraria itálico e o `\` de `\sum` sumiria. Fórmula quebrada aparece como TeX cru em vez de derrubar a página.
+- O KaTeX gera MathML, então a fórmula é legível por leitor de tela (e o TeX cru fica em `<annotation>`, fora da meta description).
 
 ## Notas
 
