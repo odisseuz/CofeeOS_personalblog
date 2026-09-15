@@ -495,10 +495,15 @@ document.addEventListener('coffee:overlay', syncInert);
         loadRecentPosts();
         pintarContadores();
         if (fmOverlay && fmOverlay.classList.contains('open')) renderFinder();
-        // a janela do about é a única cujo CONTEÚDO muda com o idioma: ela sai
-        // e volta, senão ficaria com o texto do idioma anterior na tela.
-        const file = state.currentNoteFile;
-        if (file && isAbout(file)) openArticle(aboutFile());
+        // se o about estiver ABERTO, o conteúdo dele muda com o idioma — então
+        // a janela recarrega. `currentNoteFile` não serve aqui: é o arquivo das
+        // notas do painel lateral, e sobrevive ao fechamento do artigo (era o
+        // que fazia trocar o idioma reabrir o about do nada).
+        const aberto = state.currentArticleFile;
+        if (aberto && isAbout(aberto) && articleOverlay &&
+            articleOverlay.classList.contains('open')) {
+          openArticle(aboutFile());
+        }
       });
     });
   }

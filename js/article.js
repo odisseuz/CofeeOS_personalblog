@@ -170,6 +170,7 @@ document.addEventListener('click', function (e) {
 export function openArticle(file) {
   if (!articleOverlay) return;
   state.lastFocus = document.activeElement;
+  state.currentArticleFile = file;
   if (window.getSelection) window.getSelection().removeAllRanges();
   loadNote(file,
     document.getElementById('editor-body'),
@@ -201,6 +202,7 @@ export function openArticle(file) {
 export function closeArticle() {
   if (!articleOverlay) return;
   saveNotes();
+  state.currentArticleFile = null;
   articleOverlay.classList.remove('open');
   articleOverlay.classList.remove('over-finder');
   if (state.articleFromFinder) {
