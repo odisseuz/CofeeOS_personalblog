@@ -944,6 +944,14 @@ Metade existe: o botão *quote* já pega a seleção e joga nas notas. O que fal
 
 **Gatilho:** quando houver texto publicado suficiente pra reler e querer marcar — não com 3 posts. Clicar no trecho pra pular até a nota é uma segunda camada, ainda mais cara, e só vale se a primeira já estiver em uso.
 
+### Teste da pilha de foco
+
+A [pilha de foco](#pilha-de-foco) é a única parte do app **fora do `verify`**. Tudo o mais tem rede: o renderer tem 46 testes em Node, a CLI tem 40, os 13 passos do `verify` cobrem bash, python, imports, manifest, build e SEO.
+
+**Custo:** médio, e o custo é a dependência. Os testes de hoje são Node puro, sem DOM; a pilha precisa de `document`, `inert` e `getComputedStyle`. Testar de verdade pede `jsdom` — e o projeto hoje não tem dependência de runtime nenhuma, o que é bom demais pra trocar por conveniência.
+
+**Gatilho:** quando alguém for mexer na pilha de novo. Enquanto isso não acontece, a rede de proteção é a seção *Pilha de foco* acima, que documenta as duas armadilhas que já morderam uma vez: a ordem `syncInert` → `devolverFoco`, e o fato de `inert` engolir `.focus()` em silêncio.
+
 ## Licença
 
 Licença dupla:
