@@ -2,7 +2,7 @@
 import { fmOverlay, state } from './state.js';
 import { loadManifest, getPostIndex, listLevel, groupIcon, isGroup, groupBySeries, visiveis } from './data.js';
 import { semDrafts } from './drafts.js';
-import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
+import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize, empilharFoco, devolverFoco } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
 import { t, tfn } from './lang.js';
 
@@ -17,7 +17,7 @@ export function updateDockActive(key) {
 
 export function openFolder(segments) {
   if (!fmOverlay) return;
-  state.lastFocus = document.activeElement;
+  empilharFoco();
   state.currentPath = segments || [];
   state.finderFilter = '';
   const searchInput = document.getElementById('fm-search');
@@ -176,6 +176,6 @@ export function closeFolder() {
   fmOverlay.classList.remove('dimmed');
   notifyOverlayChange();
   setHash('#/');
-  if (state.lastFocus && state.lastFocus.focus) state.lastFocus.focus();
+  devolverFoco();
   updateDockActive(null);
 }

@@ -9,7 +9,6 @@ export const state = {
   // confundir com currentNoteFile: aquele é de quem as NOTAS estão carregadas
   // no painel lateral, e sobrevive ao fechamento do artigo.
   currentArticleFile: null,
-  lastFocus: null,
   articleFromFinder: false,
   currentPath: [],
   finderFilter: ''

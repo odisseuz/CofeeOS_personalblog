@@ -145,6 +145,57 @@ const OVERLAY_IDS = [
   'overlay', 'fm-overlay'
 ];
 
+// as janelas fecham com frequência, então o elemento guardado pode ter saído
+// do DOM (o finder é redesenhado a cada navegação, por exemplo). Reancorar no
+// pai mais próximo que ainda existe evita devolver o foco pra um órfão — que
+// é o mesmo que perder o foco.
+function ancora(el) {
+  let no = el;
+  while (no && !document.contains(no)) no = no.parentElement;
+  return no;
+}
+
+// `inert` não é decorativo: focar algo dentro de um subárvore inert é
+// silenciosamente ignorado pelo browser (o foco fica onde estava). Devolver o
+// foco pra dentro de uma janela que acabou de ficar inert não devolve nada.
+//
+// `body` também não serve de alvo: focá-lo é o mesmo que perder o foco (é
+// justamente o que esta pilha existe pra evitar).
+function focavel(el) {
+  const alvo = ancora(el);
+  if (!alvo || !alvo.focus) return null;
+  if (alvo === document.body || alvo === document.documentElement) return null;
+  if (alvo.closest('[inert]')) return null;
+  return alvo;
+}
+
+// pilha de quem tinha o foco antes de cada janela abrir.
+//
+// Não dá pra guardar numa variável só: abrir a imagem a partir de um artigo
+// sobrescreveria o foco de antes do artigo, e ao fechar a imagem a pessoa
+// voltaria pro lugar errado. Com pilha, cada janela devolve pro nível de baixo.
+const focoPilha = [];
+
+export function empilharFoco() {
+  const el = document.activeElement;
+  focoPilha.push((el && el !== document.body && el !== document.documentElement) ? el : null);
+}
+
+// devolve o foco ao nível de baixo, ao fechar uma janela.
+//
+// A pilha é consumida até achar um alvo focável. Alvo dentro de uma janela que
+// ficou inert (ou que saiu do DOM) não serve — focar ali é ignorado ou inútil,
+// então descemos um nível. Se a pilha acaba sem candidato, o foco fica onde
+// está: forçar o body seria pior que não mexer.
+//
+// A ordem importa: quem chama isto precisa ter recalculado o inert ANTES
+// (ver syncInert), senão a checagem de inert enxerga o estado velho.
+export function devolverFoco() {
+  let alvo = null;
+  while (!alvo && focoPilha.length) alvo = focavel(focoPilha.pop());
+  if (alvo) alvo.focus();
+}
+
 // devolve o overlay aberto de maior z-index (a janela da frente), ou null
 export function frontOverlay() {
   const ids = OVERLAY_IDS;
@@ -181,6 +232,11 @@ export function notifyOverlayChange() {
 // Marca inert em tudo que é "fundo" (main, dock, topbar) e nos OUTROS overlays
 // abertos, pra que o leitor de tela e o Tab só alcancem a janela da frente.
 // `activeEl` é o overlay da janela em uso (ou null pra liberar tudo).
+//
+// A exceção é o visualizador de imagem aberto SOBRE um artigo (`over-article`):
+// ali o artigo de trás continua sendo contexto, então não fica inert. Sem isso
+// o fundo ficaria só decorativo — e clicar nele pra fechar a imagem pararia de
+// funcionar.
 export function setBackdropInert(on, activeEl) {
   const background = [
     document.querySelector('main'),
@@ -194,8 +250,13 @@ export function setBackdropInert(on, activeEl) {
     }
   });
 
+  // quando a imagem abre por cima do artigo, o artigo não entra na lista
+  const sobreArtigo = activeEl && activeEl.id === 'img-overlay' &&
+    activeEl.classList.contains('over-article');
+
   document.querySelectorAll('.overlay').forEach(function (ov) {
-    if (on && ov !== activeEl) ov.setAttribute('inert', '');
+    const poupar = sobreArtigo && ov.id === 'overlay';
+    if (on && ov !== activeEl && !poupar) ov.setAttribute('inert', '');
     else ov.removeAttribute('inert');
   });
 }

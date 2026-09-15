@@ -2546,6 +2546,20 @@ body.chrome-dim .editor-bar {
   -webkit-backdrop-filter: blur(10px) saturate(120%);
 }
 
+/* imagem aberta a partir de um artigo: ela fica por cima, e o artigo continua
+   legível atrás (véu em vez de cortina). O texto de trás não é inert —
+   dá pra rolar o artigo com a imagem aberta.
+   O z-index não muda: #img-overlay já é 120 (acima do artigo, 110). */
+#img-overlay.over-article .overlay-backdrop {
+  background: rgb(var(--glass-backdrop) / 0.45);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+}
+
+#img-overlay.over-article .img-viewer {
+  box-shadow: var(--shadow-3);
+}
+
 /* dock active indicator */
 .dock-item.active::after {
   content: '';

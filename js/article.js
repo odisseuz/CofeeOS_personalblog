@@ -2,7 +2,7 @@
 import { articleOverlay, fmOverlay, originalTitle, state } from './state.js';
 import { escapeHtml, renderMarkdown, parseFrontmatter } from './markdown.js';
 import { extractMath, injectMath, hasMath } from './math.js';
-import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
+import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize, empilharFoco, devolverFoco } from './windows.js';
 import { setHash, hashForFile, hashForFolder } from './routing.js';
 import { groupFromFile, getPostIndex, seriesPosition } from './data.js';
 import { updateDockActive } from './finder.js';
@@ -169,7 +169,7 @@ document.addEventListener('click', function (e) {
 
 export function openArticle(file) {
   if (!articleOverlay) return;
-  state.lastFocus = document.activeElement;
+  empilharFoco();
   state.currentArticleFile = file;
   if (window.getSelection) window.getSelection().removeAllRanges();
   loadNote(file,
@@ -217,7 +217,9 @@ export function closeArticle() {
     updateDockActive(null);
   }
   document.title = originalTitle;
-  if (state.lastFocus && state.lastFocus.focus) state.lastFocus.focus();
+  // notifyOverlayChange (acima) já recalculou o inert de forma síncrona —
+  // devolverFoco depende disso pra saber se o alvo merece o foco.
+  devolverFoco();
 }
 
 // navegação de série no pé do artigo: "part 2 of 6" + prev/next.

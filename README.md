@@ -690,13 +690,31 @@ Todas as escolhas ficam salvas no **localStorage**. O corpo do artigo usa `--fon
 - **Navegação por teclado em todos os navegadores.** O Safari do macOS não alcança `<button>` pelo Tab por padrão, então todo botão tem `tabindex="0"` (ver a seção **Acessibilidade e o Safari** acima).
 - Foco preso dentro da **janela da frente** (artigo, file manager, terminal, settings, notes e visualizador de imagem) — `Tab`/`Shift+Tab` não escapam.
 - Tudo que está atrás vira `inert` (não focável / não anunciado) enquanto uma janela está aberta, incluindo os outros overlays.
-- O foco **volta** pro lugar de origem ao fechar uma janela, e a página rola sozinha se o elemento focado estiver fora da vista.
+- O foco **volta** pro lugar de origem ao fechar uma janela, e a página rola sozinha se o elemento focado estiver fora da vista. Com janelas empilhadas (imagem sobre artigo, artigo sobre finder) ele volta **um nível por vez**, na ordem inversa da abertura — ver [Pilha de foco](#pilha-de-foco).
 - Itens do dock são `<button>` (não links falsos), com `aria-label`.
 - **Os rótulos acompanham o idioma** (`aria-label`, `title`, `placeholder` saem do léxico de UI). Quem usa leitor de tela em português ouve em português — ver [Idiomas](#idiomas).
 - `aria-live`, `prefers-reduced-motion`, e `Escape` pra fechar.
 - O **chip da bebida** no hero é um `<button>` com `aria-label` (não texto clicável), e no toque ganha alvo de 44px.
 - Modo fantasma (a barra do artigo esmaece após 15s parado) só age quando o **artigo** é a janela da frente.
 - Temas testados em **WCAG AA** (ver [Temas → Contraste](#contraste)); há também opção de tamanho de fonte no topbar.
+
+## Pilha de foco
+
+Quem abre uma janela avisa a `empilharFoco()`, e quem fecha chama `devolverFoco()` (ambas em `js/windows.js`). A pilha garante que o teclado volte pro lugar certo mesmo com janelas sobrepostas.
+
+**Por que pilha e não uma variável.** Abrir a imagem a partir de um artigo, com o artigo aberto a partir do finder, precisa lembrar de três níveis. Uma variável só guardaria o último, e fechar a imagem jogaria a pessoa pra fora do artigo.
+
+**A ordem importa.** Quem fecha precisa ter recalculado o `inert` **antes** de devolver o foco (`syncInert()` no `main.js`; no `closeArticle`, o `notifyOverlayChange()` faz isso de forma síncrona). O motivo é que `inert` não é decorativo: **focar algo dentro de uma subárvore `inert` é ignorado em silêncio** pelo browser. Devolver o foco antes do recálculo aponta pra uma janela ainda inert, e nada acontece.
+
+**O que conta como alvo válido** (`focavel()`):
+
+- existe no documento — se saiu, sobe pro pai mais próximo que ainda existe (o finder é redesenhado a cada navegação, então isso acontece);
+- não está dentro de `[inert]`;
+- não é o `body` — focá-lo é o mesmo que perder o foco, que é justamente o que a pilha existe pra evitar.
+
+Se a pilha acaba sem candidato, o foco **fica onde está**: forçar o `body` seria pior que não mexer.
+
+**Detalhe do clique.** Clicar com o mouse num botão **não** o foca no Chrome — o `activeElement` que chega é o `body`. Então a origem guardada é `null`, e não há pra onde voltar; é o comportamento esperado pro mouse. Com teclado o foco é real, e a volta acontece.
 
 ## Links diretos (deep links)
 
@@ -915,6 +933,16 @@ A home mostra o que é recente. Um card fixo de novidades seria outra coisa.
 
 **Custo:** baixo.
 **Gatilho:** provavelmente desnecessário — se a home já mostra o recente, o card seria redundante. Só vale se a home ganhar outros blocos e o recente ficar escondido.
+
+### Highlight no artigo
+
+Marcar um trecho do artigo e ele ficar destacado de forma persistente, ligado às notas.
+
+Metade existe: o botão *quote* já pega a seleção e joga nas notas. O que falta é a marca visual que sobrevive ao recarregar.
+
+**Custo:** alto, e o problema não é guardar — é reencontrar o trecho. Seleção **exata** que atravessa tags (um `**negrito**` no meio) não é texto contíguo no DOM, então não basta buscar a string no HTML: precisa caminhar pelos text nodes e casar por índice. E se o texto do post for editado depois, a âncora quebra em silêncio.
+
+**Gatilho:** quando houver texto publicado suficiente pra reler e querer marcar — não com 3 posts. Clicar no trecho pra pular até a nota é uma segunda camada, ainda mais cara, e só vale se a primeira já estiver em uso.
 
 ## Licença
 

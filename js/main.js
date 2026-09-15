@@ -1,5 +1,5 @@
 // wiring
-import { makeWindow, resetWindow, makeMaximize, trapFocus, setBackdropInert, frontOverlay } from './windows.js';
+import { makeWindow, resetWindow, makeMaximize, trapFocus, setBackdropInert, frontOverlay, empilharFoco, devolverFoco } from './windows.js';
 import { articleOverlay, fmOverlay, state } from './state.js';
 import { closeArticle, openArticle, setNotesMode, downloadNotes, saveNotes } from './article.js';
 import { closeFolder, navigateUp, navigateInto, renderFinder, applyFinderFilter, openFolder } from './finder.js';
@@ -21,17 +21,9 @@ function syncInert() {
   document.body.style.overflow = front ? 'hidden' : '';
 }
 
-// acessibilidade: guarda quem tinha o foco ao abrir uma janela e devolve ao
-// fechar — pro teclado não voltar pro topo da página sem aviso.
-let focusBefore = null;
-function rememberFocus() {
-  const el = document.activeElement;
-  focusBefore = (el && el !== document.body) ? el : null;
-}
-function restoreFocus() {
-  if (!frontOverlay() && focusBefore && focusBefore.focus) focusBefore.focus();
-  focusBefore = null;
-}
+// acessibilidade: devolve o foco a quem abriu a janela quando ela fecha,
+// pro teclado não voltar pro topo da página sem aviso. A pilha mora em
+// windows.js — aqui só ligamos o evento ao estado dos overlays.
 
 // os módulos avisam quando um overlay abre/fecha; aqui a gente reavalia.
 document.addEventListener('coffee:overlay', syncInert);
@@ -74,16 +66,25 @@ document.addEventListener('coffee:overlay', syncInert);
 
   function closeImageViewer() {
     if (imgOverlay) imgOverlay.classList.remove('open');
+    imgOverlay.classList.remove('over-article');
     if (imgView) imgView.removeAttribute('src');
     syncInert();
-    restoreFocus();
+    devolverFoco();
   }
   function openImageViewer(src) {
     if (!imgOverlay || !imgView) return;
-    rememberFocus();
+    empilharFoco();
     resetWindow(imgViewer);
     imgView.src = src;
     if (imgFilename) imgFilename.textContent = src.split('/').pop() || 'image';
+    // Se veio de um artigo aberto, a imagem fica POR CIMA dele (como o artigo
+    // faz sobre o finder) em vez de fechar o texto. `over-article` só troca o
+    // backdrop: vira um véu que deixa ler o artigo atrás.
+    if (articleOverlay && articleOverlay.classList.contains('open')) {
+      imgOverlay.classList.add('over-article');
+    } else {
+      imgOverlay.classList.remove('over-article');
+    }
     imgOverlay.classList.add('open');
     syncInert();
     if (imgClose) imgClose.focus();
@@ -109,11 +110,11 @@ document.addEventListener('coffee:overlay', syncInert);
   function closeTerminal() {
     if (termOverlay) termOverlay.classList.remove('open');
     syncInert();
-    restoreFocus();
+    devolverFoco();
   }
   function openTerminal() {
     if (!termOverlay) return;
-    rememberFocus();
+    empilharFoco();
     resetWindow(termWindow);
     termOverlay.classList.add('open');
     syncInert();
@@ -158,11 +159,11 @@ document.addEventListener('coffee:overlay', syncInert);
   function closeSettings() {
     if (settingsOverlay) settingsOverlay.classList.remove('open');
     syncInert();
-    restoreFocus();
+    devolverFoco();
   }
   function openSettings(abrirCardapio) {
     if (!settingsOverlay) return;
-    rememberFocus();
+    empilharFoco();
     resetWindow(settingsWindow);
     settingsOverlay.classList.add('open');
     syncInert();
@@ -198,11 +199,11 @@ document.addEventListener('coffee:overlay', syncInert);
   function closeNotepad() {
     if (notesOverlay) notesOverlay.classList.remove('open');
     syncInert();
-    restoreFocus();
+    devolverFoco();
   }
   function openNotepad() {
     if (!notesOverlay) return;
-    rememberFocus();
+    empilharFoco();
     resetWindow(notepadWindow);
     notesOverlay.classList.add('open');
     syncInert();
