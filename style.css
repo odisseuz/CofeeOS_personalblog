@@ -44,6 +44,10 @@
      transformava o radial numa mancha escura no canto */
   --glow-rgb: 255 246 230;
   --glow-2-rgb: 255 246 230;
+  /* a opacidade do glow é TOKEN: num fundo claro o brilho soma muito mais e
+     come o contraste do texto secundário. Os escuros usam 0.16/0.14. */
+  --glow-alpha: 0.14;
+  --glow-2-alpha: 0.16;
   --scroll-track: #b39d84;
   --scroll-thumb: #8a7458;
 
@@ -71,8 +75,8 @@
   --bg-2: #090c10;
   --cream: #e6edf3;
   --cream-rgb: 230 237 243;
-  --muted: #8b949e;
-  --muted-rgb: 139 148 158;
+  --muted: #a7aeb5;
+  --muted-rgb: 167 174 181;
   --coffee: #58a6ff;
   --caramel: #79c0ff;
   --caramel-rgb: 121 192 255;
@@ -107,8 +111,8 @@
 
   --cream: #e0e0e0;
   --cream-rgb: 224 224 224;
-  --muted: #8a8a8a;
-  --muted-rgb: 138 138 138;
+  --muted: #929292;
+  --muted-rgb: 146 146 146;
   --coffee: #b3b3b3;
   --caramel: #c0c0c0;
   --caramel-rgb: 192 192 192;
@@ -250,8 +254,8 @@ body::before {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(1100px 600px at 75% -10%, rgb(var(--glow-2-rgb) / 0.16), transparent 60%),
-    radial-gradient(800px 520px at 5% 0%, rgb(var(--glow-rgb) / 0.14), transparent 55%),
+    radial-gradient(1100px 600px at 75% -10%, rgb(var(--glow-2-rgb) / var(--glow-2-alpha)), transparent 60%),
+    radial-gradient(800px 520px at 5% 0%, rgb(var(--glow-rgb) / var(--glow-alpha)), transparent 55%),
     linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 48%, var(--bg-2) 100%);
 }
 
@@ -2849,8 +2853,8 @@ body.chrome-dim .editor-bar {
 
   --cream: #f5e9d8;
   --cream-rgb: 245 233 216;
-  --muted: #c4a98d;
-  --muted-rgb: 196 169 141;
+  --muted: #c7ae94;
+  --muted-rgb: 199 174 148;
   --coffee: #d49a63;
   --caramel: #eab57a;
   --caramel-rgb: 234 181 122;
@@ -2878,8 +2882,8 @@ body.chrome-dim .editor-bar {
 
   --cream: #e3eddd;
   --cream-rgb: 227 237 221;
-  --muted: #9bb196;
-  --muted-rgb: 155 177 150;
+  --muted: #a1b59c;
+  --muted-rgb: 161 181 156;
   --coffee: #7fae6a;
   --caramel: #a3cf87;
   --caramel-rgb: 163 207 135;
@@ -2937,8 +2941,8 @@ body.chrome-dim .editor-bar {
 
   --cream: #d8c8ae;
   --cream-rgb: 216 200 174;
-  --muted: #bda68d;
-  --muted-rgb: 189 166 141;
+  --muted: #d2c2b1;
+  --muted-rgb: 210 194 177;
   --coffee: #cfa876;
   --caramel: #e8d4b0;
   --caramel-rgb: 232 212 176;
@@ -2953,6 +2957,10 @@ body.chrome-dim .editor-bar {
 
   --glow-rgb: 210 155 80;
   --glow-2-rgb: 232 212 176;
+  /* fundo claro: com 0.16/0.14 o brilho empurra o topo pra rgb(110,89,66) e o
+     `muted` caía pra 2.85:1. Com 0.10/0.08 o topo fica em rgb(93,75,55). */
+  --glow-alpha: 0.08;
+  --glow-2-alpha: 0.10;
   --scroll-track: #3f3124;
   --scroll-thumb: #6b5646;
 

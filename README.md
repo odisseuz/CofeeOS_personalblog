@@ -649,7 +649,24 @@ Quem tem **"reduzir movimento"** ligado no sistema recebe tudo instantâneo: o b
 
 ### Contraste
 
-Os dez passam WCAG AA (4.5:1). O pior caso é o `cappuccino` no token `muted`, com 5.05:1. Como os tokens são variáveis CSS, o `Lighthouse` enxerga o fundo real — e vale lembrar que o fundo do site vive no `body::before`.
+Os dez passam WCAG AA (4.5:1) — mas o número que importa é o do **pior caso**, não o do fundo base.
+
+O fundo de verdade é o gradiente do `body::before`, e no **topo da página** os dois `radial-gradient` somam. Isso clareia o fundo, e é ali que o texto secundário (`muted`) sofre. Medir só o `--bg-0` dá um número otimista: o `cappuccino` parecia 5.05:1 e no topo era **2.85:1**.
+
+| Tema | `muted` sobre `bg-0` | `muted` no topo (pior caso) |
+| :--- | :--- | :--- |
+| cappuccino | 5.05 | **4.72** |
+| blue | 6.15 | **4.90** |
+| black | 6.08 | **4.89** |
+| mocha | 7.57 | **4.91** |
+| matcha | 7.71 | **4.80** |
+| os outros cinco | — | acima de 4.8 |
+
+O `cream` (texto principal) passa folgado em todos: o pior é 5.00 no cappuccino.
+
+**A opacidade do glow é token** (`--glow-alpha` / `--glow-2-alpha`), e não valor fixo no gradiente. Num tema **claro** o brilho soma muito mais: o cappuccino precisou de `0.08/0.10` em vez de `0.14/0.16`. Só ele usa valores diferentes — nos escuros, os tokens ficam no padrão.
+
+Como os tokens são variáveis CSS, o `Lighthouse` enxerga o fundo real. Vale lembrar que o fundo do site vive no `body::before`.
 
 **O `body::before` tem um par de tokens só pra ele.** São dois radiais de brilho; num tema escuro o acento clareia o fundo (virando luz), mas nos temas **claros** o acento é escuro e transformaria o radial numa mancha escura. Por isso `--glow-rgb` e `--glow-2-rgb` existem separados do `--caramel` — nos claros eles são claros, nos escuros espelham o acento.
 
