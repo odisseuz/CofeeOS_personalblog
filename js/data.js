@@ -1,5 +1,7 @@
 // dados: manifest + lista de posts
 import { parseFrontmatter } from './markdown.js';
+import { matchesLang, getLang, isAbout } from './lang.js';
+import { isDraft, semDrafts } from './drafts.js';
 
 let manifestCache = null;
 
@@ -53,11 +55,13 @@ function buildIndexFromManifest() {
             title: parsed.data.title || entry.path.split('/').pop().replace(/\.md$/, ''),
             date: parsed.data.date || '',
             series: parsed.data.series || '',
+            lang: parsed.data.lang || 'en',
+            draft: parsed.data.draft || '',
             order: parsed.data.order === undefined ? null : Number(parsed.data.order)
           };
         })
         .catch(function () {
-          return { path: entry.path, group: entry.group, title: entry.path.split('/').pop().replace(/\.md$/, ''), date: '', series: '', order: null };
+          return { path: entry.path, group: entry.group, title: entry.path.split('/').pop().replace(/\.md$/, ''), date: '', series: '', lang: 'en', draft: '', order: null };
         });
     }));
   });
@@ -88,17 +92,27 @@ export function getAllPosts() {
             title: parsed.data.title || entry.name.replace(/\.md$/, ''),
             date: parsed.data.date || '',
             series: parsed.data.series || '',
+            lang: parsed.data.lang || 'en',
+            draft: parsed.data.draft || '',
             order: parsed.data.order === undefined ? null : Number(parsed.data.order),
             body: parsed.body
           };
         })
         .catch(function () {
-          return { path: entry.path, group: entry.group, title: entry.name.replace(/\.md$/, ''), date: '', series: '', order: null, body: '' };
+          return { path: entry.path, group: entry.group, title: entry.name.replace(/\.md$/, ''), date: '', series: '', lang: 'en', draft: '', order: null, body: '' };
         });
     })).then(function (posts) {
       postsCache = posts;
       return posts;
     });
+  });
+}
+
+// filtra a lista pelo que o site deve mostrar: fora os drafts e fora o idioma
+// que não está ativo. Um lugar só, pra nenhuma superfície esquecer um dos dois.
+export function visiveis(posts, lang) {
+  return semDrafts(posts).filter(function (p) {
+    return matchesLang(p, lang || getLang());
   });
 }
 
@@ -131,27 +145,38 @@ export function isGroup(name) {
   return ['readings', 'art', 'games', 'science', 'culture'].indexOf(name) !== -1;
 }
 
-export function listLevel(paths, segments) {
+// Monta um nível de pasta. `filesPaths` (opcional) restringe os ARQUIVOS: o
+// finder passa só os do idioma ativo. As PASTAS vêm sempre de `paths` (árvore
+// inteira), porque gaveta vazia continua sendo gaveta — trocar o idioma não
+// deve remover a estrutura do OS.
+export function listLevel(paths, segments, filesPaths) {
   const prefix = segments.length ? segments.join('/') + '/' : '';
   const folderSet = {};
   const folders = [];
   const files = [];
+  const source = filesPaths || paths;
+
   paths.forEach(function (p) {
     if (prefix && p.indexOf(prefix) !== 0) return;
     const rest = prefix ? p.slice(prefix.length) : p;
     const parts = rest.split('/');
-    if (parts.length === 1) {
-      files.push(rest);
-    } else if (!folderSet[parts[0]]) {
+    if (parts.length > 1 && !folderSet[parts[0]]) {
       folderSet[parts[0]] = true;
       folders.push(parts[0]);
     }
   });
+
+  source.forEach(function (p) {
+    if (prefix && p.indexOf(prefix) !== 0) return;
+    const rest = prefix ? p.slice(prefix.length) : p;
+    if (rest.split('/').length === 1) files.push(rest);
+  });
+
   return { folders: folders, files: files };
 }
 
 export function groupFromFile(file) {
-  if (file === 'posts/about.md') return 'about';
+  if (isAbout(file)) return 'about';
   return (file || '').split('/')[1] || '';
 }
 

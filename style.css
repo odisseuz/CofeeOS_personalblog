@@ -288,6 +288,101 @@ body::before {
   background: rgb(var(--cream-rgb) / 0.12);
 }
 
+/* seletor de idioma: um botão com globo + o idioma ativo. O globo é o que dá
+   a pista de "aqui se troca de idioma" — duas letras sozinhas ("EN") não
+   dizem isso pra quem chega de fora. O menu abre no clique/toque, e não no
+   hover: hover não existe no toque (ver README, seção Idiomas). */
+.lang-switch {
+  position: relative;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgb(var(--cream-rgb) / 0.06);
+  border: none;
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding: 5px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.lang-globe {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+  opacity: 0.85;
+}
+
+.lang-current {
+  text-transform: uppercase;
+}
+
+.lang-toggle:hover {
+  background: rgb(var(--cream-rgb) / 0.1);
+}
+
+.lang-toggle:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: 2px;
+}
+
+/* opções: só existem quando abertas */
+.lang-options {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  min-width: 118px;
+  padding: 4px;
+  background: rgb(var(--glass-top) / 0.92);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgb(var(--cream-rgb) / 0.12);
+  border-radius: 12px;
+  box-shadow: var(--shadow-2);
+}
+
+.lang-switch.open .lang-options {
+  display: block;
+}
+
+.lang-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  line-height: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lang-opt:hover {
+  background: rgb(var(--cream-rgb) / 0.08);
+  color: var(--cream);
+}
+
+.lang-opt[aria-pressed="true"] {
+  color: var(--cream);
+  background: rgb(var(--caramel-rgb) / 0.22);
+}
+
+.lang-opt:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: -2px;
+}
+
 .status-btn {
   display: flex;
   align-items: center;
@@ -2547,11 +2642,52 @@ body.chrome-dim .editor-bar {
     width: 100%;
   }
 
-  .clock {
-    padding: 0 11px 0 0;
-    font-size: 0.76rem;
+  /* O relógio sai do topbar no celular. São ~74px com a fonte no XL, contra
+     uma busca que ficava em 84px — o relógio não vale quase metade da barra.
+     O do editor (`.clock-time` dentro do `.status-line`) continua: ali o
+     espaço é outro, e ele fica ao lado do "[readonly]". */
+  .statusbar .clock {
+    display: none;
+  }
+
+  /* No celular o seletor precisa ser magro: o globo + 2 letras já ocupam
+     pouco (~52px, contra ~68px do par de botões anterior), e o idioma ativo
+     continua legível. As larguras da busca foram medidas com este valor. */
+  .lang-toggle {
+    padding: 5px 7px;
     gap: 4px;
-    flex: 0 0 auto;
+  }
+
+  /* Buscar devolve a barra pro input: o seletor encolhe (não some de uma vez)
+     enquanto o dedo está na busca. O mesmo padrão do :focus do search-input
+     no desktop.
+
+     O seletor é `:focus-within` do INPUT, e não do `.statusbar`. Com
+     :focus-within do statusbar, tocar no próprio seletor o deixava com
+     `pointer-events: none` no meio do toque — no celular isso matava o
+     segundo toque (o da opção) e o menu não trocava o idioma.
+
+     `min-width: 0` é essencial: um flex item tem `min-width: auto` implícito
+     (= o tamanho do conteúdo), e isso tem precedência sobre o `max-width`.
+     Com `flex: 0 0 auto` e `max-width: 0`, o elemento ficava nos 62px do
+     conteúdo e ignorava a regra. É o mesmo caso que o projeto já documentou
+     no input de busca e no título do "recent". */
+  .lang-toggle {
+    transition: max-width 0.18s ease, opacity 0.18s ease, margin 0.18s ease;
+    max-width: 120px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .statusbar:has(.search-input:focus) .lang-toggle {
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    pointer-events: none;
   }
 
   .status-btn {

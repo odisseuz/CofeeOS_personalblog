@@ -5,7 +5,8 @@ import { closeArticle, openArticle, setNotesMode, downloadNotes, saveNotes } fro
 import { closeFolder, navigateUp, navigateInto, renderFinder, applyFinderFilter, openFolder } from './finder.js';
 import { route } from './routing.js';
 import { loadRecentPosts, setupSearch } from './search.js';
-import { loadManifest } from './data.js';
+import { loadManifest, visiveis, getPostIndex } from './data.js';
+import { initLang, setLang, getLang, langLabel, aboutFile, isAbout } from './lang.js';
 import { initTerminal, focusTerminal, runCommand } from './terminal.js';
 import { initNotepad, focusNotepad } from './notepad.js';
 import { initIdleChrome } from './idle.js';
@@ -36,6 +37,9 @@ function restoreFocus() {
 document.addEventListener('coffee:overlay', syncInert);
 
 (function () {
+  // o idioma vem antes de tudo: finder, recent, busca e contadores leem ele.
+  initLang();
+
   makeWindow(
     document.querySelector('#overlay .editor'),
     document.querySelector('#overlay .editor-bar'),
@@ -365,7 +369,11 @@ document.addEventListener('coffee:overlay', syncInert);
     if (noteEl) {
       e.preventDefault();
       state.articleFromFinder = false;
-      openArticle(noteEl.getAttribute('data-note'));
+      let alvo = noteEl.getAttribute('data-note');
+      // o dock e o rodapé apontam pro about fixo; o arquivo real depende do
+      // idioma (about.pt.md). Resolver aqui mantém o HTML declarativo.
+      if (isAbout(alvo)) alvo = aboutFile();
+      openArticle(alvo);
     }
   });
 
@@ -439,13 +447,91 @@ document.addEventListener('coffee:overlay', syncInert);
     });
   }
 
-  loadManifest().then(function (manifest) {
-    document.querySelectorAll('[data-count]').forEach(function (el) {
-      const group = el.getAttribute('data-count');
-      const n = (manifest[group] || []).length;
-      el.textContent = n + (n === 1 ? ' item' : ' items');
+  // contadores da home: contam só os posts do idioma ativo — a pasta é a mesma
+  // gaveta nos dois idiomas, o que muda é o que tem dentro dela.
+  function pintarContadores() {
+    Promise.all([loadManifest(), getPostIndex()]).then(function (res) {
+      const manifest = res[0];
+      const posts = visiveis(res[1]);
+      document.querySelectorAll('[data-count]').forEach(function (el) {
+        const group = el.getAttribute('data-count');
+        const n = posts.filter(function (p) {
+          return p.path.indexOf('posts/' + group + '/') === 0;
+        }).length;
+        el.textContent = n + (n === 1 ? ' item' : ' items');
+      });
+      // manifest fica no Promise.all só pra garantir que o finder já tem o que
+      // precisa quando a pessoa clicar numa pasta logo depois da carga
+      return manifest;
     });
+  }
+
+  // seletor de idioma: um botão (globo + idioma ativo) que abre a lista. Trocar
+  // o idioma re-pinta o que depende dele (recent, contadores e, se o finder
+  // estiver aberto, a lista dele).
+  const langSwitch = document.getElementById('lang-switch');
+  const langToggle = document.getElementById('lang-toggle');
+
+  function fecharLang() {
+    if (!langSwitch) return;
+    langSwitch.classList.remove('open');
+    if (langToggle) langToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  if (langToggle) {
+    langToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const aberto = langSwitch.classList.toggle('open');
+      langToggle.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+    });
+  }
+
+  if (langSwitch) {
+    langSwitch.querySelectorAll('.lang-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        fecharLang();
+        if (!setLang(btn.getAttribute('data-lang'))) return;
+        pintarLang();
+        loadRecentPosts();
+        pintarContadores();
+        if (fmOverlay && fmOverlay.classList.contains('open')) renderFinder();
+        // se o about estiver ABERTO, o conteúdo dele muda com o idioma — então
+        // a janela recarrega. `currentNoteFile` não serve aqui: é o arquivo das
+        // notas do painel lateral, e sobrevive ao fechamento do artigo (era o
+        // que fazia trocar o idioma reabrir o about do nada).
+        const aberto = state.currentArticleFile;
+        if (aberto && isAbout(aberto) && articleOverlay &&
+            articleOverlay.classList.contains('open')) {
+          openArticle(aboutFile());
+        }
+      });
+    });
+  }
+
+  // fecha ao clicar fora ou com Esc (mesmo padrão dos outros menus)
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#lang-switch')) fecharLang();
   });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') fecharLang();
+  });
+
+  function pintarLang() {
+    const atual = getLang();
+    const rotulo = document.getElementById('lang-current');
+    if (rotulo) rotulo.textContent = langLabel(atual);
+    document.querySelectorAll('.lang-opt').forEach(function (btn) {
+      const ativo = btn.getAttribute('data-lang') === atual;
+      btn.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+    });
+    if (langToggle) {
+      const nome = atual === 'pt' ? 'Português' : 'English';
+      langToggle.setAttribute('aria-label', 'Language: ' + nome);
+    }
+  }
+
+  pintarLang();
+  pintarContadores();
 
   route();
 })();

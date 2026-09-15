@@ -5,6 +5,10 @@ export const originalTitle = document.title;
 
 export const state = {
   currentNoteFile: null,
+  // arquivo aberto no overlay do artigo AGORA (null quando fechado). Não
+  // confundir com currentNoteFile: aquele é de quem as NOTAS estão carregadas
+  // no painel lateral, e sobrevive ao fechamento do artigo.
+  currentArticleFile: null,
   lastFocus: null,
   articleFromFinder: false,
   currentPath: [],

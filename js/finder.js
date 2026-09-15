@@ -1,6 +1,7 @@
 // file manager
 import { fmOverlay, state } from './state.js';
-import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon, isGroup, groupBySeries } from './data.js';
+import { loadManifest, getPostIndex, listLevel, groupIcon, isGroup, groupBySeries, visiveis } from './data.js';
+import { semDrafts } from './drafts.js';
 import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
 
@@ -89,13 +90,22 @@ export function renderFinder() {
   if (backBtn) backBtn.style.visibility = state.currentPath.length ? 'visible' : 'hidden';
 
   Promise.all([loadManifest(), getPostIndex()]).then(function (results) {
-    const manifest = results[0];
-    const posts = results[1];
+    const posts = visiveis(results[1]);
     const byPath = {};
     posts.forEach(function (p) { byPath[p.path] = p; });
 
-    const all = flattenManifest(manifest);
-    const level = listLevel(all, state.currentPath);
+    // Duas listas com papéis distintos:
+    //  - `arvore`: TODOS os publicados (qualquer idioma, sem drafts) → define as
+    //    PASTAS. Uma gaveta vazia continua sendo gaveta; trocar de idioma não
+    //    pode apagar a estrutura do OS.
+    //  - `current`: só os VISÍVEIS (idioma ativo, sem drafts) → define os
+    //    ARQUIVOS que aparecem no nível.
+    // Draft não entra em nenhuma das duas: um rascunho não deve criar pasta,
+    // senão o próprio caminho denuncia o que ele é.
+    const publicados = semDrafts(results[1]);
+    const arvore = publicados.map(function (p) { return p.path.replace(/^posts\//, ''); });
+    const current = posts.map(function (p) { return p.path.replace(/^posts\//, ''); });
+    const level = listLevel(arvore, state.currentPath, current);
     const base = 'posts/' + (state.currentPath.length ? state.currentPath.join('/') + '/' : '');
     const paths = level.files.map(function (f) { return base + f; });
 

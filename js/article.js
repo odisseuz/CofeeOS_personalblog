@@ -6,6 +6,7 @@ import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } fr
 import { setHash, hashForFile, hashForFolder } from './routing.js';
 import { groupFromFile, getPostIndex, seriesPosition } from './data.js';
 import { updateDockActive } from './finder.js';
+import { isAbout, t } from './lang.js';
 
 let loadToken = 0;
 let katexCssLoaded = false;
@@ -64,7 +65,7 @@ export function loadNote(file, body, filenameEl, statusEl) {
       const tocPanel = document.getElementById('toc-panel');
       if (tocPanel) tocPanel.scrollTop = 0;
       buildToc(body);
-      if (file === 'posts/about.md') {
+      if (isAbout(file)) {
         body.insertAdjacentHTML('beforeend', contactFormHtml());
         wireContactForm();
       }
@@ -72,7 +73,7 @@ export function loadNote(file, body, filenameEl, statusEl) {
       const zen = document.getElementById('zen-post');
       if (zen) {
         const isPost = file.indexOf('posts/') === 0 &&
-          file.indexOf('posts/about.md') !== 0 &&
+          !isAbout(file) &&
           file.indexOf('LICENSE') === -1;
         zen.hidden = !isPost;
         if (isPost) zen.href = file.replace(/\.md$/, '.html');
@@ -169,6 +170,7 @@ document.addEventListener('click', function (e) {
 export function openArticle(file) {
   if (!articleOverlay) return;
   state.lastFocus = document.activeElement;
+  state.currentArticleFile = file;
   if (window.getSelection) window.getSelection().removeAllRanges();
   loadNote(file,
     document.getElementById('editor-body'),
@@ -180,7 +182,7 @@ export function openArticle(file) {
   if (editor) {
     editor.classList.remove('show-notes');
     editor.classList.remove('show-toc');
-    editor.classList.toggle('is-about', file === 'posts/about.md');
+    editor.classList.toggle('is-about', isAbout(file));
     // no celular a janela abre em tela cheia (senão o texto fica espremido)
     if (isNarrow()) maximize(editor);
   }
@@ -200,6 +202,7 @@ export function openArticle(file) {
 export function closeArticle() {
   if (!articleOverlay) return;
   saveNotes();
+  state.currentArticleFile = null;
   articleOverlay.classList.remove('open');
   articleOverlay.classList.remove('over-finder');
   if (state.articleFromFinder) {
@@ -266,15 +269,19 @@ function fillSeriesNav(file) {
   });
 }
 
-// formulário de contato (página about)
+// formulário de contato (página about). Os rótulos saem do léxico de UI
+// (js/lang.js), então acompanham o idioma ativo como o resto da página.
 function contactFormHtml() {
   return '<div class="contact-form">' +
-    '<p class="contact-form-title">write me a message</p>' +
-    '<input id="contact-subject" type="text" aria-label="Subject" placeholder="subject" spellcheck="false">' +
-    '<textarea id="contact-message" aria-label="Message" placeholder="your message…" spellcheck="false"></textarea>' +
+    '<p class="contact-form-title">' + t('contactTitle') + '</p>' +
+    '<input id="contact-subject" type="text" aria-label="' + t('subject') +
+      '" placeholder="' + t('subject') + '" spellcheck="false">' +
+    '<textarea id="contact-message" aria-label="' + t('message') +
+      '" placeholder="' + t('message') + '" spellcheck="false"></textarea>' +
     '<div class="contact-form-row">' +
-    '<input id="contact-email" type="email" aria-label="Your email" placeholder="your email (so I can reply)" autocomplete="off" spellcheck="false">' +
-    '<button id="contact-send" type="button" tabindex="0">send</button>' +
+    '<input id="contact-email" type="email" aria-label="' + t('email') +
+      '" placeholder="' + t('email') + '" autocomplete="off" spellcheck="false">' +
+    '<button id="contact-send" type="button" tabindex="0">' + t('send') + '</button>' +
     '</div>' +
     '</div>';
 }
@@ -289,8 +296,8 @@ function wireContactForm() {
     const text = msg.value.trim();
     if (!text) { msg.focus(); return; }
     let body = text;
-    if (email.value.trim()) body += '\n\n— ' + email.value.trim();
-    const subj = subject && subject.value.trim() ? subject.value.trim() : 'Hello from coffeeOS';
+    if (email.value.trim()) body += '\n\n(' + email.value.trim() + ')';
+    const subj = subject && subject.value.trim() ? subject.value.trim() : t('mailSubject');
     window.location.href = 'mailto:andregomes.academico@gmail.com?subject=' +
       encodeURIComponent(subj) + '&body=' + encodeURIComponent(body);
   });
