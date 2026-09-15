@@ -106,3 +106,33 @@ export function aboutLang(file) {
   const m = /^posts\/about\.([a-z]{2})\.md$/.exec(file || '');
   return m ? m[1] : PADRAO;
 }
+
+// Textos da interface que não vêm de um .md (o formulário de contato é montado
+// em JS). Um lugar só, com o idioma ao lado do texto — assim traduzir uma
+// string nova é editar uma linha.
+const UI = {
+  en: {
+    contactTitle: 'write me a message',
+    subject: 'subject',
+    message: 'your message…',
+    email: 'your email (so I can reply)',
+    send: 'send',
+    mailSubject: 'Hello from coffeeOS'
+  },
+  pt: {
+    contactTitle: 'me escreva uma mensagem',
+    subject: 'assunto',
+    message: 'sua mensagem…',
+    email: 'seu email (pra eu poder responder)',
+    send: 'enviar',
+    mailSubject: 'Olá, vim do coffeeOS'
+  }
+};
+
+// devolve o texto no idioma ativo; se faltar, cai no padrão
+// (assim uma string nova sem tradução aparece em inglês, não em branco)
+export function t(chave, lang) {
+  const l = lang || atual;
+  const bloco = UI[l] || UI[PADRAO];
+  return bloco[chave] !== undefined ? bloco[chave] : (UI[PADRAO][chave] || '');
+}

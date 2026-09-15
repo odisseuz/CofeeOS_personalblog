@@ -350,7 +350,7 @@ A checagem lê só o bloco EXIF de JPEGs, sem dependências externas. Outros for
 
 ## Sobre (about)
 
-A página `posts/about.md` tem dois comportamentos especiais: a primeira imagem vira **círculo** (foto de perfil), e no fim é injetado um **formulário de contato** (assunto + mensagem + email → `mailto`). O email de destino fica hardcoded em `js/article.js` (função `wireContactForm`).
+A página `posts/about.md` tem dois comportamentos especiais: a primeira imagem vira **círculo** (foto de perfil), e no fim é injetado um **formulário de contato** (assunto + mensagem + email → `mailto`). O email de destino fica hardcoded em `js/article.js` (função `wireContactForm`); os rótulos saem do léxico de UI em `js/lang.js` (função `t`), então acompanham o idioma ativo.
 
 Ela existe por idioma (`about.md`, `about.pt.md`) — ver [Idiomas](#idiomas). Quem decide qual abrir é o `aboutFile()` do `js/lang.js`, e os dois passam pelas mesmas regras acima.
 
@@ -589,6 +589,19 @@ posts/about.pt.md    (pt)
 ```
 
 O dock e o rodapé apontam pro `about` genérico; quem escolhe o arquivo é o `aboutFile()` do `js/lang.js`, conforme o idioma ativo. Diferente dos posts, aqui o idioma **está** no nome do arquivo — porque o about é aberto por um hash fixo (`#/about`) e os dois precisam coexistir na raiz de `posts/`.
+
+### Textos da interface
+
+O que não vem de um `.md` (hoje só o formulário de contato) vive no léxico `UI` do `js/lang.js`, com o idioma ao lado do texto:
+
+```js
+const UI = {
+  en: { send: 'send', … },
+  pt: { send: 'enviar', … }
+};
+```
+
+Use `t('chave')` pra ler. Uma chave sem tradução cai no inglês em vez de ficar em branco.
 
 ### Adicionar um idioma novo
 
