@@ -1,5 +1,5 @@
 // busca + card "recent"
-import { getAllPosts, getPostIndex } from './data.js';
+import { getAllPosts, getPostIndex, inLang } from './data.js';
 import { state } from './state.js';
 import { openArticle } from './article.js';
 import { makeTabbable } from './windows.js';
@@ -16,7 +16,7 @@ export function loadRecentPosts() {
   if (!listEl) return;
 
   getPostIndex().then(function (posts) {
-    const sorted = posts.slice().sort(byNewest);
+    const sorted = inLang(posts).sort(byNewest);
 
     listEl.innerHTML = '';
 
@@ -72,12 +72,12 @@ export function setupSearch() {
       // busca primeiro nos metadados (índice, leve); só baixa os corpos se
       // nenhum título casar, pra não puxar todos os .md em toda digitação
       getPostIndex().then(function (index) {
-        const byTitle = index.filter(function (p) {
+        const byTitle = inLang(index).filter(function (p) {
           return (p.title + ' ' + p.group).toLowerCase().indexOf(q) !== -1;
         });
         if (byTitle.length) return { matches: byTitle };
         return getAllPosts().then(function (posts) {
-          const matches = posts.filter(function (p) {
+          const matches = inLang(posts).filter(function (p) {
             return (p.title + ' ' + p.body).toLowerCase().indexOf(q) !== -1;
           });
           return { matches: matches };

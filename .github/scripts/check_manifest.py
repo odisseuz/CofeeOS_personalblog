@@ -17,8 +17,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 POSTS = os.path.join(ROOT, "posts")
 MANIFEST = os.path.join(POSTS, "manifest.json")
 
-# Root-level files that aren't part of any group.
+# Root-level files that aren't part of any group. O about existe por idioma
+# (about.md, about.pt.md) — por isso o padrão em vez de um nome fixo.
 SPECIAL = {"about.md"}
+ABOUT_RE = re.compile(r"^about(\.[a-z]{2})?\.md$")
 
 # .md files that aren't posts (no frontmatter is not required) — skipped entirely.
 IGNORE = {"LICENSE.md", "LICENSE-MIT.md"}
@@ -118,6 +120,23 @@ def gitignored():
         return set()          # sem git (ex.: tarball): não ignora nada
 
 
+def is_draft(rel, abs_path):
+    """Post com `draft: true` no frontmatter não está publicado.
+
+    O estado vive no próprio .md (fonte única); o .gitignore é derivado dele
+    por `coffee commit`. Um draft nunca é órfão: ele está fora do site de
+    propósito, até alguém tirar a linha e rodar `coffee publish`.
+    """
+    try:
+        with open(abs_path, encoding="utf-8") as f:
+            head = f.read(4096)
+    except OSError:
+        return False
+    partes = head.split("---")
+    fm = partes[1] if len(partes) >= 3 else ""
+    return bool(re.search(r"^draft:\s*(true|yes|1)\s*$", fm, re.IGNORECASE | re.MULTILINE))
+
+
 def main():
     with open(MANIFEST, encoding="utf-8") as f:
         manifest = json.load(f)
@@ -141,9 +160,11 @@ def main():
             # de proposito, pra escrita, e sobe quando estiver pronto.
             if os.path.join("posts", rel) in ignorados:
                 continue
+            if is_draft(rel, abs_path):
+                continue
             files[rel] = abs_path
 
-    checkable = {p for p in files if p not in SPECIAL}
+    checkable = {p for p in files if p not in SPECIAL and not ABOUT_RE.match(p)}
     errors = []
 
     # Um post declarado no manifest mas ignorado pelo git (draft ainda no

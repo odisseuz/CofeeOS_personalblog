@@ -1,6 +1,6 @@
 // file manager
 import { fmOverlay, state } from './state.js';
-import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon, isGroup, groupBySeries } from './data.js';
+import { loadManifest, getPostIndex, flattenManifest, listLevel, groupIcon, isGroup, groupBySeries, inLang } from './data.js';
 import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
 
@@ -90,12 +90,17 @@ export function renderFinder() {
 
   Promise.all([loadManifest(), getPostIndex()]).then(function (results) {
     const manifest = results[0];
-    const posts = results[1];
+    const posts = inLang(results[1]);
     const byPath = {};
     posts.forEach(function (p) { byPath[p.path] = p; });
 
+    // o finder lista só o que existe no idioma ativo, mas as PASTAS seguem a
+    // árvore inteira: gaveta vazia continua sendo gaveta (ver JS do filtro).
+    // Sem os caminhos de outros idiomas, uma pasta que só tem post em inglês
+    // ainda aparece — e mostra "empty folder" ao abrir.
     const all = flattenManifest(manifest);
-    const level = listLevel(all, state.currentPath);
+    const current = posts.map(function (p) { return p.path.replace(/^posts\//, ''); });
+    const level = listLevel(all, state.currentPath, current);
     const base = 'posts/' + (state.currentPath.length ? state.currentPath.join('/') + '/' : '');
     const paths = level.files.map(function (f) { return base + f; });
 

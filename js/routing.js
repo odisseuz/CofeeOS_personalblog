@@ -2,6 +2,7 @@
 import { state } from './state.js';
 import { openArticle } from './article.js';
 import { openFolder } from './finder.js';
+import { aboutFile, isAbout } from './lang.js';
 
 export function setHash(h) {
   if (location.hash === h) return;
@@ -15,7 +16,7 @@ export function hashForFolder(segments) {
 }
 
 export function hashForFile(file) {
-  if (file === 'posts/about.md') return '#/about';
+  if (isAbout(file)) return '#/about';
   return '#~/' + file.replace(/^posts\//, '');
 }
 
@@ -23,7 +24,7 @@ export function route() {
   const h = location.hash;
   if (h === '#/about') {
     state.articleFromFinder = false;
-    openArticle('posts/about.md');
+    openArticle(aboutFile());
     return;
   }
   if (h.indexOf('#~/') === 0) {

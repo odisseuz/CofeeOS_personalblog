@@ -61,7 +61,7 @@ posts/index.json
 _*.mjs
 _*.html
 
-# drafts de posts: ficam no disco, nao sobem pro GitHub.
-# quando o texto estiver pronto, comente esta linha, registre no manifest e commite.
-posts/science/causal-inference/
-posts/science/psychology/
+# --- drafts (gerado por `coffee commit`; não edite à mão) ---
+posts/science/causal-inference/brave-and-true/ch01-cause-and-effect.md
+posts/science/psychology/history/descartes-hume-and-kant.md
+# --- fim dos drafts ---

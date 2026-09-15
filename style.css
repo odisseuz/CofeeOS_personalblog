@@ -288,6 +288,46 @@ body::before {
   background: rgb(var(--cream-rgb) / 0.12);
 }
 
+/* seletor de idioma: dois botões colados, formando um pill. O ativo fica
+   preenchido — o não-ativo continua clicável e com hover, pra ler como
+   "escolha" e não como "estado morto". */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: rgb(var(--cream-rgb) / 0.06);
+  border-radius: 999px;
+}
+
+.lang-opt {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding: 5px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.lang-opt:hover {
+  color: var(--cream);
+}
+
+.lang-opt[aria-pressed="true"] {
+  color: var(--cream);
+  background: rgb(var(--caramel-rgb) / 0.22);
+}
+
+.lang-opt:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: 2px;
+}
+
 .status-btn {
   display: flex;
   align-items: center;

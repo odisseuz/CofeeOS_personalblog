@@ -6,6 +6,7 @@ import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } fr
 import { setHash, hashForFile, hashForFolder } from './routing.js';
 import { groupFromFile, getPostIndex, seriesPosition } from './data.js';
 import { updateDockActive } from './finder.js';
+import { isAbout } from './lang.js';
 
 let loadToken = 0;
 let katexCssLoaded = false;
@@ -64,7 +65,7 @@ export function loadNote(file, body, filenameEl, statusEl) {
       const tocPanel = document.getElementById('toc-panel');
       if (tocPanel) tocPanel.scrollTop = 0;
       buildToc(body);
-      if (file === 'posts/about.md') {
+      if (isAbout(file)) {
         body.insertAdjacentHTML('beforeend', contactFormHtml());
         wireContactForm();
       }
@@ -72,7 +73,7 @@ export function loadNote(file, body, filenameEl, statusEl) {
       const zen = document.getElementById('zen-post');
       if (zen) {
         const isPost = file.indexOf('posts/') === 0 &&
-          file.indexOf('posts/about.md') !== 0 &&
+          !isAbout(file) &&
           file.indexOf('LICENSE') === -1;
         zen.hidden = !isPost;
         if (isPost) zen.href = file.replace(/\.md$/, '.html');
@@ -180,7 +181,7 @@ export function openArticle(file) {
   if (editor) {
     editor.classList.remove('show-notes');
     editor.classList.remove('show-toc');
-    editor.classList.toggle('is-about', file === 'posts/about.md');
+    editor.classList.toggle('is-about', isAbout(file));
     // no celular a janela abre em tela cheia (senão o texto fica espremido)
     if (isNarrow()) maximize(editor);
   }

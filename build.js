@@ -83,6 +83,7 @@ function page(relMd, data, bodyHtml, recent, hasFormula) {
   const title = data.title || relMd.split('/').pop().replace(/\.md$/, '');
   const desc = excerpt(bodyHtml);
   const url = baseUrl + relHtml;
+  const lang = data.lang === 'pt' ? 'pt' : 'en';
   const dateHtml = data.date ? '<p class="note-date">' + esc(data.date) + '</p>' : '';
   const body = rootRelative(bodyHtml, depth);
 
@@ -117,7 +118,7 @@ function page(relMd, data, bodyHtml, recent, hasFormula) {
     .join('\n');
 
   return '<!DOCTYPE html>\n' +
-    '<html lang="en">\n' +
+    '<html lang="' + lang + '">\n' +
     '<head>\n' +
     '<meta charset="UTF-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
@@ -171,20 +172,25 @@ const posts = entries.map(function (relMd) {
     title: data.title || relMd.split('/').pop().replace(/\.md$/, ''),
     date: data.date || '',
     series: data.series || '',
+    lang: data.lang === 'pt' ? 'pt' : 'en',
     order: data.order === undefined ? null : Number(data.order)
   };
 });
 
-// posts recentes (por data) pra linkar no rodapé
-const recent = posts.slice().sort(function (a, b) {
-  return String(b.date).localeCompare(String(a.date));
-}).slice(0, 5);
+// posts recentes (por data) pra linkar no rodapé. O corte é por idioma: uma
+// página em português não deve empurrar o leitor pro meio do site em inglês.
+function recentFor(lang) {
+  return posts
+    .filter(function (p) { return p.lang === lang; })
+    .sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); })
+    .slice(0, 5);
+}
 
 // segunda passada: gera as páginas
 for (const p of posts) {
   const absMd = join(ROOT, p.relMd);
   const { data, body } = parseFrontmatter(readFileSync(absMd, 'utf8'));
-  const html = page(p.relMd, data, renderBody(body), recent, hasMath(body));
+  const html = page(p.relMd, data, renderBody(body), recentFor(p.lang), hasMath(body));
   const absHtml = join(ROOT, p.relHtml);
   mkdirSync(dirname(absHtml), { recursive: true });
   writeFileSync(absHtml, html);
@@ -205,7 +211,7 @@ writeFileSync(
 
 // índice leve (sem corpo) pra home/busca/finder não baixarem todos os .md
 const index = posts.map(function (p) {
-  return { path: p.relMd, group: p.relMd.split('/')[1], title: p.title, date: p.date, series: p.series, order: p.order };
+  return { path: p.relMd, group: p.relMd.split('/')[1], title: p.title, date: p.date, series: p.series, lang: p.lang, order: p.order };
 });
 writeFileSync(join(ROOT, 'posts', 'index.json'), JSON.stringify(index, null, 2) + '\n');
 

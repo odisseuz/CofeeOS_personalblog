@@ -18,6 +18,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 POSTS="$ROOT/posts"
 MANIFEST="$POSTS/manifest.json"
 TOOL="$ROOT/bin/lib/manifest_tool.py"
+DRAFTS="$ROOT/bin/lib/drafts_tool.py"
+COMMIT="$ROOT/bin/lib/commit_tool.py"
 
 # os grupos são os que estão na home (index.html) — assim um grupo novo é
 # reconhecido na hora, sem editar o script.
@@ -35,6 +37,9 @@ coffee — midnight coffee
   new <grupo>/[subpasta/]nome.md   cria o .md e registra no manifest
   rm  <grupo>/[subpasta/]nome.md   remove o .md e tira do manifest
   ls [grupo]                       lista os posts (título e data)
+  drafts                           lista os rascunhos (draft: true)
+  publish <grupo>/[.../]nome.md    tira o draft e registra no manifest
+  commit [-m msg]                  .gitignore + add + commit (+ push?)
   status                           visão geral: o que está ok e o que falta
   check                            valida manifest + frontmatter (igual ao CI)
   images                           checa metadados (EXIF/GPS) em images/
@@ -145,6 +150,72 @@ cmd_check() {
   python3 "$ROOT/.github/scripts/check_manifest.py"
 }
 
+cmd_drafts() {
+  python3 "$DRAFTS" list
+}
+
+# publica: tira o `draft:` do frontmatter e registra no manifest. O sync do
+# .gitignore acontece depois, no commit (a linha sai do bloco gerado).
+cmd_publish() {
+  [ $# -ge 1 ] || die "uso: coffee publish <grupo>/[subpasta/]nome.md"
+  local rel group inner
+  rel="$(norm "$1")"
+  group="${rel%%/*}"
+  inner="${rel#*/}"
+  python3 "$DRAFTS" publish "$rel" || exit 1
+  python3 "$TOOL" has "$rel" || {
+    python3 "$TOOL" add "$group" "$inner" || die "publiquei o arquivo, mas falhei ao registrar no manifest"
+    printf 'registrado no manifest: %s\n' "$rel"
+  }
+}
+
+# O caminho normal pra commitar. A ferramenta é dona do estado dos drafts:
+#  1. lê o frontmatter e reescreve o bloco de drafts do .gitignore
+#  2. registra no manifest os posts publicados que ainda não estavam
+#  3. git add do resto, commit, e pergunta do push
+cmd_commit() {
+  local msg=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -m) msg="${2:-}"; shift 2 ;;
+      *) die "argumento desconhecido: $1 (uso: coffee commit [-m msg])" ;;
+    esac
+  done
+
+  [ -d "$ROOT/.git" ] || die "não é um repositório git"
+
+  local saida
+  saida="$(python3 "$COMMIT" 2>&1)" || {
+    local st=$?
+    printf '%s\n' "$saida" >&2
+    [ "$st" = 10 ] && return 0
+    die "o commit falhou (código $st)"
+  }
+  printf '%s\n' "$saida" | grep -v '^MSG::'
+  msg="$(printf '%s\n' "$saida" | sed -n 's/^MSG:://p')"
+  [ -n "$msg" ] || return 0
+
+  printf 'commitar? [Y/n] '
+  read -r ans
+  case "$ans" in n|N) die "cancelado" ;; esac
+
+  git -C "$ROOT" commit -q -m "$msg" || die "o commit falhou"
+  printf 'commitado: %s\n' "$(git -C "$ROOT" --no-pager log --oneline -1)"
+
+  local branch ahead
+  branch="$(git -C "$ROOT" rev-parse --abbrev-ref HEAD)"
+  if git -C "$ROOT" rev-parse --abbrev-ref "$branch@{upstream}" > /dev/null 2>&1; then
+    ahead="$(git -C "$ROOT" rev-list --count "$branch@{upstream}..$branch")"
+    if [ "$ahead" -gt 0 ]; then
+      printf 'push pra origin/%s? [Y/n] ' "$branch"
+      read -r ans
+      case "$ans" in n|N) printf 'sem push\n' ;; *) git -C "$ROOT" push origin "$branch" ;; esac
+    fi
+  else
+    printf 'branch sem upstream — push manual: git push -u origin %s\n' "$branch"
+  fi
+}
+
 cmd_images() {
   python3 "$ROOT/.github/scripts/check_images.py"
 }
@@ -169,9 +240,14 @@ cmd_verify() {
   step() { printf '%-32s' "$1"; }
 
   step "bash"; if bash -n "$ROOT/bin/coffee" 2>/dev/null && bash -n "$ROOT/.github/scripts/check_cli.sh" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
-  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/lib/drafts_tool.py" "$ROOT/bin/lib/commit_tool.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "js"; local jsok=1; for f in "$ROOT"/js/*.js "$ROOT"/*.js; do node --check "$f" 2>/dev/null || jsok=0; done; [ "$jsok" = 1 ] && echo "ok" || { echo "FALHOU"; failed=1; }
   step "manifest + frontmatter"; if python3 "$ROOT/.github/scripts/check_manifest.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  # um `draft: true` que o git está rastreando subiria pro GitHub (era o papel
+  # do .gitignore por pasta; agora o bloco é gerado, e isto confere o resultado).
+  step "drafts fora do git"; local dr
+  dr="$(python3 "$DRAFTS" staged 2>/dev/null)" || true
+  if [ -z "$dr" ]; then echo "ok"; else echo "FALHOU"; echo "$dr" | sed 's/^/    rastreado: /'; failed=1; fi
   step "testes da CLI"; if bash "$ROOT/.github/scripts/check_cli.sh" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "testes do markdown"; if node "$ROOT/.github/scripts/check_render.js" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "imports"; local impok=1
@@ -249,6 +325,9 @@ case "$cmd" in
   ls)     cmd_ls "$@" ;;
   status) cmd_status "$@" ;;
   check)  cmd_check "$@" ;;
+  drafts) cmd_drafts "$@" ;;
+  publish) cmd_publish "$@" ;;
+  commit) cmd_commit "$@" ;;
   images) cmd_images "$@" ;;
   verify) cmd_verify "$@" ;;
   serve)  cmd_serve "$@" ;;
