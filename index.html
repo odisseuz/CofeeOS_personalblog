@@ -13,7 +13,7 @@
   <div class="topbar">
     <div class="statusbar">
       <div class="search">
-        <input class="search-input" id="search-input" type="text" placeholder="search" autocomplete="off" spellcheck="false" aria-label="Search posts">
+        <input class="search-input" id="search-input" type="text" placeholder="search" data-i18n-placeholder="search" autocomplete="off" spellcheck="false" aria-label="Search posts" data-i18n-aria="searchPosts">
         <div class="search-results" id="search-results" hidden></div>
       </div>
       <span class="status-sep" aria-hidden="true"></span>
@@ -33,13 +33,13 @@
         <span class="ampm">AM</span>
       </div>
     </div>
-    <button class="status-btn" id="settings-toggle" type="button" aria-label="Settings" title="Settings" aria-haspopup="dialog" tabindex="0">⚙</button>
+    <button class="status-btn" id="settings-toggle" type="button" aria-label="Settings" data-i18n-aria="settings" title="Settings" data-i18n-title="settings" aria-haspopup="dialog" tabindex="0">⚙</button>
   </div>
 
   <main class="page">
     <header class="hero" id="home">
       <h1>midnight coffee</h1>
-      <p class="tagline">a personal notebook <button class="brew" id="brew-tag" type="button" tabindex="0" aria-label="Change theme" title="Change theme">latte</button></p>
+      <p class="tagline">a personal notebook <button class="brew" id="brew-tag" type="button" tabindex="0" aria-label="Change theme" data-i18n-aria="theme" title="Change theme" data-i18n-title="theme">latte</button></p>
       <p class="tagline-sub">notes from my daily life</p>
     </header>
 
@@ -73,7 +73,7 @@
 
     <div class="home-term" id="home-term">
       <span class="prompt">guest@coffeeOS:~$</span>
-      <input class="home-term-input" id="home-term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type a command (press Enter to open the terminal)" placeholder="type help…">
+      <input class="home-term-input" id="home-term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type a command (press Enter to open the terminal)" data-i18n-aria="termHint" placeholder="type help…" data-i18n-placeholder="termPlaceholder">
       <span class="home-term-cursor" aria-hidden="true">▊</span>
     </div>
 
@@ -87,17 +87,17 @@
     </footer>
   </main>
 
-  <nav class="dock" aria-label="Main navigation">
-    <button class="dock-item" type="button" data-home aria-label="Home" tabindex="0">
+  <nav class="dock" aria-label="Main navigation" data-i18n-aria="mainNav">
+    <button class="dock-item" type="button" data-home aria-label="Home" data-i18n-aria="home" tabindex="0">
       <img src="assets/icons/lucide/home.svg" alt="">
       <span class="tooltip">home</span>
     </button>
-    <button class="dock-item" type="button" data-dock-search aria-label="Search" tabindex="0">
+    <button class="dock-item" type="button" data-dock-search aria-label="Search" data-i18n-aria="search" tabindex="0">
       <img src="assets/icons/lucide/search.svg" alt="">
       <span class="tooltip">search</span>
     </button>
     <div class="dock-pop" id="apps-pop">
-      <button class="dock-item" id="apps-toggle" type="button" aria-label="Apps" aria-haspopup="true" aria-expanded="false" tabindex="0">
+      <button class="dock-item" id="apps-toggle" type="button" aria-label="Apps" data-i18n-aria="apps" aria-haspopup="true" aria-expanded="false" tabindex="0">
         <img src="assets/icons/lucide/apps.svg" alt="">
         <span class="tooltip">apps</span>
       </button>
@@ -112,7 +112,7 @@
         </button>
       </div>
     </div>
-    <button class="dock-item" type="button" data-note="posts/about.md" aria-label="About" tabindex="0">
+    <button class="dock-item" type="button" data-note="posts/about.md" aria-label="About" data-i18n-aria="about" tabindex="0">
       <img src="assets/icons/lucide/about.svg" alt="">
       <span class="tooltip">about</span>
     </button>
@@ -124,11 +124,11 @@
       <div class="editor-bar">
         <span class="editor-filename" id="filename">note</span>
         <div class="editor-actions">
-          <button class="editor-btn" id="toc-toggle" type="button" aria-label="Table of contents" title="Table of contents" tabindex="0">☰</button>
-          <button class="editor-btn" id="notes-toggle" type="button" aria-label="Notes" title="Notes" tabindex="0">✎</button>
+          <button class="editor-btn" id="toc-toggle" type="button" aria-label="Table of contents" data-i18n-aria="toc" title="Table of contents" data-i18n-title="toc" tabindex="0">☰</button>
+          <button class="editor-btn" id="notes-toggle" type="button" aria-label="Notes" data-i18n-aria="notesToggle" title="Notes" data-i18n-title="notesToggle" tabindex="0">✎</button>
           <span class="bar-sep" aria-hidden="true"></span>
-          <button class="editor-btn maximize-btn" id="editor-maximize" type="button" aria-label="Maximize" title="Maximize" tabindex="0"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-          <button class="editor-close" id="overlay-close" aria-label="Close" title="Close" tabindex="0"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          <button class="editor-btn maximize-btn" data-i18n-aria="maximize" data-i18n-title="maximize" id="editor-maximize" type="button" aria-label="Maximize" data-i18n-aria="maximize" title="Maximize" data-i18n-title="maximize" tabindex="0"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <button class="editor-close" id="overlay-close" aria-label="Close" data-i18n-aria="close" data-i18n-aria="close" title="Close" data-i18n-title="close" data-i18n-title="close" tabindex="0"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         </div>
       </div>
       <div class="editor-main">
@@ -137,18 +137,18 @@
         <aside class="notes-panel" id="notes-panel">
           <div class="notes-header">
             <div class="notes-actions">
-              <button class="editor-btn" id="notes-preview" type="button" title="Preview as markdown" tabindex="0">preview</button>
-              <button class="editor-btn" id="notes-quote" type="button" title="Quote the selected text from the article" tabindex="0">quote</button>
+              <button class="editor-btn" id="notes-preview" type="button" title="Preview as markdown" data-i18n-title="previewAsMarkdown" data-i18n="notesPreview" tabindex="0">preview</button>
+              <button class="editor-btn" id="notes-quote" type="button" title="Quote the selected text from the article" data-i18n-title="quoteSelection" data-i18n="notesQuote" tabindex="0">quote</button>
             </div>
             <div class="pill-menu">
-              <button class="editor-btn" type="button" aria-label="Notes actions" title="More actions" aria-haspopup="true" tabindex="0">⋮</button>
+              <button class="editor-btn" type="button" aria-label="Notes actions" data-i18n-aria="notesActions" title="More actions" data-i18n-title="notesMore" aria-haspopup="true" tabindex="0">⋮</button>
               <div class="pill-options" role="group" aria-label="Notes actions">
-                <button class="pill-option" id="notes-download" type="button" title="Download as .md" tabindex="0">download</button>
-                <button class="pill-option" id="notes-clear" type="button" title="Erase these notes" tabindex="0">clear</button>
+                <button class="pill-option" id="notes-download" type="button" title="Download as .md" data-i18n-title="downloadAsMd" data-i18n="notesDownload" tabindex="0">download</button>
+                <button class="pill-option" id="notes-clear" type="button" title="Erase these notes" data-i18n-title="eraseNotes" data-i18n="notesClear" tabindex="0">clear</button>
               </div>
             </div>
           </div>
-          <textarea class="notes-area" id="notes-area" placeholder="write notes about this…" spellcheck="false"></textarea>
+          <textarea class="notes-area" id="notes-area" placeholder="write notes about this…" data-i18n-placeholder="notesPlaceholder" spellcheck="false"></textarea>
           <div class="notes-preview" id="notes-preview-body" hidden></div>
         </aside>
       </div>
@@ -162,10 +162,10 @@
               <button class="pill-option" type="button" data-font-family="mono" aria-pressed="false" tabindex="0">Mono</button>
             </div>
           </div>
-          <button class="editor-btn" id="font-down" type="button" aria-label="Decrease text size" title="Decrease text size" tabindex="0">A−</button>
+          <button class="editor-btn" id="font-down" type="button" aria-label="Decrease text size" data-i18n-aria="readerSizeDown" title="Decrease text size" data-i18n-title="readerSizeDown" tabindex="0">A−</button>
           <span class="reader-size" id="reader-size">1×</span>
-          <button class="editor-btn" id="font-up" type="button" aria-label="Increase text size" title="Increase text size" tabindex="0">A+</button>
-          <a class="editor-btn" id="zen-post" href="#" target="_blank" rel="noopener" aria-label="Read the clean version" title="Read the clean version" hidden>zen ↗</a>
+          <button class="editor-btn" id="font-up" type="button" aria-label="Increase text size" data-i18n-aria="readerSizeUp" title="Increase text size" data-i18n-title="readerSizeUp" tabindex="0">A+</button>
+          <a class="editor-btn" id="zen-post" href="#" target="_blank" rel="noopener" aria-label="Read the clean version" data-i18n-aria="cleanVersion" title="Read the clean version" data-i18n-title="cleanVersion" hidden>zen ↗</a>
         </div>
         <span id="status">…</span>
         <span class="status-right">
@@ -181,16 +181,16 @@
     <div class="fm-backdrop" id="fm-backdrop"></div>
     <div class="finder" role="dialog" aria-modal="true" aria-label="File manager">
       <div class="finder-bar">
-        <input class="finder-path" id="fm-path" type="text" value="~" spellcheck="false" aria-label="Path">
+        <input class="finder-path" id="fm-path" type="text" value="~" spellcheck="false" aria-label="Path" data-i18n-aria="path">
         <div class="finder-actions">
-          <button class="editor-btn fm-back" id="fm-back" type="button" aria-label="Up" tabindex="0" title="Go up one level">↑</button>
+          <button class="editor-btn fm-back" id="fm-back" type="button" aria-label="Up" data-i18n-aria="up" tabindex="0" title="Go up one level" data-i18n-title="goUp">↑</button>
           <span class="bar-sep" aria-hidden="true"></span>
-          <button class="editor-btn maximize-btn" id="fm-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-          <button class="editor-close" id="fm-close" aria-label="Close" tabindex="0" title="Close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          <button class="editor-btn maximize-btn" data-i18n-aria="maximize" data-i18n-title="maximize" id="fm-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <button class="editor-close" id="fm-close" aria-label="Close" data-i18n-aria="close" tabindex="0" title="Close" data-i18n-title="close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         </div>
       </div>
       <div class="finder-search">
-        <input class="finder-search-input" id="fm-search" type="text" placeholder="filter" autocomplete="off" spellcheck="false" aria-label="Filter files">
+        <input class="finder-search-input" id="fm-search" type="text" placeholder="filter" data-i18n-placeholder="filter" autocomplete="off" spellcheck="false" aria-label="Filter files" data-i18n-aria="filterFiles">
       </div>
       <div class="finder-body" id="fm-body"></div>
       <div class="finder-status">
@@ -207,8 +207,8 @@
         <span class="img-filename" id="img-filename">image</span>
         <div class="finder-actions">
           <span class="bar-sep" aria-hidden="true"></span>
-          <button class="editor-btn maximize-btn" id="img-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-          <button class="editor-close" id="img-close" aria-label="Close" tabindex="0" title="Close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          <button class="editor-btn maximize-btn" data-i18n-aria="maximize" data-i18n-title="maximize" id="img-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <button class="editor-close" id="img-close" aria-label="Close" data-i18n-aria="close" tabindex="0" title="Close" data-i18n-title="close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         </div>
       </div>
       <div class="img-body">
@@ -220,19 +220,19 @@
 
   <div class="overlay" id="term-overlay">
     <div class="term-backdrop" id="term-backdrop"></div>
-    <div class="term-window" role="dialog" aria-modal="true" aria-label="Terminal">
+    <div class="term-window" role="dialog" aria-modal="true" aria-label="Terminal" data-i18n-aria="termOpen">
       <div class="term-window-bar" id="term-window-bar">
         <span class="term-title">coffeeOS — sh</span>
         <div class="finder-actions">
           <span class="bar-sep" aria-hidden="true"></span>
-          <button class="editor-btn maximize-btn" id="term-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-          <button class="editor-close" id="term-close" aria-label="Close" tabindex="0" title="Close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          <button class="editor-btn maximize-btn" data-i18n-aria="maximize" data-i18n-title="maximize" id="term-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <button class="editor-close" id="term-close" aria-label="Close" data-i18n-aria="close" tabindex="0" title="Close" data-i18n-title="close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         </div>
       </div>
       <div class="term-output" id="term-output" aria-live="polite"></div>
       <div class="term-inputline">
         <span class="prompt">guest@coffeeOS:~$</span>
-        <input id="term-input" class="term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal command">
+        <input id="term-input" class="term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal command" data-i18n-aria="termCommand">
       </div>
       <div class="resize-handle"></div>
     </div>
@@ -245,8 +245,8 @@
         <span class="settings-title">System Settings</span>
         <div class="finder-actions">
           <span class="bar-sep" aria-hidden="true"></span>
-          <button class="editor-btn maximize-btn" id="settings-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-          <button class="editor-close" id="settings-close" aria-label="Close" tabindex="0" title="Close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          <button class="editor-btn maximize-btn" data-i18n-aria="maximize" data-i18n-title="maximize" id="settings-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <button class="editor-close" id="settings-close" aria-label="Close" data-i18n-aria="close" tabindex="0" title="Close" data-i18n-title="close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         </div>
       </div>
       <div class="settings-body">
@@ -312,15 +312,15 @@
 
   <div class="overlay" id="notes-overlay">
     <div class="notes-backdrop" id="notes-backdrop"></div>
-    <div class="notepad-window" role="dialog" aria-modal="true" aria-label="Notepad">
+    <div class="notepad-window" role="dialog" aria-modal="true" aria-label="Notepad" data-i18n-aria="padArea">
       <div class="notepad-bar" id="notepad-bar">
         <span class="notepad-filename">scratch.md</span>
         <div class="finder-actions">
-          <button class="editor-btn pad-btn" id="pad-preview" type="button" tabindex="0" title="Preview as markdown">preview</button>
-          <button class="editor-btn pad-btn" id="pad-download" type="button" aria-label="Download as .md" tabindex="0" title="Download as .md">download</button>
+          <button class="editor-btn pad-btn" id="pad-preview" type="button" tabindex="0" title="Preview as markdown" data-i18n-title="previewAsMarkdown" data-i18n="notesPreview">preview</button>
+          <button class="editor-btn pad-btn" id="pad-download" type="button" aria-label="Download as .md" tabindex="0" title="Download as .md" data-i18n-aria="downloadAsMd" data-i18n-title="downloadAsMd" data-i18n="notesDownload">download</button>
           <span class="bar-sep" aria-hidden="true"></span>
-          <button class="editor-btn maximize-btn" id="notepad-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-          <button class="editor-close" id="notepad-close" aria-label="Close" tabindex="0" title="Close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          <button class="editor-btn maximize-btn" data-i18n-aria="maximize" data-i18n-title="maximize" id="notepad-maximize" type="button" aria-label="Maximize" tabindex="0" title="Maximize"><svg class="ico ico-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><svg class="ico ico-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+          <button class="editor-close" id="notepad-close" aria-label="Close" data-i18n-aria="close" tabindex="0" title="Close" data-i18n-title="close"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         </div>
       </div>
       <textarea class="pad-area" id="pad-area" placeholder="…" spellcheck="false" aria-label="Notepad"></textarea>

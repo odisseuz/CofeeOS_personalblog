@@ -1,4 +1,5 @@
 // janelas: arrastar, redimensionar, maximizar
+import { t } from './lang.js';
 export function makeWindow(win, handle, resizeHandle) {
   if (!win || !handle) return;
 
@@ -59,12 +60,18 @@ export function makeWindow(win, handle, resizeHandle) {
 // o aria-label e o title mudam juntos. Fica num lugar só porque antes isso era
 // reescrito em três (resetWindow, makeMaximize e maximize) — bastava um deles
 // esquecer pra o botão mentir sobre o próprio estado.
+//
+// O texto vem do léxico (js/lang.js), e o par de chaves fica no elemento
+// (`data-i18n-aria`/`data-i18n-title`) pra o applyUiLang saber repintar depois.
 export function setMaximizeState(win, maximized) {
   if (!win) return;
   const btn = win.querySelector('.maximize-btn');
   if (!btn) return;
   btn.classList.toggle('is-restore', !!maximized);
-  const label = maximized ? 'Restore' : 'Maximize';
+  const chave = maximized ? 'restore' : 'maximize';
+  btn.setAttribute('data-i18n-aria', chave);
+  btn.setAttribute('data-i18n-title', chave);
+  const label = t(chave);
   btn.setAttribute('aria-label', label);
   btn.setAttribute('title', label);
 }

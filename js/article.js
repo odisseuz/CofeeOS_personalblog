@@ -6,7 +6,7 @@ import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } fr
 import { setHash, hashForFile, hashForFolder } from './routing.js';
 import { groupFromFile, getPostIndex, seriesPosition } from './data.js';
 import { updateDockActive } from './finder.js';
-import { isAbout, t } from './lang.js';
+import { isAbout, t, tfn } from './lang.js';
 
 let loadToken = 0;
 let katexCssLoaded = false;
@@ -79,7 +79,7 @@ export function loadNote(file, body, filenameEl, statusEl) {
         if (isPost) zen.href = file.replace(/\.md$/, '.html');
       }
       const words = parsed.body.trim() ? parsed.body.trim().split(/\s+/).length : 0;
-      if (statusEl) statusEl.textContent = '"' + filename + '" ' + words + ' words';
+      if (statusEl) statusEl.textContent = '"' + filename + '" ' + tfn('words')(words);
     })
     .catch(function () {
       if (token !== loadToken) return;
@@ -122,11 +122,11 @@ export function setNotesMode(mode) {
     preview.innerHTML = renderMarkdown(area.value);
     area.hidden = true;
     preview.hidden = false;
-    if (btn) btn.textContent = 'edit';
+    if (btn) btn.textContent = t('notesEdit');
   } else {
     area.hidden = false;
     preview.hidden = true;
-    if (btn) btn.textContent = 'preview';
+    if (btn) btn.textContent = t('notesPreview');
   }
 }
 
@@ -241,7 +241,7 @@ function fillSeriesNav(file) {
 
     const label = document.createElement('p');
     label.className = 'series-label';
-    label.textContent = pos.series + '\u00a0\u00b7\u00a0part ' + pos.index + ' of ' + pos.total;
+    label.textContent = pos.series + '\u00a0\u00b7\u00a0' + tfn('partOf')(pos.index, pos.total);
     el.appendChild(label);
 
     const row = document.createElement('div');
@@ -319,7 +319,7 @@ function buildToc(container) {
   if (!headings.length) {
     const empty = document.createElement('p');
     empty.className = 'toc-empty';
-    empty.textContent = 'no headings';
+    empty.textContent = t('noHeadings');
     tocPanel.appendChild(empty);
     return;
   }

@@ -1,5 +1,6 @@
 // relógio + tema + fontes (preferências de aparência)
 import { setBrewFromTheme } from './sitename.js';
+import { t } from './lang.js';
 
 // relógio
 const timeEls = document.querySelectorAll('.clock-time');
@@ -145,7 +146,7 @@ function endPreview() {
 })();
 
 // fonte (família)
-(function () {
+const FONTE = (function () {
   const FAMILY_KEY = 'coffeeos:font-family';
   const root = document.documentElement;
   const articleTrigger = document.getElementById('article-font-toggle');
@@ -175,8 +176,13 @@ function endPreview() {
       opt.setAttribute('aria-pressed', opt.getAttribute('data-font-family') === name ? 'true' : 'false');
     });
     if (articleTrigger) {
-      articleTrigger.setAttribute('aria-label', 'Font: ' + name);
-      articleTrigger.setAttribute('title', 'Font: ' + name);
+      // o botao mostra a fonte ATIVA, nao so "Fonte" — por isso o texto e montado
+      // aqui, e nao pelo data-i18n do HTML (que o applyUiLang deixaria por cima).
+      const texto = t('readerFont') + ': ' + name;
+      articleTrigger.removeAttribute('data-i18n-aria');
+      articleTrigger.removeAttribute('data-i18n-title');
+      articleTrigger.setAttribute('aria-label', texto);
+      articleTrigger.setAttribute('title', texto);
     }
     // o cabeçalho do cardápio de fonte mostra a escolha atual
     const rotulo = document.getElementById('current-font-name');
@@ -202,7 +208,15 @@ function endPreview() {
       try { localStorage.setItem(FAMILY_KEY, current); } catch (e) {}
     });
   });
+
+  return { repintar: function () { apply(current); } };
 })();
+
+// o rótulo do botão de fonte carrega o nome da fonte ativa, então precisa ser
+// reescrito quando o idioma muda — não só quando a fonte muda.
+export function refreshFontLabel() {
+  FONTE.repintar();
+}
 
 // tamanho da fonte (site inteiro)
 (function () {

@@ -592,7 +592,7 @@ O dock e o rodapé apontam pro `about` genérico; quem escolhe o arquivo é o `a
 
 ### Textos da interface
 
-O que não vem de um `.md` (hoje só o formulário de contato) vive no léxico `UI` do `js/lang.js`, com o idioma ao lado do texto:
+O que não vem de um `.md` vive no léxico `UI` do `js/lang.js`, com o idioma ao lado do texto:
 
 ```js
 const UI = {
@@ -601,7 +601,19 @@ const UI = {
 };
 ```
 
-Use `t('chave')` pra ler. Uma chave sem tradução cai no inglês em vez de ficar em branco.
+**No HTML estático**, o elemento declara o que ele é — e o `applyUiLang()` preenche na carga e a cada troca de idioma:
+
+```html
+<input data-i18n-placeholder="search" placeholder="search">
+<button data-i18n-title="close" title="Close">…</button>
+<span data-i18n="notesPreview">preview</span>
+```
+
+**No JS**, chame `t('chave')`. Pra plurais, `tfn('items')(3)` devolve a função.
+
+Uma chave sem tradução cai no inglês em vez de ficar em branco — então dá pra acrescentar string nova sem quebrar o outro idioma.
+
+O que **não** entra no léxico: nome de janela (`Terminal`, `Settings`, `sh`, `File manager`). São nomes de sistema, não instrução pro leitor — um macOS em português ainda diz "Terminal".
 
 ### Adicionar um idioma novo
 

@@ -3,6 +3,7 @@ import { getAllPosts, getPostIndex, visiveis } from './data.js';
 import { state } from './state.js';
 import { openArticle } from './article.js';
 import { makeTabbable } from './windows.js';
+import { t } from './lang.js';
 
 function byNewest(a, b) {
   if (!a.date && !b.date) return 0;
@@ -23,7 +24,7 @@ export function loadRecentPosts() {
     if (!sorted.length) {
       const li = document.createElement('li');
       li.className = 'recent-item muted';
-      li.textContent = 'no posts yet';
+      li.textContent = t('noPosts');
       listEl.appendChild(li);
       return;
     }
@@ -89,7 +90,7 @@ export function setupSearch() {
         if (!matches.length) {
           const empty = document.createElement('div');
           empty.className = 'search-empty';
-          empty.textContent = 'no matches';
+          empty.textContent = t('noMatches');
           results.appendChild(empty);
           results.hidden = false;
           return;

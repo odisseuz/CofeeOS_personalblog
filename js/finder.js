@@ -4,6 +4,7 @@ import { loadManifest, getPostIndex, listLevel, groupIcon, isGroup, groupBySerie
 import { semDrafts } from './drafts.js';
 import { resetWindow, notifyOverlayChange, makeTabbable, isNarrow, maximize } from './windows.js';
 import { setHash, hashForFolder } from './routing.js';
+import { t, tfn } from './lang.js';
 
 export function updateDockActive(key) {
   document.querySelectorAll('.dock-item').forEach(function (el) {
@@ -158,12 +159,12 @@ export function renderFinder() {
     if (!level.folders.length && !paths.length) {
       const empty = document.createElement('p');
       empty.className = 'finder-empty';
-      empty.textContent = 'empty folder';
+      empty.textContent = t('emptyFolder');
       bodyEl.appendChild(empty);
     }
 
     const total = level.folders.length + paths.length;
-    if (statusEl) statusEl.textContent = total + (total === 1 ? ' item' : ' items');
+    if (statusEl) statusEl.textContent = tfn('items')(total);
     applyFinderFilter();
   });
 }

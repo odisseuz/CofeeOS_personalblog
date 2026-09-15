@@ -107,17 +107,80 @@ export function aboutLang(file) {
   return m ? m[1] : PADRAO;
 }
 
-// Textos da interface que não vêm de um .md (o formulário de contato é montado
-// em JS). Um lugar só, com o idioma ao lado do texto — assim traduzir uma
-// string nova é editar uma linha.
+// Textos da interface que não vêm de um .md. Um lugar só, com o idioma ao lado
+// do texto — assim traduzir uma string nova é editar uma linha.
+//
+// O que NÃO entra aqui: nome de janela (Terminal, Settings, sh, File manager).
+// São nomes de sistema, não instrução pro leitor — um macOS em português ainda
+// diz "Terminal". Traduzir quebraria a metáfora de SO que o site constrói.
 const UI = {
   en: {
+    // formulário de contato
     contactTitle: 'write me a message',
     subject: 'subject',
     message: 'your message…',
     email: 'your email (so I can reply)',
     send: 'send',
-    mailSubject: 'Hello from coffeeOS'
+    mailSubject: 'Hello from coffeeOS',
+    // topbar / busca
+    search: 'search',
+    searchPosts: 'Search posts',
+    // pastas e listas
+    filter: 'filter',
+    filterFiles: 'Filter files',
+    emptyFolder: 'empty folder',
+    noPosts: 'no posts yet',
+    noMatches: 'no matches',
+    noHeadings: 'no headings',
+    items: function (n) { return n + (n === 1 ? ' item' : ' items'); },
+    words: function (n) { return n + (n === 1 ? ' word' : ' words'); },
+    partOf: function (i, t) { return 'part ' + i + ' of ' + t; },
+    // notas do leitor
+    notesPlaceholder: 'write notes about this…',
+    notesEdit: 'edit',
+    notesPreview: 'preview',
+    notesQuote: 'quote',
+    notesDownload: 'download',
+    notesClear: 'clear',
+    notesActions: 'Notes actions',
+    notesMore: 'More actions',
+    notesToggle: 'Notes',
+    previewAsMarkdown: 'Preview as markdown',
+    quoteSelection: 'Quote the selected text from the article',
+    downloadAsMd: 'Download as .md',
+    eraseNotes: 'Erase these notes',
+    // leitura / aparência
+    toc: 'Table of contents',
+    readerFont: 'Font',
+    changeFont: 'Change the font',
+    readerSizeDown: 'Decrease text size',
+    readerSizeUp: 'Increase text size',
+    cleanVersion: 'Read the clean version',
+    cleanVersionLink: 'zen ↗',
+    // acessibilidade / rótulos
+    close: 'Close',
+    maximize: 'Maximize',
+    restore: 'Restore',
+    up: 'Up',
+    goUp: 'Go up one level',
+    home: 'Home',
+    about: 'About',
+    apps: 'Apps',
+    settings: 'Settings',
+    theme: 'Change theme',
+    mainNav: 'Main navigation',
+    path: 'Path',
+    language: 'Language',
+    languageName: 'English',
+    // terminal
+    termCommand: 'Terminal command',
+    termOpen: 'Terminal',
+    termHint: 'Type a command (press Enter to open the terminal)',
+    termPlaceholder: 'type help…',
+    // notepad
+    padOpen: 'Notepad',
+    padArea: 'Notepad',
+    padPlaceholder: '…'
   },
   pt: {
     contactTitle: 'me escreva uma mensagem',
@@ -125,14 +188,109 @@ const UI = {
     message: 'sua mensagem…',
     email: 'seu email (pra eu poder responder)',
     send: 'enviar',
-    mailSubject: 'Olá, vim do coffeeOS'
+    mailSubject: 'Olá, vim do coffeeOS',
+    search: 'buscar',
+    searchPosts: 'Buscar posts',
+    filter: 'filtrar',
+    filterFiles: 'Filtrar arquivos',
+    emptyFolder: 'pasta vazia',
+    noPosts: 'nenhum post ainda',
+    noMatches: 'nada encontrado',
+    noHeadings: 'sem seções',
+    items: function (n) { return n + (n === 1 ? ' item' : ' itens'); },
+    words: function (n) { return n + (n === 1 ? ' palavra' : ' palavras'); },
+    partOf: function (i, t) { return 'parte ' + i + ' de ' + t; },
+    notesPlaceholder: 'escreva notas sobre isso…',
+    notesEdit: 'editar',
+    notesPreview: 'ver',
+    notesQuote: 'citar',
+    notesDownload: 'baixar',
+    notesClear: 'limpar',
+    notesActions: 'Ações das notas',
+    notesMore: 'Mais ações',
+    notesToggle: 'Notas',
+    previewAsMarkdown: 'Ver como markdown',
+    quoteSelection: 'Citar o texto selecionado no artigo',
+    downloadAsMd: 'Baixar como .md',
+    eraseNotes: 'Apagar estas notas',
+    toc: 'Índice',
+    readerFont: 'Fonte',
+    changeFont: 'Mudar a fonte',
+    readerSizeDown: 'Diminuir o texto',
+    readerSizeUp: 'Aumentar o texto',
+    cleanVersion: 'Ler a versão limpa',
+    cleanVersionLink: 'zen ↗',
+    close: 'Fechar',
+    maximize: 'Maximizar',
+    restore: 'Restaurar',
+    up: 'Subir',
+    goUp: 'Subir um nível',
+    home: 'Início',
+    about: 'Sobre',
+    apps: 'Apps',
+    settings: 'Configurações',
+    theme: 'Mudar o tema',
+    mainNav: 'Navegação principal',
+    path: 'Caminho',
+    language: 'Idioma',
+    languageName: 'Português',
+    termCommand: 'Comando do terminal',
+    termOpen: 'Terminal',
+    termHint: 'Digite um comando (Enter abre o terminal)',
+    termPlaceholder: 'digite help…',
+    padOpen: 'Notepad',
+    padArea: 'Notepad',
+    padPlaceholder: '…'
   }
 };
 
 // devolve o texto no idioma ativo; se faltar, cai no padrão
 // (assim uma string nova sem tradução aparece em inglês, não em branco)
+//
+// Valores que são FUNÇÃO (plurais, contadores) voltam como a função, pra quem
+// precisa deles chamar com os números: tfn('items')(3). Valores simples — mesmo
+// que a função não espere argumento — são resolvidos aqui.
 export function t(chave, lang) {
   const l = lang || atual;
   const bloco = UI[l] || UI[PADRAO];
-  return bloco[chave] !== undefined ? bloco[chave] : (UI[PADRAO][chave] || '');
+  let v = bloco[chave] !== undefined ? bloco[chave] : UI[PADRAO][chave];
+  if (v === undefined) return '';
+  if (typeof v === 'function') v = v();
+  return v;
+}
+
+// a versão que devolve a FUNÇÃO (pra plurais): tfn('items')(3)
+export function tfn(chave, lang) {
+  const l = lang || atual;
+  const bloco = UI[l] || UI[PADRAO];
+  const v = bloco[chave] !== undefined ? bloco[chave] : UI[PADRAO][chave];
+  return typeof v === 'function' ? v : function () { return v || ''; };
+}
+
+// Aplica os textos no HTML estático. O elemento declara o que é:
+//   data-i18n="search"            -> textContent
+//   data-i18n-aria="close"         -> aria-label
+//   data-i18n-title="theme"        -> title
+//   data-i18n-placeholder="search" -> placeholder
+//
+// O que NÃO leva data-i18n: nome de janela e o que o JS monta em runtime (esses
+// chamam t() direto).
+const ATRIBUTOS = [
+  ['data-i18n', null],
+  ['data-i18n-aria', 'aria-label'],
+  ['data-i18n-title', 'title'],
+  ['data-i18n-placeholder', 'placeholder']
+];
+
+export function applyUiLang(lang) {
+  const l = lang || atual;
+  ATRIBUTOS.forEach(function (par) {
+    const chave = par[0];
+    const attr = par[1];
+    document.querySelectorAll('[' + chave + ']').forEach(function (el) {
+      const texto = t(el.getAttribute(chave), l);
+      if (attr) el.setAttribute(attr, texto);
+      else el.textContent = texto;
+    });
+  });
 }

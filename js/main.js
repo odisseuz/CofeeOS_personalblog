@@ -6,13 +6,13 @@ import { closeFolder, navigateUp, navigateInto, renderFinder, applyFinderFilter,
 import { route } from './routing.js';
 import { loadRecentPosts, setupSearch } from './search.js';
 import { loadManifest, visiveis, getPostIndex } from './data.js';
-import { initLang, setLang, getLang, langLabel, aboutFile, isAbout } from './lang.js';
+import { initLang, setLang, getLang, langLabel, aboutFile, isAbout, applyUiLang, t } from './lang.js';
 import { initTerminal, focusTerminal, runCommand } from './terminal.js';
 import { initNotepad, focusNotepad } from './notepad.js';
 import { initIdleChrome } from './idle.js';
 import { onBrewChange } from './sitename.js';
 import './theme.js';
-import { setTheme } from './theme.js';
+import { setTheme, refreshFontLabel } from './theme.js';
 
 // sincroniza inert/scroll: nada de fundo focável enquanto houver janela aberta
 function syncInert() {
@@ -39,6 +39,8 @@ document.addEventListener('coffee:overlay', syncInert);
 (function () {
   // o idioma vem antes de tudo: finder, recent, busca e contadores leem ele.
   initLang();
+  // e o texto da interface acompanha (rótulos, aria-label, placeholders)
+  applyUiLang();
 
   makeWindow(
     document.querySelector('#overlay .editor'),
@@ -492,6 +494,8 @@ document.addEventListener('coffee:overlay', syncInert);
         fecharLang();
         if (!setLang(btn.getAttribute('data-lang'))) return;
         pintarLang();
+        applyUiLang();
+        refreshFontLabel();
         loadRecentPosts();
         pintarContadores();
         if (fmOverlay && fmOverlay.classList.contains('open')) renderFinder();
@@ -525,8 +529,8 @@ document.addEventListener('coffee:overlay', syncInert);
       btn.setAttribute('aria-pressed', ativo ? 'true' : 'false');
     });
     if (langToggle) {
-      const nome = atual === 'pt' ? 'Português' : 'English';
-      langToggle.setAttribute('aria-label', 'Language: ' + nome);
+      const nome = t('languageName', atual);
+      langToggle.setAttribute('aria-label', t('language', atual) + ': ' + nome);
     }
   }
 
