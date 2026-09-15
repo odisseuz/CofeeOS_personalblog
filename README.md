@@ -39,7 +39,8 @@ build.js        # gera HTML estático dos posts (SEO) + sitemap.xml + posts/inde
 package.json    # "type": "module" (node roda os módulos ES)
 bin/coffee      # CLI: interativo (sem argumento) + new/rm/publish/commit/verify/serve
 bin/serve       # servidor de dev (no-cache)
-bin/lib/        # helpers python da CLI (manifest, drafts, commit, status)
+bin/lib/        # helpers python da CLI (manifest, drafts, commit, status, i18n)
+install.sh      # cria o link <prefix>/bin/coffee pro projeto
 js/
   state.js      # estado global compartilhado
   markdown.js   # renderer de markdown (marked) + frontmatter
@@ -249,7 +250,34 @@ publicar
   check                            manifest + frontmatter (igual ao CI)
   images                           checa metadados (EXIF/GPS) em images/
   serve [porta]                    servidor local, sem cache (padrão 8000)
+
+  --lang pt|en                     idioma das mensagens da CLI
 ```
+
+### Idioma da CLI
+
+As mensagens saem em português ou inglês:
+
+```bash
+./bin/coffee --lang pt status
+./bin/coffee --lang en status
+./bin/coffee lang                 # qual está sendo usado
+```
+
+Sem `--lang`, o idioma vem do `$LANG` do terminal (começando com `pt` → português; o resto, inglês). O `--lang` é global: vale pra qualquer comando, inclusive o menu.
+
+O léxico fica em `bin/lib/i18n.py` — separado do `js/lang.js`, que é do navegador. Aquela é a mesma ideia (idioma ao lado do texto), mas o público é outro: uma é lida pelo leitor do site, a outra por quem escreve no terminal.
+
+### Instalar o comando
+
+Pra chamar `coffee` de qualquer diretório:
+
+```bash
+./install.sh                    # /usr/local (pede sudo se não for dono)
+./install.sh --prefix ~/.local  # sem sudo
+```
+
+Ele cria um **link simbólico** pro `bin/coffee` deste projeto (não copia nada). Assim o comando enxerga o `posts/` e o `manifest.json` daqui, e editar o código já muda o comando instalado. O `bin/coffee` resolve o link pra achar a raiz certa — sem isso ele procuraria `posts/` dentro de `/usr/local`.
 
 O caminho aceita variações (`posts/science/x.md`, `/science/x.md`, sem o `.md`). O `rm` também limpa subpastas que ficaram vazias.
 
@@ -683,7 +711,7 @@ Individualmente:
 
 ```bash
 node .github/scripts/check_render.js          # smoke test do markdown + math (45 casos)
-bash .github/scripts/check_cli.sh              # testes da CLI (29 casos)
+bash .github/scripts/check_cli.sh              # testes da CLI (31 casos)
 node .github/scripts/check_imports.mjs         # imports x exports de cada módulo
 python3 .github/scripts/check_manifest.py     # manifest + frontmatter
 python3 .github/scripts/check_images.py       # metadados (EXIF) em images/

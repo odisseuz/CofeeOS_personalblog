@@ -24,7 +24,7 @@ POSTS = dt.POSTS
 
 def git(*args):
     return subprocess.run(["git"] + list(args), cwd=ROOT,
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, check=False)
 
 
 def is_draft(abs_path):

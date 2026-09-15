@@ -14,7 +14,19 @@
 
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# Resolve o caminho REAL, atravessando symlinks. Sem isso, o `coffee` instalado
+# em /usr/local/bin (um link pro projeto) calcularia a raiz a partir do link, e
+# procuraria posts/ dentro de /usr/local. O `install.sh` cria exatamente esse
+# link, então isto é o que faz o comando funcionar de qualquer diretório.
+AUTO="${BASH_SOURCE[0]}"
+while [ -L "$AUTO" ]; do
+  ALVO="$(readlink "$AUTO")"
+  case "$ALVO" in
+    /*) AUTO="$ALVO" ;;
+    *)  AUTO="$(cd "$(dirname "$AUTO")" && pwd)/$ALVO" ;;
+  esac
+done
+ROOT="$(cd "$(dirname "$AUTO")/.." && pwd)"
 POSTS="$ROOT/posts"
 MANIFEST="$POSTS/manifest.json"
 TOOL="$ROOT/bin/lib/manifest_tool.py"
@@ -30,6 +42,15 @@ groups() {
 }
 
 die() { printf 'coffee: %s\n' "$*" >&2; exit 1; }
+
+# alinha rótulo e valor numa coluna, sem depender do tamanho do rótulo
+label() { printf '  %-11s %s' "$1" "$2"; }
+
+# rótulos da tela de estado. O status_tool manda os traduzidos; estes são o
+# fallback (e o que o shell usa se o python falhar).
+R_ESCOLHA="  escolha (número ou letra, Enter sai): "
+R_VOLTAR="  Enter pra voltar "
+R_PERGUNTA="o que você quer fazer?"
 
 usage() {
   cat <<'EOF'
@@ -67,20 +88,38 @@ EOF
 tela_status() {
   local resumo
   resumo="$(python3 "$STATUS" resumo 2>/dev/null < /dev/null)" || return 0
-  printf '\nmidnight coffee\n\n'
-  printf '%s\n' "$resumo" | while IFS='|' read -r chave valor; do
+
+  # Duas passadas: os rótulos são enviados no FIM da saída (pra não custar um
+  # processo por linha), então preciso deles antes de montar o corpo.
+  local r_posts r_idiomas r_git r_grupos r_drafts r_proximo
+  r_posts="$(printf '%s\n' "$resumo" | sed -n 's/^rot_posts|//p')"
+  r_idiomas="$(printf '%s\n' "$resumo" | sed -n 's/^rot_idiomas|//p')"
+  r_git="$(printf '%s\n' "$resumo" | sed -n 's/^rot_git|//p')"
+  r_grupos="$(printf '%s\n' "$resumo" | sed -n 's/^rot_grupos|//p')"
+  r_drafts="$(printf '%s\n' "$resumo" | sed -n 's/^rot_drafts|//p')"
+  r_proximo="$(printf '%s\n' "$resumo" | sed -n 's/^rot_proximo|//p')"
+  R_ESCOLHA="$(printf '%s\n' "$resumo" | sed -n 's/^rot_escolha|//p')"
+  R_VOLTAR="$(printf '%s\n' "$resumo" | sed -n 's/^rot_voltar|//p')"
+  R_PERGUNTA="$(printf '%s\n' "$resumo" | sed -n 's/^rot_pergunta|//p')"
+
+  local corpo=""
+  while IFS='|' read -r chave valor; do
     case "$chave" in
-      posts)     printf '  posts        %s\n' "$valor" ;;
-      idiomas)   printf '  idiomas      %s\n' "$valor" ;;
-      git)       printf '  git          %s\n' "$valor" ;;
-      grupos)    printf '  grupos       %s\n' "$valor" ;;
-      rascunhos) printf '\n  rascunhos:\n' ;;
-      '  '*)     printf '    %s\n' "$(printf '%s' "$chave" | sed 's/^ *//')" ;;
-      proximo)   printf '\n  próximo passo:\n    %s\n' "$valor" ;;
-      porque)    printf '    (%s)\n\n' "$valor" ;;
-      *)         [ -n "$chave" ] && printf '%s\n' "$chave" ;;
+      rot_*)     ;;   # já lidos acima
+      posts)     corpo="$corpo$(label "$r_posts" "$valor")\n" ;;
+      idiomas)   corpo="$corpo$(label "$r_idiomas" "$valor")\n" ;;
+      git)       corpo="$corpo$(label "$r_git" "$valor")\n" ;;
+      grupos)    corpo="$corpo$(label "$r_grupos" "$valor")\n" ;;
+      rascunhos) corpo="$corpo\n  $r_drafts\n" ;;
+      '  '*)     corpo="$corpo    $(printf '%s' "$chave" | sed 's/^ *//')\n" ;;
+      proximo)   corpo="$corpo\n  $r_proximo\n    $valor\n" ;;
+      porque)    corpo="$corpo    ($valor)\n\n" ;;
     esac
-  done
+  done <<EOF
+$resumo
+EOF
+
+  printf '\nmidnight coffee\n\n%b' "$corpo"
 }
 
 # lê uma opção do menu. Aceita o NÚMERO e a TECLA (a primeira letra do
@@ -89,7 +128,7 @@ tela_status() {
 ler_opcao() {
   # o prompt vai pro stderr: quem chama usa $( ) pra capturar só a resposta,
   # e sem isso o texto do prompt entra junto (era o bug do menu não responder).
-  printf '  escolha (número ou letra, Enter sai): ' >&2
+  printf '%s' "$R_ESCOLHA" >&2
   local escolha
   read -r escolha || return 1
   case "$escolha" in
@@ -102,7 +141,7 @@ ler_opcao() {
 cmd_menu() {
   while :; do
     tela_status
-    printf '  o que você quer fazer?\n\n'
+    printf '\n  %s\n\n' "$R_PERGUNTA"
     python3 "$STATUS" menu 2>/dev/null < /dev/null | while IFS='|' read -r tecla rotulo _cmd; do
       printf '    %s) %s\n' "$tecla" "$rotulo"
     done
@@ -142,7 +181,7 @@ cmd_menu() {
       *)       printf '  (%s ainda não está no menu)\n' "$cmd" ;;
     esac
     printf '\n'
-    printf '  Enter pra voltar '
+    printf '%s' "$R_VOLTAR"
     read -r _ || return 0
   done
 }
@@ -408,18 +447,8 @@ cmd_images() {
 }
 
 cmd_status() {
-  python3 "$STATUS" resumo 2>/dev/null | while IFS='|' read -r chave valor; do
-    case "$chave" in
-      posts)     printf 'posts        %s\n' "$valor" ;;
-      idiomas)   printf 'idiomas      %s\n' "$valor" ;;
-      git)       printf 'git          %s\n' "$valor" ;;
-      grupos)    printf 'grupos       %s\n' "$valor" ;;
-      rascunhos) printf '\nrascunhos:\n' ;;
-      proximo)   printf '\npróximo passo:\n  %s\n' "$valor" ;;
-      porque)    printf '  (%s)\n' "$valor" ;;
-      *)         [ -n "$chave" ] && printf '%s\n' "$chave" ;;
-    esac
-  done
+  # mesma tela do modo interativo, sem o menu — um lugar só pros rótulos
+  tela_status
   cmd_check || true
 }
 
@@ -429,8 +458,8 @@ cmd_verify() {
   local failed=0
   step() { printf '%-32s' "$1"; }
 
-  step "bash"; if bash -n "$ROOT/bin/coffee" 2>/dev/null && bash -n "$ROOT/.github/scripts/check_cli.sh" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
-  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/lib/drafts_tool.py" "$ROOT/bin/lib/commit_tool.py" "$ROOT/bin/lib/status_tool.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "bash"; if bash -n "$ROOT/bin/coffee" 2>/dev/null && bash -n "$ROOT/.github/scripts/check_cli.sh" 2>/dev/null && bash -n "$ROOT/install.sh" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/lib/drafts_tool.py" "$ROOT/bin/lib/commit_tool.py" "$ROOT/bin/lib/status_tool.py" "$ROOT/bin/lib/i18n.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "js"; local jsok=1; for f in "$ROOT"/js/*.js "$ROOT"/*.js; do node --check "$f" 2>/dev/null || jsok=0; done; [ "$jsok" = 1 ] && echo "ok" || { echo "FALHOU"; failed=1; }
   step "manifest + frontmatter"; if python3 "$ROOT/.github/scripts/check_manifest.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   # um `draft: true` que o git está rastreando subiria pro GitHub (era o papel
@@ -500,6 +529,22 @@ PY
   [ "$failed" = 0 ] && echo "tudo ok" || { echo "algo falhou"; return 1; }
 }
 
+# --lang global: `coffee --lang pt status`. Vale pra QUALQUER comando, e é
+# exportado como COFFEE_LANG pros helpers python lerem. Sem a flag, o idioma
+# vem do $LANG (terminal em pt → CLI em pt).
+cmd_lang() {
+  case "${1:-}" in
+    pt|en) printf '%s' "$1" ;;
+    '')    # mesma regra do i18n.py: $LANG começando com `pt` → pt, resto → en.
+           # (`C.UTF-8` e vazio caem em en, que é o padrão do projeto.)
+           case "${LANG:-}" in
+             pt*|PT*) printf 'pt' ;;
+             *)       printf 'en' ;;
+           esac ;;
+    *)     return 1 ;;
+  esac
+}
+
 cmd_serve() {
   local port="${1:-8000}"
   lsof -i ":$port" > /dev/null 2>&1 && die "porta $port em uso (tente: coffee serve 8080)"
@@ -507,7 +552,20 @@ cmd_serve() {
   python3 "$ROOT/bin/serve" "$port"
 }
 
+# --lang e a primeira coisa: ele vale pro comando que vier depois.
+# O export precisa vir ANTES do menu: sem comando depois do --lang, o menu e
+# quem roda, e sem o export ele sairia no idioma do ambiente.
+lang_pedido=""
+if [ "${1:-}" = "--lang" ]; then
+  if ! lang_pedido="$(cmd_lang "${2:-}")"; then
+    die "--lang aceita pt ou en (recebi: ${2:-})"
+  fi
+  shift 2
+fi
+case "$lang_pedido" in pt|en) export COFFEE_LANG="$lang_pedido" ;; esac
+
 [ $# -ge 1 ] || { cmd_menu; exit 0; }
+
 cmd="$1"; shift
 case "$cmd" in
   new)    cmd_new "$@" ;;
@@ -523,5 +581,6 @@ case "$cmd" in
   verify) cmd_verify "$@" ;;
   serve)  cmd_serve "$@" ;;
   -h|--help|help) usage ;;
+  lang)  printf '%s\n' "$(cmd_lang "${1:-}")" ;;
   *) die "comando desconhecido: $cmd (tente: coffee help)" ;;
 esac

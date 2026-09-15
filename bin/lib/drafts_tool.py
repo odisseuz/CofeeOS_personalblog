@@ -57,7 +57,7 @@ def drafts():
 def git(*args, **kw):
     return subprocess.run(
         ["git"] + list(args), cwd=ROOT,
-        capture_output=True, text=True, **kw
+        capture_output=True, text=True, check=False, **kw
     )
 
 

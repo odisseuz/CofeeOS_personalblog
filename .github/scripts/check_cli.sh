@@ -193,18 +193,38 @@ fi
 echo ""
 echo "=== coffee status / menu ==="
 D14="$(sandbox status)"
-out_st2="$(cd "$D14" && ./bin/coffee status 2>&1 || true)"
+# o rótulo sai no idioma do ambiente; o teste fixa pt pra não depender do $LANG
+out_st2="$(cd "$D14" && COFFEE_LANG=pt ./bin/coffee status 2>&1 || true)"
 if echo "$out_st2" | grep -q 'próximo passo'; then
   pass "status sugere o proximo passo"
 else
   fail "status sugere o proximo passo" "$out_st2"
 fi
 # o menu nao pode quebrar quando o stdin fecha (uso em pipe/CI)
-out_menu="$(cd "$D14" && ./bin/coffee menu < /dev/null 2>&1 || true)"
+out_menu="$(cd "$D14" && COFFEE_LANG=pt ./bin/coffee menu < /dev/null 2>&1 || true)"
 if echo "$out_menu" | grep -q 'escrever um post novo'; then
   pass "menu abre com stdin fechado"
 else
   fail "menu abre com stdin fechado" "$out_menu"
+fi
+# --lang troca as mensagens sem depender do ambiente
+out_en="$(cd "$D14" && ./bin/coffee --lang en status 2>&1 || true)"
+if echo "$out_en" | grep -q 'next step'; then
+  pass "--lang en traduz as mensagens"
+else
+  fail "--lang en traduz as mensagens" "$out_en"
+fi
+if (cd "$D14" && ./bin/coffee --lang xx status > /dev/null 2>&1); then
+  fail "--lang recusa valor invalido" "deveria ter falhado"
+else
+  pass "--lang recusa valor invalido"
+fi
+# --lang vale pro MENU tambem (sem comando depois da flag)
+out_menu_en="$(cd "$D14" && ./bin/coffee --lang en < /dev/null 2>&1 || true)"
+if echo "$out_menu_en" | grep -q 'write a new post'; then
+  pass "--lang vale sem comando (menu)"
+else
+  fail "--lang vale sem comando (menu)" "$out_menu_en"
 fi
 
 # ---------------------------------------------------------------------------

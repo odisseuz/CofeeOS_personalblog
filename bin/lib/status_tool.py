@@ -20,6 +20,12 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import drafts_tool as dt
+import i18n
+from i18n import t
+
+# o idioma vem do $LANG (ou do --lang, que o coffee exporta como COFFEE_LANG).
+# Sem isso o módulo ficaria sempre em inglês, mesmo com o terminal em pt.
+i18n.set_lang(os.environ.get('COFFEE_LANG') or i18n.detecta_lang())
 
 ROOT = dt.ROOT
 POSTS = dt.POSTS
@@ -29,7 +35,7 @@ MANIFEST = os.path.join(POSTS, "manifest.json")
 def git(*args):
     try:
         r = subprocess.run(["git", "-C", ROOT] + list(args),
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, check=False)
         return r.stdout.strip() if r.returncode == 0 else ""
     except OSError:
         return ""
@@ -94,22 +100,23 @@ def proximo_passo(ds, pubs):
         abs_p = os.path.join(ROOT, d)
         fm = frontmatter(abs_p)
         try:
-            txt = open(abs_p, encoding="utf-8").read()
+            with open(abs_p, encoding="utf-8") as f:
+                txt = f.read()
         except OSError:
             continue
         corpo = txt.split("---", 2)[2] if txt.count("---") >= 2 else ""
         palavras = len(corpo.split())
         if palavras >= 50:
             rel = d[len("posts/"):]
+            titulo = fm.get("title") or rel
             return (f"./bin/coffee publish {rel}",
-                    f'o rascunho "{fm.get("title") or rel}" tem {palavras} palavras')
+                    t('r_porque_draft', titulo=titulo, n=palavras))
 
     # 2. mudanças pra commitar
     sujo = git("status", "--porcelain")
     if sujo:
         n = len(sujo.splitlines())
-        return ("./bin/coffee commit",
-                f"{n} arquivo{'s' if n > 1 else ''} pra commitar")
+        return ("./bin/coffee commit", t('r_porque_sujo', n=n, s='s' if n > 1 else ''))
 
     # 3. commits locais que ainda não subiram
     branch = git("rev-parse", "--abbrev-ref", "HEAD")
@@ -119,11 +126,10 @@ def proximo_passo(ds, pubs):
             ahead = git("rev-list", "--count", "@{u}..HEAD")
             if ahead and ahead != "0":
                 return (f"git push origin {branch}",
-                        f"{ahead} commit{'s' if ahead != '1' else ''} sem subir")
+                        t('r_porque_ahead', n=ahead, s='s' if ahead != '1' else ''))
 
     # 4. nada pendente: escrever
-    return ("./bin/coffee new science/meu-post",
-            "nada pendente — que tal escrever alguma coisa?")
+    return ("./bin/coffee new science/meu-post", t('r_porque_nada'))
 
 
 def cmd_resumo():
@@ -133,24 +139,21 @@ def cmd_resumo():
 
     n_pub = len(publicados_de_verdade)
     n_dr = len(ds)
-    print(f"posts|{n_pub} publicado{'s' if n_pub != 1 else ''} · "
-          f"{n_dr} rascunho{'s' if n_dr != 1 else ''}")
+    print(f"posts|{t('r_posts', n=n_pub, d=n_dr, s='s' if n_pub != 1 else '', s2='s' if n_dr != 1 else '')}")
 
     if idiomas:
-        partes = [f"{k} ({v})" for k, v in sorted(idiomas.items())]
-        print("idiomas|" + " · ".join(partes))
+        print("idiomas|" + " · ".join(f"{k} ({v})" for k, v in sorted(idiomas.items())))
 
-    branch = git("rev-parse", "--abbrev-ref", "HEAD") or "(sem git)"
+    branch = git("rev-parse", "--abbrev-ref", "HEAD") or t('r_sem_git')
     sujo = git("status", "--porcelain")
-    estado_git = "com mudanças" if sujo else "limpo"
+    estado_git = t('r_sujo') if sujo else t('r_limpo')
     upstream = git("rev-parse", "--abbrev-ref", "@{u}")
     if upstream:
         ahead = git("rev-list", "--count", "@{u}..HEAD")
         if ahead and ahead != "0":
-            estado_git += f", {ahead} sem subir"
+            estado_git += t('r_sem_subir', n=ahead)
     print(f"git|{branch}, {estado_git}")
 
-    # grupos: só os que têm publicação, pra não poluir
     por_grupo = {}
     for g, _i, _p, _d in publicados_de_verdade:
         por_grupo[g] = por_grupo.get(g, 0) + 1
@@ -161,11 +164,16 @@ def cmd_resumo():
         print("rascunhos|")
         for d in ds:
             fm = frontmatter(os.path.join(ROOT, d))
-            print(f"  {d[len('posts/'):]}  ({fm.get('title') or 'sem título'})")
+            print(f"  {d[len('posts/'):]}  ({fm.get('title') or t('r_sem_titulo')})")
 
     cmd, porque = proximo_passo(ds, pubs)
     print(f"proximo|{cmd}")
     print(f"porque|{porque}")
+    # os rótulos vão por último, chave a chave: o bash não tem o léxico, e chamar
+    # o python uma vez por mensagem seria um processo por linha da tela.
+    for chave in ('rot_posts', 'rot_idiomas', 'rot_git', 'rot_grupos', 'rot_drafts',
+                  'rot_proximo', 'rot_escolha', 'rot_voltar', 'rot_pergunta'):
+        print(f"{chave}|{t(chave)}")
     return 0
 
 
@@ -175,22 +183,22 @@ def cmd_menu():
     pubs, _ds, _idi = contar()
     sujo = git("status", "--porcelain")
 
-    print("1|escrever um post novo|new")
+    print(f"1|{t('menu_escrever')}|new")
     if ds:
-        print(f"2|ver os rascunhos ({len(ds)})|drafts")
-        print("3|publicar um rascunho|publish")
+        print(f"2|{t('menu_ver_drafts', n=len(ds))}|drafts")
+        print(f"3|{t('menu_publicar')}|publish")
     else:
-        print("2|ver os posts|ls")
-        print("3|ver os rascunhos (nenhum)|drafts")
+        print(f"2|{t('menu_ver_posts')}|ls")
+        print(f"3|{t('menu_sem_drafts')}|drafts")
     if sujo:
         n = len(sujo.splitlines())
-        print(f"4|commitar ({n} arquivo{'s' if n > 1 else ''})|commit")
+        print(f"4|{t('menu_commitar', n=n, s='s' if n > 1 else '')}|commit")
     else:
-        print("4|commitar (nada pendente)|commit")
-    print("5|subir o servidor local|serve")
-    print("6|validar tudo|verify")
-    print("7|ver os posts|ls")
-    print("?|ajuda|help")
+        print(f"4|{t('menu_commitar_limpo')}|commit")
+    print(f"5|{t('menu_servir')}|serve")
+    print(f"6|{t('menu_validar')}|verify")
+    print(f"7|{t('menu_ver_posts')}|ls")
+    print(f"?|{t('menu_ajuda')}|help")
     return 0
 
 
