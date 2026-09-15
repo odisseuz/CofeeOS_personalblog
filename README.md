@@ -67,20 +67,43 @@ Os scripts são módulos ES (`import`/`export`) com um único ponto de entrada �
 
 ### Drafts (escrever sem publicar)
 
-Um post em escrita não precisa subir pro GitHub. O jeito é colocar a pasta no `.gitignore`:
+Um rascunho é um post com `draft: true` no frontmatter:
 
+```markdown
+---
+title: Fichamento: variáveis instrumentais
+date: 2026-09-21
+lang: pt
+draft: true
+---
 ```
-# no .gitignore
-posts/science/causal-inference/
+
+O estado vive **no próprio arquivo** — essa é a fonte única. Quem deriva dele:
+
+| Onde | O que acontece |
+| :--- | :--- |
+| site (finder, recent, busca, contador) | o draft **não aparece** |
+| `build.js` | não gera HTML, não entra no `sitemap.xml` nem no `index.json` |
+| `.gitignore` | ganha a linha do arquivo (bloco gerado — não edite à mão) |
+| `manifest.json` | não é registrado |
+
+O `.gitignore` é **derivado**, como o `posts/index.json`: quem escreve nele é o `coffee commit`. Por isso um draft nunca vaza pro GitHub mesmo se você usar `git add -A` no lugar da CLI.
+
+Um draft **não cria pasta**: um rascunho em `posts/science/segredo/x.md` não faz `segredo/` aparecer (senão o caminho denunciaria o que ele é).
+
+Quando o texto estiver pronto:
+
+```bash
+./bin/coffee publish science/education/fichamento.md
 ```
 
-Com isso o arquivo fica no seu disco (o site local mostra), mas o `git add -A` **não o pega** — nem eu nem acidente nenhum. O `check_manifest` entende: ele **ignora no disco o que o git ignora**, então um draft em escrita **não** conta como post órfão e não quebra o `verify`.
+Isso tira o `draft:` do frontmatter e registra no manifest. Depois, `./bin/coffee commit` — e a linha sai do `.gitignore` sozinha.
 
-Quando o texto estiver pronto, o caminho de volta:
+Pra ver o que está em rascunho a qualquer momento:
 
-1. Apaga (ou comenta) a linha no `.gitignore`.
-2. Registra no `posts/manifest.json` — ou roda `./bin/coffee new` num arquivo novo, que ele registra.
-3. `./bin/coffee verify` e commit.
+```bash
+./bin/coffee drafts
+```
 
 ### O caminho normal
 
@@ -108,6 +131,8 @@ Pra fazer na mão, o processo é:
    - `title` vira o nome no gerenciador de arquivos e o título do artigo.
    - `date` aparece no gerenciador e no card de "recent" (use `AAAA-MM-DD` pra ordenar certo).
    - `series` e `order` são opcionais, e servem pra agrupar posts relacionados (ver **Séries** abaixo).
+   - `lang` é o idioma do post (`en` ou `pt`); sem ele, assume `en`. Ver **Idiomas** abaixo.
+   - `draft: true` deixa o post fora do site e fora do git. Ver **Drafts** acima.
 
 2. Adiciona o caminho (com a subpasta, se houver) no array certo de `posts/manifest.json`:
 
@@ -168,6 +193,10 @@ new <grupo>/[subpasta/]nome.md   cria o .md e registra no manifest
 rm  <grupo>/[subpasta/]nome.md   remove o .md e tira do manifest
 ls [grupo]                       lista os posts (título e data)
 
+drafts                           lista os rascunhos (draft: true)
+publish <grupo>/[.../]nome.md    tira o draft e registra no manifest
+commit [-m msg]                  .gitignore + manifest + add + commit (+ push?)
+
 status                           visão geral: o que está ok e o que falta
 check                            manifest + frontmatter (igual ao CI)
 images                           checa metadados (EXIF/GPS) em images/
@@ -179,6 +208,41 @@ serve [porta]                    servidor local, sem cache (padrão 8000)
 O caminho aceita variações (`posts/science/x.md`, `/science/x.md`, sem o `.md`). O `rm` também limpa subpastas que ficaram vazias.
 
 O `status` é o comando do dia a dia: mostra a contagem por grupo e aponta problemas (órfãos, entradas quebradas, frontmatter inválido). Se o `./bin/coffee status` estiver limpo, está tudo certo.
+
+### `commit` — o caminho normal pra subir
+
+A CLI é dona do estado dos rascunhos, então commitar por ela é mais seguro que `git add -A`:
+
+```bash
+./bin/coffee commit
+```
+
+O que acontece:
+
+1. lê o `draft:` de cada `.md` e **reescreve o bloco de rascunhos no `.gitignore`**;
+2. registra no `manifest.json` os posts publicados que ainda não estavam lá;
+3. mostra o resumo, propõe uma mensagem (o título do post que está entrando) e pede confirmação;
+4. pergunta se quer fazer push.
+
+```
+  manifest: + science/education/fichamento-causalidade.md
+ posts/about.pt.md        | 22 +++
+ style.css                | 40 +++++
+ 19 files changed, 767 insertions(+)
+
+mensagem: post: Fichamento: Causalidade e Contrafactuais (+18 arquivos)
+commitar? [Y/n]
+```
+
+Um rascunho **nunca** entra no commit. Se você preferir escrever a mensagem, `./bin/coffee commit -m "..."`.
+
+O bloco gerado no `.gitignore` fica assim (e não deve ser editado à mão — a próxima execução sobrescreve):
+
+```
+# --- drafts (gerado por `coffee commit`; não edite à mão) ---
+posts/science/psychology/history/descartes-hume-and-kant.md
+# --- fim dos drafts ---
+```
 
 ### `verify`
 
@@ -193,6 +257,7 @@ bash                            ok
 python                          ok
 js                              ok
 manifest + frontmatter          ok
+drafts fora do git              ok
 testes da CLI                   ok
 testes do markdown              ok
 imports                         ok
@@ -204,8 +269,9 @@ tabindex (botões)               ok
 tudo ok
 ```
 
-Roda sintaxe (bash/python/js), os testes, o build, e quatro checagens que pegam erro que já aconteceu aqui:
+Roda sintaxe (bash/python/js), os testes, o build, e cinco checagens que pegam erro que já aconteceu aqui:
 
+- **`drafts fora do git`** — um `draft: true` que o git esteja rastreando subiria pro GitHub. O `.gitignore` por pasta não existe mais (virou bloco gerado), então este passo confere o resultado.
 - **`imports`** — confere se cada `import { x } from './y.js'` bate com os exports reais de `y.js`. O `node --check` valida só a **sintaxe**: um export renomeado passa no check e só quebra no navegador. Foi assim que o `makeTabbable` sumiu do `article.js` e do `finder.js` em duas ocasiões.
 - **`gitignore`** — um padrão `lucide*` no `.gitignore` deixava todos os ícones fora do git, e o site viria sem ícones num clone.
 - **`tabindex`** — o Safari no macOS não navega por Tab entre `<button>` sem `tabindex` explícito. Se você adicionar um botão novo sem o atributo, o `verify` aponta o arquivo e a linha.
@@ -285,6 +351,8 @@ A checagem lê só o bloco EXIF de JPEGs, sem dependências externas. Outros for
 ## Sobre (about)
 
 A página `posts/about.md` tem dois comportamentos especiais: a primeira imagem vira **círculo** (foto de perfil), e no fim é injetado um **formulário de contato** (assunto + mensagem + email → `mailto`). O email de destino fica hardcoded em `js/article.js` (função `wireContactForm`).
+
+Ela existe por idioma (`about.md`, `about.pt.md`) — ver [Idiomas](#idiomas). Quem decide qual abrir é o `aboutFile()` do `js/lang.js`, e os dois passam pelas mesmas regras acima.
 
 ## Markdown suportado
 
@@ -471,29 +539,64 @@ Cada post e pasta tem uma URL própria via hash — dá pra compartilhar/favorit
 
 O caminho do hash segue a estrutura de `posts/` (com subpastas, ex.: `#~/art/photography/foto.md` ou `#~/readings/fiction/meu-post.md`).
 
-## Idiomas (futuro)
+## Idiomas
 
-**Hoje o site é só em inglês** (`<html lang="en">` no `index.html` e nas páginas geradas pelo `build.js`). Não há seletor nem i18n — e é de propósito: um blog com um post não precisa disso.
+O site é **en** por padrão, com **pt** opcional. Os dois têm o mesmo peso: não é tradução, são posts **diferentes** que convivem na mesma árvore de pastas.
 
-Quando fizer sentido ter dois idiomas, o caminho mais simples é **idioma como pasta**, não como configuração:
+### Como funciona
+
+O idioma de um post vive no frontmatter:
+
+```markdown
+---
+title: Fichamento: causalidade e contrafactuais
+date: 2026-09-20
+lang: pt
+---
+```
+
+Sem `lang:`, o post é em inglês. **Os arquivos não mudam de lugar** — o `lang` é um filtro, não uma pasta. `posts/science/education/` pode ter um post em cada idioma, e cada um aparece só no seu.
+
+### O seletor e o link compartilhado
+
+O seletor `EN · PT` fica no topbar, ao lado do relógio. O idioma escolhido vai pra URL:
 
 ```
-posts/
-  en/
-    culture/languages/chinese/introduction.md
-  pt/
-    culture/languages/chinese/introducao.md
+https://odisseuz.github.io/CofeeOS_personalblog/?lang=pt
 ```
 
-Assim cada post continua sendo um `.md` normal, sem biblioteca de i18n, sem dicionário, sem estado no navegador. O que muda é pouco:
+Isso é de propósito: **o link carrega o idioma junto**. Quem receber esse endereço abre em português, mesmo nunca tendo visitado o site. A precedência é `?lang=` na URL > `localStorage` > `en`. Em `en`, o parâmetro sai da URL (o padrão não precisa sujar o endereço).
 
-1. O caminho ganha um primeiro segmento de idioma (`en/`, `pt/`).
-2. O file manager mostra esses dois como pastas.
-3. Um seletor `EN · PT` (no topbar ou no dock) filtra qual idioma aparece.
+### O que o idioma filtra
 
-**Não use hover** pro seletor: hover não existe no toque, então no celular ninguém trocaria de idioma. Um botão de texto funciona em mouse, toque e teclado.
+| Superfície | Comportamento |
+| :--- | :--- |
+| finder | mostra só os arquivos do idioma ativo |
+| recent | idem |
+| busca | idem |
+| contador das pastas | conta só o idioma ativo |
+| **as 5 pastas da home** | **aparecem sempre**, nos dois idiomas |
 
-Um detalhe que vale saber: se os idiomas tiverem **conteúdo diferente** (e não tradução do mesmo texto), o custo é praticamente zero — é só escrever dois posts. O custo real é manter traduções espelhadas, que exigem atualizar os dois lados sempre.
+As pastas são a **estrutura do OS**, não conteúdo: uma gaveta vazia continua sendo gaveta. O que muda com o idioma é o que tem dentro dela — inclusive um post em `pt` não faz a pasta `art/` sumir de quem está em `en`.
+
+### Sobre (about)
+
+O about também tem duas versões, resolvidas pelo sufixo do nome:
+
+```
+posts/about.md       (en)
+posts/about.pt.md    (pt)
+```
+
+O dock e o rodapé apontam pro `about` genérico; quem escolhe o arquivo é o `aboutFile()` do `js/lang.js`, conforme o idioma ativo. Diferente dos posts, aqui o idioma **está** no nome do arquivo — porque o about é aberto por um hash fixo (`#/about`) e os dois precisam coexistir na raiz de `posts/`.
+
+### Adicionar um idioma novo
+
+1. `js/lang.js`: acrescente o código em `LANGS` e o rótulo em `NOMES`.
+2. `index.html`: um `<button class="lang-opt" data-lang="xx">` no `#lang-switch`.
+3. `build.js`: nada a fazer — o `<html lang>` sai do `data.lang`.
+
+Os posts em `xx` aparecem assim que existirem. Nenhum outro arquivo precisa saber.
 
 ## Testes
 
@@ -506,14 +609,14 @@ Pra rodar **tudo** de uma vez (sintaxe, testes, build e gitignore):
 Individualmente:
 
 ```bash
-node .github/scripts/check_render.js          # smoke test do markdown + math (42 casos)
-bash .github/scripts/check_cli.sh              # testes da CLI (16 casos)
+node .github/scripts/check_render.js          # smoke test do markdown + math (45 casos)
+bash .github/scripts/check_cli.sh              # testes da CLI (22 casos)
 node .github/scripts/check_imports.mjs         # imports x exports de cada módulo
 python3 .github/scripts/check_manifest.py     # manifest + frontmatter
 python3 .github/scripts/check_images.py       # metadados (EXIF) em images/
 ```
 
-Os testes rodam no CI antes de qualquer deploy (`.github/workflows/deploy.yml`, job `validate`). O `check_cli.sh` roda cada caso numa **cópia isolada do projeto** num diretório temporário — não toca nos seus arquivos. Ele cobre `new`/`rm`, caminhos variantes, integridade do JSON, o código de saída do `check` e a checagem de EXIF.
+Os testes rodam no CI antes de qualquer deploy (`.github/workflows/deploy.yml`, job `validate`). O `check_cli.sh` roda cada caso numa **cópia isolada do projeto** num diretório temporário — não toca nos seus arquivos. Ele cobre `new`/`rm`, `drafts`/`publish`, caminhos variantes, integridade do JSON, o código de saída do `check` e a checagem de EXIF.
 
 ## Deploy no GitHub Pages
 
@@ -598,7 +701,7 @@ O KaTeX **não desenha grafos**. Um DAG (setas entre variáveis) precisaria de S
 
 ### Seletor de idiomas
 
-Hoje só inglês, sem i18n. O plano completo (idioma como pasta, seletor, por que sem hover) está na seção *Idiomas (futuro)*.
+Feito — ver [Idiomas](#idiomas). A ideia original era "idioma como pasta" (`posts/en/`, `posts/pt/`); foi trocada por `lang:` no frontmatter, que não move arquivo nenhum (e por isso não quebra link já publicado).
 
 **Gatilho:** quando houver conteúdo em outro idioma pra publicar.
 

@@ -155,12 +155,14 @@ def main():
         print("nada pra commitar")
         return 10
 
-    msg = mensagem()
-    print()
     r = git("--no-pager", "diff", "--cached", "--stat")
+    print()
     print(r.stdout.rstrip())
+
+    # a mensagem so sai daqui se a CLI nao tiver recebido uma com -m; ela manda
+    # a sua na linha MSG:: e a CLI decide qual usar.
+    msg = os.environ.get("COFFEE_MSG") or mensagem()
     print(f"\nmensagem: {msg}")
-    # a mensagem vai pra saída num formato que a CLI lê
     print(f"MSG::{msg}")
     return 0
 

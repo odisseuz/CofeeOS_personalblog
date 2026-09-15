@@ -164,7 +164,10 @@ for (const [group, names] of Object.entries(manifest)) {
 }
 
 // primeira passada: metadados (pra montar os links internos)
-const posts = entries.map(function (relMd) {
+// `draft: true` no frontmatter tira o post do site inteiro: nada de index.json,
+// sitemap ou página HTML. O arquivo continua no disco (e no git), só não 
+// existe pro visitante.
+const todos = entries.map(function (relMd) {
   const { data } = parseFrontmatter(readFileSync(join(ROOT, relMd), 'utf8'));
   return {
     relMd: relMd,
@@ -173,9 +176,13 @@ const posts = entries.map(function (relMd) {
     date: data.date || '',
     series: data.series || '',
     lang: data.lang === 'pt' ? 'pt' : 'en',
+    draft: /^(true|yes|1)$/i.test(String(data.draft || '').trim()),
     order: data.order === undefined ? null : Number(data.order)
   };
 });
+
+const posts = todos.filter(function (p) { return !p.draft; });
+const drafts = todos.filter(function (p) { return p.draft; });
 
 // posts recentes (por data) pra linkar no rodapé. O corte é por idioma: uma
 // página em português não deve empurrar o leitor pro meio do site em inglês.
@@ -197,8 +204,8 @@ for (const p of posts) {
 }
 
 const urls = ['  <url><loc>' + esc(baseUrl || 'index.html') + '</loc></url>']
-  .concat(entries.map(function (relMd) {
-    return '  <url><loc>' + esc(baseUrl + relMd.replace(/\.md$/, '.html')) + '</loc></url>';
+  .concat(posts.map(function (p) {
+    return '  <url><loc>' + esc(baseUrl + p.relHtml) + '</loc></url>';
   }))
   .join('\n');
 writeFileSync(
@@ -238,7 +245,8 @@ writeFileSync(
   robots + (baseUrl ? 'Sitemap: ' + baseUrl + 'sitemap.xml\n' : '')
 );
 
-console.log('build: ' + entries.length + ' páginas HTML + sitemap.xml + robots.txt + posts/index.json');
+console.log('build: ' + posts.length + ' páginas HTML + sitemap.xml + robots.txt + posts/index.json' +
+  (drafts.length ? ' (' + drafts.length + ' draft(s) fora do site)' : ''));
 if (!baseUrl) {
   console.log('  (aviso: BASE_URL não definida — canonical/og/sitemap ficaram com URL relativa)');
 }

@@ -185,7 +185,7 @@ cmd_commit() {
   [ -d "$ROOT/.git" ] || die "não é um repositório git"
 
   local saida
-  saida="$(python3 "$COMMIT" 2>&1)" || {
+  saida="$(COFFEE_MSG="$msg" python3 "$COMMIT" 2>&1)" || {
     local st=$?
     printf '%s\n' "$saida" >&2
     [ "$st" = 10 ] && return 0

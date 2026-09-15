@@ -1,6 +1,7 @@
 // dados: manifest + lista de posts
 import { parseFrontmatter } from './markdown.js';
 import { matchesLang, getLang, isAbout } from './lang.js';
+import { isDraft, semDrafts } from './drafts.js';
 
 let manifestCache = null;
 
@@ -55,11 +56,12 @@ function buildIndexFromManifest() {
             date: parsed.data.date || '',
             series: parsed.data.series || '',
             lang: parsed.data.lang || 'en',
+            draft: parsed.data.draft || '',
             order: parsed.data.order === undefined ? null : Number(parsed.data.order)
           };
         })
         .catch(function () {
-          return { path: entry.path, group: entry.group, title: entry.path.split('/').pop().replace(/\.md$/, ''), date: '', series: '', lang: 'en', order: null };
+          return { path: entry.path, group: entry.group, title: entry.path.split('/').pop().replace(/\.md$/, ''), date: '', series: '', lang: 'en', draft: '', order: null };
         });
     }));
   });
@@ -91,12 +93,13 @@ export function getAllPosts() {
             date: parsed.data.date || '',
             series: parsed.data.series || '',
             lang: parsed.data.lang || 'en',
+            draft: parsed.data.draft || '',
             order: parsed.data.order === undefined ? null : Number(parsed.data.order),
             body: parsed.body
           };
         })
         .catch(function () {
-          return { path: entry.path, group: entry.group, title: entry.name.replace(/\.md$/, ''), date: '', series: '', lang: 'en', order: null, body: '' };
+          return { path: entry.path, group: entry.group, title: entry.name.replace(/\.md$/, ''), date: '', series: '', lang: 'en', draft: '', order: null, body: '' };
         });
     })).then(function (posts) {
       postsCache = posts;
@@ -105,10 +108,12 @@ export function getAllPosts() {
   });
 }
 
-// filtra a lista pelo idioma ativo. Usado no finder, no recent, na busca e
-// nos contadores da home — um lugar só, pra nenhuma superfície esquecer.
-export function inLang(posts, lang) {
-  return (posts || []).filter(function (p) { return matchesLang(p, lang || getLang()); });
+// filtra a lista pelo que o site deve mostrar: fora os drafts e fora o idioma
+// que não está ativo. Um lugar só, pra nenhuma superfície esquecer um dos dois.
+export function visiveis(posts, lang) {
+  return semDrafts(posts).filter(function (p) {
+    return matchesLang(p, lang || getLang());
+  });
 }
 
 export function flattenManifest(manifest) {

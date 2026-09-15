@@ -29,7 +29,8 @@ sandbox() {
      || ! cp "$SRC/.github/scripts/check_manifest.py" "$d/.github/scripts/" \
      || ! cp "$SRC/.github/scripts/check_images.py" "$d/.github/scripts/" \
      || ! cp "$SRC/index.html" "$d/index.html" \
-     || ! cp "$SRC/posts/manifest.json" "$d/posts/manifest.json"; then
+     || ! cp "$SRC/posts/manifest.json" "$d/posts/manifest.json" \
+     || ! : > "$d/.gitignore"; then
     printf 'ERRO: sandbox não conseguiu copiar os arquivos de %s\n' "$SRC" >&2
     exit 2
   fi
@@ -174,6 +175,77 @@ if (cd "$D8" && ./bin/coffee images > /dev/null 2>&1); then
   fail "images falha com EXIF presente" "deveria ter falhado"
 else
   pass "images falha com EXIF presente"
+fi
+
+echo ""
+echo "=== coffee drafts / publish ==="
+D9="$(sandbox drafts)"
+mkdir -p "$D9/posts/art"
+cat > "$D9/posts/art/rascunho.md" <<'MD'
+---
+title: Um rascunho
+date: 2026-09-21
+draft: true
+---
+
+texto
+MD
+# sanidade: sem o arquivo, todo o resto dá falso positivo
+if [ ! -f "$D9/posts/art/rascunho.md" ]; then
+  fail "pré-condição: rascunho existe" "não consegui criar $D9/posts/art/rascunho.md"
+fi
+out_dr="$(cd "$D9" && ./bin/coffee drafts 2>&1 || true)"
+if echo "$out_dr" | grep -q 'rascunho.md'; then
+  pass "drafts lista o rascunho"
+else
+  fail "drafts lista o rascunho" "$out_dr"
+fi
+
+# sync põe a linha no .gitignore
+(cd "$D9" && python3 bin/lib/drafts_tool.py sync > /dev/null 2>&1)
+if grep -q 'posts/art/rascunho.md' "$D9/.gitignore" 2>/dev/null; then
+  pass "sync escreve o rascunho no .gitignore"
+else
+  fail "sync escreve o rascunho no .gitignore" "$(cat "$D9/.gitignore" 2>&1)"
+fi
+
+# publish tira o draft e registra no manifest
+(cd "$D9" && ./bin/coffee publish art/rascunho.md > /dev/null 2>&1)
+if [ -f "$D9/posts/art/rascunho.md" ] && ! grep -q '^draft:' "$D9/posts/art/rascunho.md"; then
+  pass "publish tira o draft do frontmatter"
+else
+  fail "publish tira o draft do frontmatter" "$(cat "$D9/posts/art/rascunho.md" 2>&1)"
+fi
+if grep -q '"rascunho.md"' "$D9/posts/manifest.json"; then
+  pass "publish registra no manifest"
+else
+  fail "publish registra no manifest" "$(cat "$D9/posts/manifest.json")"
+fi
+
+# sync remove a linha quando deixa de ser draft
+(cd "$D9" && python3 bin/lib/drafts_tool.py sync > /dev/null 2>&1)
+if ! grep -q 'posts/art/rascunho.md' "$D9/.gitignore" 2>/dev/null; then
+  pass "sync tira a linha do post publicado"
+else
+  fail "sync tira a linha do post publicado"
+fi
+
+# um draft nao conta como orfao no check
+D10="$(sandbox draftcheck)"
+mkdir -p "$D10/posts/art"
+cat > "$D10/posts/art/escondido.md" <<'MD'
+---
+title: Escondido
+date: 2026-09-21
+draft: true
+---
+
+texto
+MD
+if (cd "$D10" && ./bin/coffee check > /dev/null 2>&1); then
+  pass "draft nao conta como orfao"
+else
+  fail "draft nao conta como orfao" "$(cd "$D10" && ./bin/coffee check 2>&1)"
 fi
 
 # ---------------------------------------------------------------------------

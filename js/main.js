@@ -5,7 +5,7 @@ import { closeArticle, openArticle, setNotesMode, downloadNotes, saveNotes } fro
 import { closeFolder, navigateUp, navigateInto, renderFinder, applyFinderFilter, openFolder } from './finder.js';
 import { route } from './routing.js';
 import { loadRecentPosts, setupSearch } from './search.js';
-import { loadManifest, inLang, getPostIndex } from './data.js';
+import { loadManifest, visiveis, getPostIndex } from './data.js';
 import { initLang, setLang, getLang, langLabel, aboutFile, isAbout } from './lang.js';
 import { initTerminal, focusTerminal, runCommand } from './terminal.js';
 import { initNotepad, focusNotepad } from './notepad.js';
@@ -452,7 +452,7 @@ document.addEventListener('coffee:overlay', syncInert);
   function pintarContadores() {
     Promise.all([loadManifest(), getPostIndex()]).then(function (res) {
       const manifest = res[0];
-      const posts = inLang(res[1]);
+      const posts = visiveis(res[1]);
       document.querySelectorAll('[data-count]').forEach(function (el) {
         const group = el.getAttribute('data-count');
         const n = posts.filter(function (p) {
