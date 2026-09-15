@@ -227,6 +227,33 @@ else
   fail "--lang vale sem comando (menu)" "$out_menu_en"
 fi
 
+echo ""
+echo "=== coffee conf ==="
+D15="$(sandbox conf)"
+# HOME isolado: nao mexe no ~/.coffee.conf de quem roda os testes
+HOMET="$TMP/home-conf"
+mkdir -p "$HOMET"
+out_conf="$(cd "$D15" && HOME="$HOMET" ./bin/coffee conf 2>&1 || true)"
+if echo "$out_conf" | grep -q '.coffee.conf'; then
+  pass "conf mostra o caminho do arquivo"
+else
+  fail "conf mostra o caminho do arquivo" "$out_conf"
+fi
+# o padrao da porta vem da config (sem variavel de ambiente)
+out_port=$(cd "$D15" && HOME="$HOMET" ./bin/coffee serve 2>&1 | head -1 || true)
+if echo "$out_port" | grep -q '8000'; then
+  pass "serve usa a porta padrao da config"
+else
+  fail "serve usa a porta padrao da config" "$out_port"
+fi
+# COFFEE_PORT tem precedencia sobre a config
+out_env=$(cd "$D15" && HOME="$HOMET" COFFEE_PORT=8321 ./bin/coffee serve 2>&1 | head -1 || true)
+if echo "$out_env" | grep -q '8321'; then
+  pass "COFFEE_PORT ganha da config"
+else
+  fail "COFFEE_PORT ganha da config" "$out_env"
+fi
+
 # ---------------------------------------------------------------------------
 
 echo ""

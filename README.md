@@ -39,7 +39,7 @@ build.js        # gera HTML estático dos posts (SEO) + sitemap.xml + posts/inde
 package.json    # "type": "module" (node roda os módulos ES)
 bin/coffee      # CLI: interativo (sem argumento) + new/rm/publish/commit/verify/serve
 bin/serve       # servidor de dev (no-cache)
-bin/lib/        # helpers python da CLI (manifest, drafts, commit, status, i18n)
+bin/lib/        # helpers python da CLI (manifest, drafts, commit, status, i18n, conf)
 install.sh      # cria o link <prefix>/bin/coffee pro projeto
 js/
   state.js      # estado global compartilhado
@@ -252,6 +252,7 @@ publicar
   serve [porta]                    servidor local, sem cache (padrão 8000)
 
   --lang pt|en                     idioma das mensagens da CLI
+  conf                             caminho do ~/.coffee.conf
 ```
 
 ### Idioma da CLI
@@ -267,6 +268,23 @@ As mensagens saem em português ou inglês:
 Sem `--lang`, o idioma vem do `$LANG` do terminal (começando com `pt` → português; o resto, inglês). O `--lang` é global: vale pra qualquer comando, inclusive o menu.
 
 O léxico fica em `bin/lib/i18n.py` — separado do `js/lang.js`, que é do navegador. Aquela é a mesma ideia (idioma ao lado do texto), mas o público é outro: uma é lida pelo leitor do site, a outra por quem escreve no terminal.
+
+### Configuração (`~/.coffee.conf`)
+
+Arquivo opcional pra fixar a porta do `serve` e o idioma, sem repetir flag:
+
+```bash
+./bin/coffee conf        # onde ele fica
+```
+
+```ini
+#COFFEE_PORT=8000       # porta padrão do `coffee serve`
+#COFFEE_LANG=           # pt ou en (vazio = detecta pelo $LANG)
+```
+
+Ele **nasce comentado**: o arquivo é pra ser descoberto (você abre, vê as opções, descomenta o que quer), não pra mudar comportamento sem você saber.
+
+A precedência é **variável de ambiente > arquivo > padrão**. Então `COFFEE_PORT=9000 coffee serve` ganha do arquivo — útil pra testar uma porta sem editar nada.
 
 ### Instalar o comando
 
@@ -711,7 +729,7 @@ Individualmente:
 
 ```bash
 node .github/scripts/check_render.js          # smoke test do markdown + math (45 casos)
-bash .github/scripts/check_cli.sh              # testes da CLI (31 casos)
+bash .github/scripts/check_cli.sh              # testes da CLI (35 casos)
 node .github/scripts/check_imports.mjs         # imports x exports de cada módulo
 python3 .github/scripts/check_manifest.py     # manifest + frontmatter
 python3 .github/scripts/check_images.py       # metadados (EXIF) em images/

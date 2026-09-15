@@ -33,6 +33,7 @@ TOOL="$ROOT/bin/lib/manifest_tool.py"
 DRAFTS="$ROOT/bin/lib/drafts_tool.py"
 COMMIT="$ROOT/bin/lib/commit_tool.py"
 STATUS="$ROOT/bin/lib/status_tool.py"
+CONF="$ROOT/bin/lib/conf.py"
 
 # os grupos são os que estão na home (index.html) — assim um grupo novo é
 # reconhecido na hora, sem editar o script.
@@ -75,6 +76,7 @@ publicar
   serve [porta]                    servidor local, sem cache (padrão 8000)
 
   -h, --help                       esta ajuda
+  conf                             caminho do ~/.coffee.conf
 EOF
 }
 
@@ -231,12 +233,20 @@ menu_publish() {
 }
 
 menu_serve() {
-  local porta="${COFFEE_PORT:-8090}"
+  local porta
+  porta="$(cmd_conf COFFEE_PORT)"
   printf '  porta [%s]: ' "$porta"
   local p
   read -r p || p=""
   [ -n "$p" ] && porta="$p"
   cmd_serve "$porta"
+}
+
+# lê uma chave do ~/.coffee.conf, respeitando a precedência
+# (variável de ambiente > arquivo > padrão). Uma chamada por chave, e só na
+# inicialização — não vale manter um processo vivo pra isso.
+cmd_conf() {
+  python3 "$CONF" get "$1" 2>/dev/null < /dev/null
 }
 
 # aceita "science/x.md", "posts/science/x.md", "/science/x.md", sem o .md
@@ -459,7 +469,7 @@ cmd_verify() {
   step() { printf '%-32s' "$1"; }
 
   step "bash"; if bash -n "$ROOT/bin/coffee" 2>/dev/null && bash -n "$ROOT/.github/scripts/check_cli.sh" 2>/dev/null && bash -n "$ROOT/install.sh" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
-  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/lib/drafts_tool.py" "$ROOT/bin/lib/commit_tool.py" "$ROOT/bin/lib/status_tool.py" "$ROOT/bin/lib/i18n.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/lib/drafts_tool.py" "$ROOT/bin/lib/commit_tool.py" "$ROOT/bin/lib/status_tool.py" "$ROOT/bin/lib/i18n.py" "$ROOT/bin/lib/conf.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "js"; local jsok=1; for f in "$ROOT"/js/*.js "$ROOT"/*.js; do node --check "$f" 2>/dev/null || jsok=0; done; [ "$jsok" = 1 ] && echo "ok" || { echo "FALHOU"; failed=1; }
   step "manifest + frontmatter"; if python3 "$ROOT/.github/scripts/check_manifest.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   # um `draft: true` que o git está rastreando subiria pro GitHub (era o papel
@@ -535,19 +545,23 @@ PY
 cmd_lang() {
   case "${1:-}" in
     pt|en) printf '%s' "$1" ;;
-    '')    # mesma regra do i18n.py: $LANG começando com `pt` → pt, resto → en.
-           # (`C.UTF-8` e vazio caem em en, que é o padrão do projeto.)
-           case "${LANG:-}" in
-             pt*|PT*) printf 'pt' ;;
-             *)       printf 'en' ;;
+    '')    # arquivo > $LANG > en. O `cmd_conf` já respeita o ambiente.
+           local cfg
+           cfg="$(cmd_conf COFFEE_LANG)"
+           case "$cfg" in
+             pt|en) printf '%s' "$cfg" ;;   # COFFEE_LANG tem prioridade
+             *)     case "${LANG:-}" in
+                      pt*|PT*) printf 'pt' ;;
+                      *)       printf 'en' ;;
+                    esac ;;
            esac ;;
     *)     return 1 ;;
   esac
 }
 
 cmd_serve() {
-  local port="${1:-8000}"
-  lsof -i ":$port" > /dev/null 2>&1 && die "porta $port em uso (tente: coffee serve 8080)"
+  local port="${1:-$(cmd_conf COFFEE_PORT)}"
+  lsof -i ":$port" > /dev/null 2>&1 && die "porta $port em uso (tente outra: coffee serve $((port + 1)))"
   printf 'servindo http://localhost:%s (Ctrl+C para parar)\n' "$port"
   python3 "$ROOT/bin/serve" "$port"
 }
@@ -582,5 +596,6 @@ case "$cmd" in
   serve)  cmd_serve "$@" ;;
   -h|--help|help) usage ;;
   lang)  printf '%s\n' "$(cmd_lang "${1:-}")" ;;
+  conf)  python3 "$CONF" caminho ;;
   *) die "comando desconhecido: $cmd (tente: coffee help)" ;;
 esac
