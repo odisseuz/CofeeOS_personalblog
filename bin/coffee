@@ -20,6 +20,7 @@ MANIFEST="$POSTS/manifest.json"
 TOOL="$ROOT/bin/lib/manifest_tool.py"
 DRAFTS="$ROOT/bin/lib/drafts_tool.py"
 COMMIT="$ROOT/bin/lib/commit_tool.py"
+STATUS="$ROOT/bin/lib/status_tool.py"
 
 # os grupos são os que estão na home (index.html) — assim um grupo novo é
 # reconhecido na hora, sem editar o script.
@@ -34,18 +35,169 @@ usage() {
   cat <<'EOF'
 coffee — midnight coffee
 
+escrever
   new <grupo>/[subpasta/]nome.md   cria o .md e registra no manifest
   rm  <grupo>/[subpasta/]nome.md   remove o .md e tira do manifest
+  publish <grupo>/[.../]nome.md    tira o draft e registra no manifest
+
+ver
+  (sem argumento)                  estado do projeto + menu
+  status                           o mesmo estado, sem menu
   ls [grupo]                       lista os posts (título e data)
   drafts                           lista os rascunhos (draft: true)
-  publish <grupo>/[.../]nome.md    tira o draft e registra no manifest
-  commit [-m msg]                  .gitignore + add + commit (+ push?)
-  status                           visão geral: o que está ok e o que falta
+
+publicar
+  commit [-m msg]                  .gitignore + manifest + add + commit (+ push?)
+  verify                           roda todas as checagens
   check                            valida manifest + frontmatter (igual ao CI)
   images                           checa metadados (EXIF/GPS) em images/
-  verify                           roda todas as checagens
   serve [porta]                    servidor local, sem cache (padrão 8000)
+
+  -h, --help                       esta ajuda
 EOF
+}
+
+# ---------- modo interativo ----------
+
+# a tela de estado: é ela que responde "o que eu faço agora?", que o --help
+# não responde. Os dados vêm do status_tool (texto plano, testável).
+#
+# `< /dev/null` em todo python3: sem isso o pipe do `while read` consome o stdin
+# do terminal, e o `read` do menu nunca recebe a escolha.
+tela_status() {
+  local resumo
+  resumo="$(python3 "$STATUS" resumo 2>/dev/null < /dev/null)" || return 0
+  printf '\nmidnight coffee\n\n'
+  printf '%s\n' "$resumo" | while IFS='|' read -r chave valor; do
+    case "$chave" in
+      posts)     printf '  posts        %s\n' "$valor" ;;
+      idiomas)   printf '  idiomas      %s\n' "$valor" ;;
+      git)       printf '  git          %s\n' "$valor" ;;
+      grupos)    printf '  grupos       %s\n' "$valor" ;;
+      rascunhos) printf '\n  rascunhos:\n' ;;
+      '  '*)     printf '    %s\n' "$(printf '%s' "$chave" | sed 's/^ *//')" ;;
+      proximo)   printf '\n  próximo passo:\n    %s\n' "$valor" ;;
+      porque)    printf '    (%s)\n\n' "$valor" ;;
+      *)         [ -n "$chave" ] && printf '%s\n' "$chave" ;;
+    esac
+  done
+}
+
+# lê uma opção do menu. Aceita o NÚMERO e a TECLA (a primeira letra do
+# comando), porque quem usa muito decora a letra e quem chega de fora lê o
+# número. `q`/Enter vazio saem.
+ler_opcao() {
+  # o prompt vai pro stderr: quem chama usa $( ) pra capturar só a resposta,
+  # e sem isso o texto do prompt entra junto (era o bug do menu não responder).
+  printf '  escolha (número ou letra, Enter sai): ' >&2
+  local escolha
+  read -r escolha || return 1
+  case "$escolha" in
+    ''|q|Q|sair) return 1 ;;
+    *[!0-9]*) printf '%s' "$(printf '%s' "$escolha" | tr 'A-Z' 'a-z' | cut -c1)" ;;
+    *) printf '%s' "$escolha" ;;
+  esac
+}
+
+cmd_menu() {
+  while :; do
+    tela_status
+    printf '  o que você quer fazer?\n\n'
+    python3 "$STATUS" menu 2>/dev/null < /dev/null | while IFS='|' read -r tecla rotulo _cmd; do
+      printf '    %s) %s\n' "$tecla" "$rotulo"
+    done
+    printf '\n'
+
+    local op
+    op="$(ler_opcao)" || { printf '\n'; return 0; }
+
+    # resolve a opção pelo NÚMERO (tecla) ou pela LETRA inicial do comando.
+    # O menu vem do status_tool como "tecla|rótulo|comando", então a busca é uma
+    # comparação de texto só — sem case aninhado dentro de substituição, que o
+    # bash 3.2 não engole.
+    local menu alvo
+    menu="$(python3 "$STATUS" menu 2>/dev/null < /dev/null)"
+    alvo="$(printf '%s\n' "$menu" | awk -F'|' -v op="$op" '
+      $1 == op { print $3; encontrou = 1; exit }
+      !encontrou && index($3, op) == 1 { print $3; encontrou = 1; exit }
+    ')"
+
+    if [ -z "$alvo" ]; then
+      printf '\n  não entendi "%s".\n' "$op"
+      sleep 1
+      continue
+    fi
+
+    local cmd="$alvo"
+    printf '\n'
+    case "$cmd" in
+      new)     menu_new ;;
+      drafts)  cmd_drafts ;;
+      publish) menu_publish ;;
+      commit)  cmd_commit ;;
+      serve)   menu_serve ;;
+      verify)  cmd_verify ;;
+      ls)      cmd_ls ;;
+      help)    usage ;;
+      *)       printf '  (%s ainda não está no menu)\n' "$cmd" ;;
+    esac
+    printf '\n'
+    printf '  Enter pra voltar '
+    read -r _ || return 0
+  done
+}
+
+# pede os dados que faltam, em vez de exigir que a pessoa saiba a sintaxe
+menu_new() {
+  printf '  caminho do post (ex.: science/education/meu-post): '
+  local rel
+  read -r rel || return 0
+  [ -n "$rel" ] || return 0
+  printf '  idioma [[en]/pt]: '
+  local lang
+  read -r lang || lang=""
+  printf '  começar como rascunho? [S/n]: '
+  local dr
+  read -r dr || dr=""
+  local flags=""
+  [ -n "$lang" ] && flags="$flags --lang $lang"
+  case "$dr" in n|N) ;; *) flags="$flags --draft" ;; esac
+  # shellcheck disable=SC2086
+  cmd_new $flags "$rel"
+}
+
+menu_publish() {
+  local ds
+  ds="$(python3 "$DRAFTS" list 2>/dev/null < /dev/null)"
+  if [ -z "$ds" ]; then
+    printf '  nenhum rascunho pra publicar\n'
+    return 0
+  fi
+  printf '  rascunhos:\n'
+  local i=1
+  while IFS= read -r linha; do
+    [ -n "$linha" ] || continue
+    local limpo
+    limpo="$(printf '%s' "$linha" | sed 's/  (.*//' | sed 's|^ *posts/||' | sed 's/^ *//; s/ *$//')"
+    printf '    %s) %s\n' "$i" "$limpo"
+    i=$((i + 1))
+  done <<< "$ds"
+  printf '  qual? (número, Enter cancela): '
+  local n
+  read -r n || return 0
+  case "$n" in ''|*[!0-9]*) return 0 ;; esac
+  local alvo
+  alvo="$(printf '%s\n' "$ds" | sed -n "${n}p" | sed 's/  (.*//' | sed 's|posts/||')"
+  [ -n "$alvo" ] && cmd_publish "$alvo"
+}
+
+menu_serve() {
+  local porta="${COFFEE_PORT:-8090}"
+  printf '  porta [%s]: ' "$porta"
+  local p
+  read -r p || p=""
+  [ -n "$p" ] && porta="$p"
+  cmd_serve "$porta"
 }
 
 # aceita "science/x.md", "posts/science/x.md", "/science/x.md", sem o .md
@@ -57,7 +209,22 @@ norm() {
 }
 
 cmd_new() {
-  [ $# -ge 1 ] || die "uso: coffee new <grupo>/[subpasta/]nome.md"
+  # flags em QUALQUER posição: `coffee new --lang pt x` e `coffee new x --lang pt`
+  # valem o mesmo. Parar no primeiro argumento solto (o caminho) deixaria
+  # `--lang` sem efeito — e o usuário não teria como saber.
+  local lang="" draft=0 posicional=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --lang) lang="${2:-}"; shift 2 ;;
+      --draft) draft=1; shift ;;
+      -h|--help) printf 'uso: coffee new [--lang en|pt] [--draft] <grupo>/[subpasta/]nome.md\n'; return 0 ;;
+      -*) die "opção desconhecida: $1" ;;
+      *) [ -z "$posicional" ] && posicional="$1"; shift ;;
+    esac
+  done
+  set -- "$posicional"
+
+  [ $# -ge 1 ] && [ -n "$1" ] || die "uso: coffee new [--lang en|pt] [--draft] <grupo>/[subpasta/]nome.md"
   local rel group inner abs
   rel="$(norm "$1")"
   group="${rel%%/*}"
@@ -66,6 +233,12 @@ cmd_new() {
 
   [ "$group" != "$rel" ] || die "comece com um grupo (ex.: science/meu-post.md)"
   [ -e "$abs" ] && die "já existe: posts/$rel"
+
+  case " $lang" in
+    " " ) ;;
+    " en"|" pt") ;;
+    *) die "--lang aceita en ou pt (recebi: $lang)" ;;
+  esac
 
   case " $(groups) " in
     *" $group "*) ;;
@@ -76,15 +249,29 @@ cmd_new() {
   esac
 
   mkdir -p "$(dirname "$abs")"
-  printf -- '---\ntitle: %s\ndate: %s\n---\n\n' "$(basename "$rel" .md)" "$(date +%Y-%m-%d)" > "$abs"
-  local has=0
-  python3 "$TOOL" has "$rel" || has=$?
-  [ "$has" = 2 ] && die "criei o arquivo, mas posts/manifest.json está inválido — corrija e registre manualmente"
-  if [ "$has" = 1 ]; then
-    python3 "$TOOL" add "$group" "$inner" || die "criei o arquivo, mas falhei ao registrar no manifest — confira posts/manifest.json"
+  # o frontmatter já sai com o que a pessoa pediu: `lang` (en é o padrão e pode
+  # ser omitido) e `draft`, pra não esquecer nenhum dos dois depois.
+  {
+    printf -- '---\n'
+    printf 'title: %s\n' "$(basename "$rel" .md)"
+    printf 'date: %s\n' "$(date +%Y-%m-%d)"
+    [ -n "$lang" ] && [ "$lang" != "en" ] && printf 'lang: %s\n' "$lang"
+    [ "$draft" = 1 ] && printf 'draft: true\n'
+    printf -- '---\n\n'
+  } > "$abs"
+
+  # rascunho não entra no manifest (o `publish` registra depois)
+  if [ "$draft" = 0 ]; then
+    local has=0
+    python3 "$TOOL" has "$rel" || has=$?
+    [ "$has" = 2 ] && die "criei o arquivo, mas posts/manifest.json está inválido — corrija e registre manualmente"
+    if [ "$has" = 1 ]; then
+      python3 "$TOOL" add "$group" "$inner" || die "criei o arquivo, mas falhei ao registrar no manifest — confira posts/manifest.json"
+    fi
   fi
 
   printf 'criado: posts/%s\n' "$rel"
+  [ "$draft" = 1 ] && printf '  (rascunho: não aparece no site nem entra no git)\n'
 }
 
 cmd_rm() {
@@ -221,16 +408,19 @@ cmd_images() {
 }
 
 cmd_status() {
+  python3 "$STATUS" resumo 2>/dev/null | while IFS='|' read -r chave valor; do
+    case "$chave" in
+      posts)     printf 'posts        %s\n' "$valor" ;;
+      idiomas)   printf 'idiomas      %s\n' "$valor" ;;
+      git)       printf 'git          %s\n' "$valor" ;;
+      grupos)    printf 'grupos       %s\n' "$valor" ;;
+      rascunhos) printf '\nrascunhos:\n' ;;
+      proximo)   printf '\npróximo passo:\n  %s\n' "$valor" ;;
+      porque)    printf '  (%s)\n' "$valor" ;;
+      *)         [ -n "$chave" ] && printf '%s\n' "$chave" ;;
+    esac
+  done
   cmd_check || true
-  python3 - "$MANIFEST" "$POSTS" <<'PY'
-import json, os, sys
-manifest, posts = sys.argv[1], sys.argv[2]
-data = json.load(open(manifest, encoding="utf-8"))
-total = sum(len(v) for v in data.values())
-print(f"\n{total} post(s)")
-for g, items in data.items():
-    print(f"  {g:<10} {len(items) if items else '(vazio)'}")
-PY
 }
 
 # roda tudo que dava pra esquecer antes de commitar. Cada passo falha
@@ -240,7 +430,7 @@ cmd_verify() {
   step() { printf '%-32s' "$1"; }
 
   step "bash"; if bash -n "$ROOT/bin/coffee" 2>/dev/null && bash -n "$ROOT/.github/scripts/check_cli.sh" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
-  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/lib/drafts_tool.py" "$ROOT/bin/lib/commit_tool.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  step "python"; if python3 -m py_compile "$ROOT/bin/lib/manifest_tool.py" "$ROOT/bin/lib/drafts_tool.py" "$ROOT/bin/lib/commit_tool.py" "$ROOT/bin/lib/status_tool.py" "$ROOT/bin/serve" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "js"; local jsok=1; for f in "$ROOT"/js/*.js "$ROOT"/*.js; do node --check "$f" 2>/dev/null || jsok=0; done; [ "$jsok" = 1 ] && echo "ok" || { echo "FALHOU"; failed=1; }
   step "manifest + frontmatter"; if python3 "$ROOT/.github/scripts/check_manifest.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
   # um `draft: true` que o git está rastreando subiria pro GitHub (era o papel
@@ -317,13 +507,14 @@ cmd_serve() {
   python3 "$ROOT/bin/serve" "$port"
 }
 
-[ $# -ge 1 ] || { usage; exit 1; }
+[ $# -ge 1 ] || { cmd_menu; exit 0; }
 cmd="$1"; shift
 case "$cmd" in
   new)    cmd_new "$@" ;;
   rm)     cmd_rm "$@" ;;
   ls)     cmd_ls "$@" ;;
   status) cmd_status "$@" ;;
+  menu)   cmd_menu "$@" ;;
   check)  cmd_check "$@" ;;
   drafts) cmd_drafts "$@" ;;
   publish) cmd_publish "$@" ;;

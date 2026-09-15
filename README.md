@@ -37,13 +37,15 @@ index.html
 style.css
 build.js        # gera HTML estático dos posts (SEO) + sitemap.xml + posts/index.json
 package.json    # "type": "module" (node roda os módulos ES)
-bin/coffee      # CLI: new/rm/ls/status/check/verify/serve
+bin/coffee      # CLI: interativo (sem argumento) + new/rm/publish/commit/verify/serve
 bin/serve       # servidor de dev (no-cache)
-bin/lib/        # helper python da CLI (manifest)
+bin/lib/        # helpers python da CLI (manifest, drafts, commit, status)
 js/
   state.js      # estado global compartilhado
   markdown.js   # renderer de markdown (marked) + frontmatter
   vendor/       # marked + marked-footnote (self-hosted)
+  lang.js       # idioma (en/pt): filtro, about, léxico de UI
+  drafts.js     # `draft: true`: o que não vai pro site
   data.js       # manifest + lista de posts (índice leve + corpos)
   windows.js    # arrastar/resize/maximize/focus-trap
   routing.js    # hash routing
@@ -180,34 +182,80 @@ Não há checagem automática de nome — depende de disciplina. O `date` é o q
 
 ## CLI (`bin/coffee`)
 
-Uma CLI pequena pra escrever posts sem editar o manifest na mão. Bash (Bash 3.2, o do macOS) com um helper em `python3` — sem dependências novas, já que o `python3` é usado pelo build e pelo CI.
+Uma CLI pequena pra escrever posts sem editar o manifest na mão. Bash (Bash 3.2, o do macOS) com helpers em `python3` — sem dependências novas, já que o `python3` é usado pelo build e pelo CI.
 
-Rode **da raiz do projeto**:
+Rode **da raiz do projeto**. Tem dois modos:
 
 ```bash
-./bin/coffee <comando>
+./bin/coffee                    # interativo: mostra o estado e um menu
+./bin/coffee <comando> [flags]  # declarativo: não pergunta nada
 ```
 
+### O modo interativo
+
+Sem argumento, a CLI mostra **o estado do projeto** e o que fazer a seguir:
+
 ```
-new <grupo>/[subpasta/]nome.md   cria o .md e registra no manifest
-rm  <grupo>/[subpasta/]nome.md   remove o .md e tira do manifest
-ls [grupo]                       lista os posts (título e data)
+midnight coffee
 
-drafts                           lista os rascunhos (draft: true)
-publish <grupo>/[.../]nome.md    tira o draft e registra no manifest
-commit [-m msg]                  .gitignore + manifest + add + commit (+ push?)
+  posts        3 publicados · 2 rascunhos
+  idiomas      en (2) · pt (1)
+  git          main, com mudanças
+  grupos       culture (1) · science (2)
 
-status                           visão geral: o que está ok e o que falta
-check                            manifest + frontmatter (igual ao CI)
-images                           checa metadados (EXIF/GPS) em images/
-verify                           roda todas as checagens
+  rascunhos:
+    science/psychology/history/descartes-hume-and-kant.md  (Descartes, Hume…)
 
-serve [porta]                    servidor local, sem cache (padrão 8000)
+  próximo passo:
+    ./bin/coffee publish science/psychology/history/descartes-hume-and-kant.md
+    (o rascunho "Descartes, Hume…" tem 367 palavras)
+
+  o que você quer fazer?
+
+    1) escrever um post novo
+    2) ver os rascunhos (2)
+    3) publicar um rascunho
+    4) commitar (2 arquivos)
+    5) subir o servidor local
+    6) validar tudo
+    7) ver os posts
+    ?) ajuda
+
+  escolha (número ou letra, Enter sai):
+```
+
+O **próximo passo** é a parte que importa: o `--help` lista o que existe, mas não responde "o que eu faço agora?". A sugestão é uma só, a mais útil — rascunho pronto > mudanças pra commitar > commits sem subir > nada pendente.
+
+A escolha aceita o **número** e a **letra** inicial do comando (`4` ou `c` pra commitar). `q` ou Enter saem. Cada ação volta pro menu.
+
+O menu lê o stdin normalmente, então funciona em pipe e no CI (`./bin/coffee menu < /dev/null`).
+
+### Os comandos
+
+```
+escrever
+  new [--lang en|pt] [--draft] <grupo>/[.../]nome.md
+  rm  <grupo>/[subpasta/]nome.md
+  publish <grupo>/[.../]nome.md
+
+ver
+  status                           o estado do projeto, sem menu
+  ls [grupo]                       lista os posts (título e data)
+  drafts                           lista os rascunhos (draft: true)
+
+publicar
+  commit [-m msg]                  .gitignore + manifest + add + commit (+ push?)
+  verify                           roda todas as checagens
+  check                            manifest + frontmatter (igual ao CI)
+  images                           checa metadados (EXIF/GPS) em images/
+  serve [porta]                    servidor local, sem cache (padrão 8000)
 ```
 
 O caminho aceita variações (`posts/science/x.md`, `/science/x.md`, sem o `.md`). O `rm` também limpa subpastas que ficaram vazias.
 
-O `status` é o comando do dia a dia: mostra a contagem por grupo e aponta problemas (órfãos, entradas quebradas, frontmatter inválido). Se o `./bin/coffee status` estiver limpo, está tudo certo.
+As flags do `new` valem em **qualquer posição** (`new --lang pt x` e `new x --lang pt` são a mesma coisa). `--lang` aceita só `en` ou `pt` — outro valor falha **antes** de criar o arquivo. `--draft` já escreve `draft: true` no frontmatter e **não** registra no manifest (quem registra é o `publish`).
+
+O `status` é o comando do dia a dia: mostra o estado e aponta problemas (órfãos, entradas quebradas, frontmatter inválido). Se o `./bin/coffee status` estiver limpo, está tudo certo.
 
 ### `commit` — o caminho normal pra subir
 
@@ -635,7 +683,7 @@ Individualmente:
 
 ```bash
 node .github/scripts/check_render.js          # smoke test do markdown + math (45 casos)
-bash .github/scripts/check_cli.sh              # testes da CLI (22 casos)
+bash .github/scripts/check_cli.sh              # testes da CLI (29 casos)
 node .github/scripts/check_imports.mjs         # imports x exports de cada módulo
 python3 .github/scripts/check_manifest.py     # manifest + frontmatter
 python3 .github/scripts/check_images.py       # metadados (EXIF) em images/

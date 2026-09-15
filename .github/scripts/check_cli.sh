@@ -149,6 +149,67 @@ else
 fi
 
 echo ""
+echo "=== coffee new --lang / --draft ==="
+D11="$(sandbox newflags)"
+(cd "$D11" && ./bin/coffee new art/pt-draft --lang pt --draft > /dev/null 2>&1)
+if grep -q '^lang: pt$' "$D11/posts/art/pt-draft.md" 2>/dev/null; then
+  pass "new --lang escreve o idioma"
+else
+  fail "new --lang escreve o idioma" "$(cat "$D11/posts/art/pt-draft.md" 2>&1)"
+fi
+if grep -q '^draft: true$' "$D11/posts/art/pt-draft.md" 2>/dev/null; then
+  pass "new --draft marca o rascunho"
+else
+  fail "new --draft marca o rascunho"
+fi
+# rascunho nao entra no manifest (quem registra e o publish)
+if ! grep -q 'pt-draft' "$D11/posts/manifest.json"; then
+  pass "new --draft nao registra no manifest"
+else
+  fail "new --draft nao registra no manifest" "$(cat "$D11/posts/manifest.json")"
+fi
+
+# flags DEPOIS do caminho tambem valem (a ordem nao pode importar)
+D12="$(sandbox newflags2)"
+(cd "$D12" && ./bin/coffee new art/depois --lang pt --draft > /dev/null 2>&1)
+if grep -q '^lang: pt$' "$D12/posts/art/depois.md" 2>/dev/null; then
+  pass "new aceita flags depois do caminho"
+else
+  fail "new aceita flags depois do caminho" "$(cat "$D12/posts/art/depois.md" 2>&1)"
+fi
+
+# --lang invalido morre ANTES de criar o arquivo
+D13="$(sandbox badlang)"
+if (cd "$D13" && ./bin/coffee new art/nao-deve-existir --lang xx > /dev/null 2>&1); then
+  fail "new recusa --lang invalido" "deveria ter falhado"
+else
+  if [ ! -f "$D13/posts/art/nao-deve-existir.md" ]; then
+    pass "new recusa --lang invalido (sem criar arquivo)"
+  else
+    fail "new recusa --lang invalido" "criou o arquivo mesmo assim"
+  fi
+fi
+
+echo ""
+echo "=== coffee status / menu ==="
+D14="$(sandbox status)"
+out_st2="$(cd "$D14" && ./bin/coffee status 2>&1 || true)"
+if echo "$out_st2" | grep -q 'próximo passo'; then
+  pass "status sugere o proximo passo"
+else
+  fail "status sugere o proximo passo" "$out_st2"
+fi
+# o menu nao pode quebrar quando o stdin fecha (uso em pipe/CI)
+out_menu="$(cd "$D14" && ./bin/coffee menu < /dev/null 2>&1 || true)"
+if echo "$out_menu" | grep -q 'escrever um post novo'; then
+  pass "menu abre com stdin fechado"
+else
+  fail "menu abre com stdin fechado" "$out_menu"
+fi
+
+# ---------------------------------------------------------------------------
+
+echo ""
 echo "=== coffee images (EXIF) ==="
 D8="$(sandbox imagens)"
 if (cd "$D8" && ./bin/coffee images > /dev/null 2>&1); then
