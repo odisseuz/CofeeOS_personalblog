@@ -11,24 +11,42 @@ Toda a administração é feita pela CLI `bin/coffee`, rodada **na raiz do proje
 ```bash
 cd ~/Downloads/neocities-andregomes     # ou onde você clonou
 
-./bin/coffee help                       # lista todos os comandos
+./bin/coffee                            # estado do projeto + menu
 ./bin/coffee serve                      # abre o site em localhost:8000
+```
+
+Sem argumento, o `coffee` mostra **onde as coisas estão** e um menu — é o ponto de partida quando você não lembra o comando:
+
+```
+midnight coffee
+
+  posts       3 publicados · 2 rascunhos
+  idiomas     en (2) · pt (1)
+  git         main, limpo
+
+  próximo passo:
+    ./bin/coffee publish science/psychology/history/descartes-hume-and-kant.md
+
+  o que você quer fazer?
+
+    1) escrever um post novo
+    2) ver os rascunhos (2)
+    …
 ```
 
 **Escrever um post:**
 
 ```bash
-./bin/coffee new science/education/meu-post.md
-# → cria o .md (com título e data) e registra no manifest automaticamente
-# → depois é só abrir o arquivo e escrever
+./bin/coffee new science/education/meu-post --lang pt --draft
+# → cria o .md com título, data, idioma e o marca como rascunho
 
-./bin/coffee status                     # confere se está tudo certo antes do push
+./bin/coffee commit                     # cuida do resto: manifest, .gitignore, push
 ```
 
 > O `./` deixa explícito que é um arquivo da pasta atual (e não um comando do sistema).
 > O site precisa do `./bin/coffee serve` pra funcionar — abrir o `index.html` direto (via `file://`) quebra o `fetch`.
 
-Veja a seção **CLI** mais abaixo pro restante (`ls`, `status`, `check`).
+Pra não escrever `./bin/` toda vez, o `./install.sh` deixa o comando global — ver **CLI** abaixo.
 
 ## Estrutura
 
@@ -39,7 +57,7 @@ build.js        # gera HTML estático dos posts (SEO) + sitemap.xml + posts/inde
 package.json    # "type": "module" (node roda os módulos ES)
 bin/coffee      # CLI: interativo (sem argumento) + new/rm/publish/commit/verify/serve
 bin/serve       # servidor de dev (no-cache)
-bin/lib/        # helpers python da CLI (manifest, drafts, commit, status, i18n, conf)
+bin/lib/        # helpers python da CLI (manifest, drafts, commit, status, i18n, conf, imagens)
 install.sh      # cria o link <prefix>/bin/coffee pro projeto
 js/
   state.js      # estado global compartilhado
@@ -61,6 +79,7 @@ js/
   search.js     # busca + recent
   main.js       # wiring (conecta tudo)
 posts/          # conteúdo em .md + manifest.json
+images/         # imagens (ver Imagens)
 .github/        # CI (deploy + validação)
 ```
 
@@ -248,9 +267,13 @@ publicar
   commit [-m msg]                  .gitignore + manifest + add + commit (+ push?)
   verify                           roda todas as checagens
   check                            manifest + frontmatter (igual ao CI)
-  images [--otimizar]               checa EXIF, órfãs e nomes; --otimizar comprime
-  serve [porta]                    servidor local, sem cache (padrão 8000)
+  serve [porta]                    servidor local, sem cache (padrão da config)
 
+imagens
+  images                           checa EXIF, referência quebrada, órfãs e nomes
+  images --otimizar [--sim]        redimensiona e comprime (ver Imagens)
+
+outros
   --lang pt|en                     idioma das mensagens da CLI
   conf                             caminho do ~/.coffee.conf
 ```
@@ -271,7 +294,7 @@ O léxico fica em `bin/lib/i18n.py` — separado do `js/lang.js`, que é do nave
 
 ### Configuração (`~/.coffee.conf`)
 
-Arquivo opcional pra fixar a porta do `serve` e o idioma, sem repetir flag:
+Arquivo opcional pra fixar porta, idioma e o padrão das imagens, sem repetir flag:
 
 ```bash
 ./bin/coffee conf        # onde ele fica
@@ -358,6 +381,7 @@ testes da CLI                   ok
 testes do markdown              ok
 imports                         ok
 metadados de imagem             ok
+otimizador de imagem            ok
 build + SEO                     ok
 gitignore                       ok
 tabindex (botões)               ok
@@ -510,7 +534,7 @@ $$
 $$
 ```
 
-O KaTeX entra **só em posts que têm `$`**. Um post sem fórmula não baixa nada: nem o JS, nem o CSS, nem as fontes. Quando o post tem, o custo é ~270 KB de JS (uma vez, fica em cache) + 23 KB de CSS + as fontes dos símbolos que aparecerem de fato.
+O KaTeX entra **só em posts que têm `$`**. Um post sem fórmula não baixa nada: nem o JS, nem o CSS, nem as fontes. Quando o post tem, o custo é o `katex.mjs` (589 KB, ~147 KB com gzip do servidor — uma vez, fica em cache) + 24 KB de CSS + as fontes dos símbolos que aparecerem de fato.
 
 Duas coisas que valem saber:
 
@@ -651,9 +675,11 @@ Todas as escolhas ficam salvas no **localStorage**. O corpo do artigo usa `--fon
 - Tudo que está atrás vira `inert` (não focável / não anunciado) enquanto uma janela está aberta, incluindo os outros overlays.
 - O foco **volta** pro lugar de origem ao fechar uma janela, e a página rola sozinha se o elemento focado estiver fora da vista.
 - Itens do dock são `<button>` (não links falsos), com `aria-label`.
+- **Os rótulos acompanham o idioma** (`aria-label`, `title`, `placeholder` saem do léxico de UI). Quem usa leitor de tela em português ouve em português — ver [Idiomas](#idiomas).
 - `aria-live`, `prefers-reduced-motion`, e `Escape` pra fechar.
-- O **chip da bebida** no hero é um `<button>` com `aria-label="Change theme"` (não texto clicável), e no toque ganha alvo de 44px.
+- O **chip da bebida** no hero é um `<button>` com `aria-label` (não texto clicável), e no toque ganha alvo de 44px.
 - Modo fantasma (a barra do artigo esmaece após 15s parado) só age quando o **artigo** é a janela da frente.
+- Temas testados em **WCAG AA** (ver [Temas → Contraste](#contraste)); há também opção de tamanho de fonte no topbar.
 
 ## Links diretos (deep links)
 
@@ -762,14 +788,14 @@ Pra rodar **tudo** de uma vez (sintaxe, testes, build e gitignore):
 Individualmente:
 
 ```bash
-node .github/scripts/check_render.js          # smoke test do markdown + math (45 casos)
-bash .github/scripts/check_cli.sh              # testes da CLI (35 casos)
+node .github/scripts/check_render.js          # smoke test do markdown + math (46 casos)
+bash .github/scripts/check_cli.sh              # testes da CLI (40 casos)
 node .github/scripts/check_imports.mjs         # imports x exports de cada módulo
 python3 .github/scripts/check_manifest.py     # manifest + frontmatter
 python3 .github/scripts/check_images.py       # EXIF, órfãs, nomes e referências quebradas
 ```
 
-Os testes rodam no CI antes de qualquer deploy (`.github/workflows/deploy.yml`, job `validate`). O `check_cli.sh` roda cada caso numa **cópia isolada do projeto** num diretório temporário — não toca nos seus arquivos. Ele cobre `new`/`rm`, `drafts`/`publish`, caminhos variantes, integridade do JSON, o código de saída do `check` e a checagem de EXIF.
+Os testes rodam no CI antes de qualquer deploy (`.github/workflows/deploy.yml`, job `validate`). O `check_cli.sh` roda cada caso numa **cópia isolada do projeto** num diretório temporário — não toca nos seus arquivos. Ele cobre `new`/`rm` (com as flags), `drafts`/`publish`, `commit`, `status`, o menu, `--lang`, a config, caminhos variantes, integridade do JSON e as checagens de imagem.
 
 ## Deploy no GitHub Pages
 
@@ -851,12 +877,6 @@ O KaTeX **não desenha grafos**. Um DAG (setas entre variáveis) precisaria de S
 
 **Custo:** médio — SVG à mão por post, ou uma lib de grafos (dependência nova).
 **Gatilho:** quando um post precisar de um DAG que não dá pra descrever em texto.
-
-### Seletor de idiomas
-
-Feito — ver [Idiomas](#idiomas). A ideia original era "idioma como pasta" (`posts/en/`, `posts/pt/`); foi trocada por `lang:` no frontmatter, que não move arquivo nenhum (e por isso não quebra link já publicado).
-
-**Gatilho:** quando houver conteúdo em outro idioma pra publicar.
 
 ### O notepad como app de verdade
 
