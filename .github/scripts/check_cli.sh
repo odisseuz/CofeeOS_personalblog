@@ -285,6 +285,57 @@ else
   pass "images falha com EXIF presente"
 fi
 
+# referencia quebrada: FALHA (quebra o site)
+D8b="$(sandbox imgref)"
+mkdir -p "$D8b/posts/art"
+printf -- '---\ntitle: t\ndate: 2026-09-15\ndraft: true\n---\n\n![x](images/sumiu.jpg)\n' > "$D8b/posts/art/t.md"
+if (cd "$D8b" && ./bin/coffee images > /dev/null 2>&1); then
+  fail "images falha com referencia quebrada" "deveria ter falhado"
+else
+  pass "images falha com referencia quebrada"
+fi
+
+# imagem orfa: AVISA, nao falha (nao quebra o site)
+D8c="$(sandbox imgorfa)"
+mkdir -p "$D8c/images"
+cp "$SRC/images/me.jpeg" "$D8c/images/sobrando.jpeg" 2>/dev/null || \
+  python3 -c "open('$D8c/images/sobrando.jpeg','wb').write(b'\xff\xd8\xff\xd9')"
+out_orf="$(cd "$D8c" && ./bin/coffee images 2>&1 || true)"
+if echo "$out_orf" | grep -q 'ninguém referencia'; then
+  pass "images avisa imagem orfa"
+else
+  fail "images avisa imagem orfa" "$out_orf"
+fi
+if (cd "$D8c" && ./bin/coffee images > /dev/null 2>&1); then
+  pass "orfa nao faz o check falhar"
+else
+  fail "orfa nao faz o check falhar" "nao deveria falhar"
+fi
+
+# nome fora da convencao: AVISA
+D8d="$(sandbox imgnome)"
+mkdir -p "$D8d/images"
+python3 -c "open('$D8d/images/Foto Ruim.jpeg','wb').write(b'\xff\xd8\xff\xd9')"
+out_nome="$(cd "$D8d" && ./bin/coffee images 2>&1 || true)"
+if echo "$out_nome" | grep -q 'fora da convenção'; then
+  pass "images avisa nome fora da convencao"
+else
+  fail "images avisa nome fora da convencao" "$out_nome"
+fi
+
+# --otimizar sem --sim nao pode mexer no arquivo
+D8e="$(sandbox imgdry)"
+mkdir -p "$D8e/images"
+python3 -c "open('$D8e/images/grande.jpeg','wb').write(b'\xff\xd8\xff\xd9')"
+antes="$(stat -f%z "$D8e/images/grande.jpeg" 2>/dev/null || stat -c%s "$D8e/images/grande.jpeg")"
+(cd "$D8e" && ./bin/coffee images --otimizar > /dev/null 2>&1 || true)
+depois="$(stat -f%z "$D8e/images/grande.jpeg" 2>/dev/null || stat -c%s "$D8e/images/grande.jpeg")"
+if [ "$antes" = "$depois" ]; then
+  pass "--otimizar sem --sim nao mexe no arquivo"
+else
+  fail "--otimizar sem --sim nao mexe no arquivo" "tamanho mudou de $antes pra $depois"
+fi
+
 echo ""
 echo "=== coffee drafts / publish ==="
 D9="$(sandbox drafts)"

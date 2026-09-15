@@ -20,6 +20,8 @@ CONF = os.path.join(os.path.expanduser("~"), ".coffee.conf")
 PADROES = {
     "COFFEE_PORT": "8000",
     "COFFEE_LANG": "",          # vazio = detecta pelo $LANG
+    "COFFEE_IMG_MAX": "900",    # teto de largura pro `images --otimizar`
+    "COFFEE_IMG_Q": "80",       # qualidade JPEG do `images --otimizar`
 }
 
 
@@ -72,6 +74,10 @@ def cria_se_faltar():
                 "\n"
                 "# idioma das mensagens (pt ou en). Vazio = detecta pelo $LANG.\n"
                 "#COFFEE_LANG=\n"
+                "\n"
+                "# imagens: teto de largura e qualidade JPEG do `images --otimizar`\n"
+                "#COFFEE_IMG_MAX=900\n"
+                "#COFFEE_IMG_Q=80\n"
             )
         return True
     except OSError:

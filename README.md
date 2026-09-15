@@ -248,7 +248,7 @@ publicar
   commit [-m msg]                  .gitignore + manifest + add + commit (+ push?)
   verify                           roda todas as checagens
   check                            manifest + frontmatter (igual ao CI)
-  images                           checa metadados (EXIF/GPS) em images/
+  images [--otimizar]               checa EXIF, órfãs e nomes; --otimizar comprime
   serve [porta]                    servidor local, sem cache (padrão 8000)
 
   --lang pt|en                     idioma das mensagens da CLI
@@ -280,6 +280,8 @@ Arquivo opcional pra fixar a porta do `serve` e o idioma, sem repetir flag:
 ```ini
 #COFFEE_PORT=8000       # porta padrão do `coffee serve`
 #COFFEE_LANG=           # pt ou en (vazio = detecta pelo $LANG)
+#COFFEE_IMG_MAX=900     # teto de largura pro `images --otimizar`
+#COFFEE_IMG_Q=80        # qualidade JPEG do `images --otimizar`
 ```
 
 Ele **nasce comentado**: o arquivo é pra ser descoberto (você abre, vê as opções, descomenta o que quer), não pra mudar comportamento sem você saber.
@@ -369,7 +371,7 @@ Roda sintaxe (bash/python/js), os testes, o build, e cinco checagens que pegam e
 - **`imports`** — confere se cada `import { x } from './y.js'` bate com os exports reais de `y.js`. O `node --check` valida só a **sintaxe**: um export renomeado passa no check e só quebra no navegador. Foi assim que o `makeTabbable` sumiu do `article.js` e do `finder.js` em duas ocasiões.
 - **`gitignore`** — um padrão `lucide*` no `.gitignore` deixava todos os ícones fora do git, e o site viria sem ícones num clone.
 - **`tabindex`** — o Safari no macOS não navega por Tab entre `<button>` sem `tabindex` explícito. Se você adicionar um botão novo sem o atributo, o `verify` aponta o arquivo e a linha.
-- **`metadados de imagem`** — foto exportada direto da câmera costuma carregar EXIF com GPS, modelo e número de série. O `verify` avisa (ver [Imagens](#imagens)).
+- **`metadados de imagem`** — foto exportada direto da câmera carrega EXIF com GPS, modelo e número de série. O `verify` falha se encontrar (ver [Imagens](#imagens)).
 
 ## Acessibilidade e o Safari
 
@@ -424,23 +426,55 @@ Clicar numa imagem de um post abre ela num **visualizador em janela** (com o nom
 
 ### Antes de publicar
 
-Exporte a foto **para web** (por volta de 1600 px de largura, qualidade ~80) em vez de subir o original. Você ganha duas coisas: o site carrega rápido, e o original de alta resolução — que é o que alguém teria interesse em reusar — nunca entra no repositório.
+Duas coisas: **peso** e **metadado**.
 
-O export também limpa o **EXIF** (GPS de onde a foto foi tirada, modelo do aparelho, número de série). Pra conferir:
+**Peso** — o `coffee` resolve, você não precisa pensar:
+
+```bash
+./bin/coffee images --otimizar          # mostra o que faria (não mexe em nada)
+./bin/coffee images --otimizar --sim    # aplica
+```
+
+```
+usando sips · teto 900px · qualidade 80
+
+  images/me.jpeg  1015×977 → 900×866   348K → 98K  (-72%)
+```
+
+O teto e a qualidade saem da [config](#configuração-coffeeconf) (`COFFEE_IMG_MAX`, `COFFEE_IMG_Q`). "O suficiente pro website" é o padrão: 900 px de largura, qualidade 80.
+
+Ele **não reescreve sem ganho**: se a economia for menor que 10%, desfaz — reescrever só perderia qualidade. E guarda um `.bak` durante o processo, restaurando se a ferramenta falhar.
+
+Não embutimos compressor (seria dependência pesada). A gente detecta o que existe na máquina:
+
+| Sistema | Ferramenta | Vem instalada? |
+| :--- | :--- | :--- |
+| macOS | `sips` | ✅ sempre |
+| Linux | `convert` (ImageMagick) | comum em distro desktop |
+| Windows | `magick` (ImageMagick) | precisa instalar |
+
+Se não houver nenhuma, o comando diz o que instalar em vez de falhar calado.
+
+O comando **não tem `--sim` por padrão** de propósito: ele reescreve seus arquivos, então mostrar antes é o certo.
+
+**Metadado** — a checagem:
 
 ```bash
 ./bin/coffee images
 ```
 
-```
-  - images/praia.jpg: EXIF present (GPS location, camera model) — strip before publishing
+Ela olha quatro coisas:
 
-image check: 1 file(s) with metadata (2 checked)
-```
+| O que | Ação |
+| :--- | :--- |
+| EXIF (GPS, modelo, serial) | **falha** — não pode ir pro ar |
+| Referência quebrada (`![](images/x.jpg)` sem arquivo) | **falha** — quebra o site |
+| Imagem órfã (ninguém referencia) | avisa |
+| Nome fora da convenção (maiúscula, espaço, acento) | avisa |
 
-Sem saída de aviso, está limpo. O `./bin/coffee verify` roda isso junto com o resto, e o CI também — então uma foto com GPS não passa no deploy.
+O `./bin/coffee verify` roda isso junto com o resto, e o CI também — então uma foto com GPS não passa no deploy.
 
-A checagem lê só o bloco EXIF de JPEGs, sem dependências externas. Outros formatos (PNG, WebP) passam batido: eles normalmente não carregam esse tipo de metadado, mas se um dia isso mudar, é aí que o script cresce.
+A checagem de EXIF lê o bloco APP1/EXIF de JPEGs direto, sem dependência. Outros formatos carregam metadado de outro jeito e passam batido — se um dia incomodar, é aí que o script cresce.
 
 ## Sobre (about)
 
@@ -732,7 +766,7 @@ node .github/scripts/check_render.js          # smoke test do markdown + math (4
 bash .github/scripts/check_cli.sh              # testes da CLI (35 casos)
 node .github/scripts/check_imports.mjs         # imports x exports de cada módulo
 python3 .github/scripts/check_manifest.py     # manifest + frontmatter
-python3 .github/scripts/check_images.py       # metadados (EXIF) em images/
+python3 .github/scripts/check_images.py       # EXIF, órfãs, nomes e referências quebradas
 ```
 
 Os testes rodam no CI antes de qualquer deploy (`.github/workflows/deploy.yml`, job `validate`). O `check_cli.sh` roda cada caso numa **cópia isolada do projeto** num diretório temporário — não toca nos seus arquivos. Ele cobre `new`/`rm`, `drafts`/`publish`, caminhos variantes, integridade do JSON, o código de saída do `check` e a checagem de EXIF.

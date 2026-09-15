@@ -34,6 +34,7 @@ DRAFTS="$ROOT/bin/lib/drafts_tool.py"
 COMMIT="$ROOT/bin/lib/commit_tool.py"
 STATUS="$ROOT/bin/lib/status_tool.py"
 CONF="$ROOT/bin/lib/conf.py"
+IMGTOOL="$ROOT/bin/lib/images_tool.py"
 
 # os grupos são os que estão na home (index.html) — assim um grupo novo é
 # reconhecido na hora, sem editar o script.
@@ -72,7 +73,7 @@ publicar
   commit [-m msg]                  .gitignore + manifest + add + commit (+ push?)
   verify                           roda todas as checagens
   check                            valida manifest + frontmatter (igual ao CI)
-  images                           checa metadados (EXIF/GPS) em images/
+  images [--otimizar]               checa metadados (EXIF), órfãs e nomes
   serve [porta]                    servidor local, sem cache (padrão 8000)
 
   -h, --help                       esta ajuda
@@ -453,7 +454,21 @@ cmd_commit() {
 }
 
 cmd_images() {
-  python3 "$ROOT/.github/scripts/check_images.py"
+  case "${1:-}" in
+    --otimizar)
+      shift
+      python3 "$IMGTOOL" "$@"
+      ;;
+    -h|--help)
+      printf 'uso: coffee images [--otimizar [--sim]]\n\n'
+      printf '  (sem flag)      checa EXIF, referencias quebradas, orfas e nomes\n'
+      printf '  --otimizar      mostra o que faria (nao mexe em nada)\n'
+      printf '  --otimizar --sim   aplica de verdade\n'
+      ;;
+    *)
+      python3 "$ROOT/.github/scripts/check_images.py"
+      ;;
+  esac
 }
 
 cmd_status() {
@@ -484,6 +499,9 @@ cmd_verify() {
   if [ "$impok" = 1 ]; then echo "ok"; else echo "FALHOU"; sed 's/^/    /' /tmp/coffee-imports.$$; failed=1; fi
   rm -f /tmp/coffee-imports.$$
   step "metadados de imagem"; if python3 "$ROOT/.github/scripts/check_images.py" > /dev/null 2>&1; then echo "ok"; else echo "FALHOU"; failed=1; fi
+  # a otimização reescreve arquivo, então NÃO roda no verify: só confere que o
+  # script compila e que a ferramenta existe na máquina
+  step "otimizador de imagem"; if python3 -m py_compile "$ROOT/bin/lib/images_tool.py" 2>/dev/null; then echo "ok"; else echo "FALHOU"; failed=1; fi
   step "build + SEO"; local buildok=1
   ( cd "$ROOT" && BASE_URL=https://odisseuz.github.io/CofeeOS_personalblog node build.js > /dev/null 2>&1 ) || buildok=0
   if [ "$buildok" = 1 ]; then echo "ok"; else echo "FALHOU"; failed=1; fi
