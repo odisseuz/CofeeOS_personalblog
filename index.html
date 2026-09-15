@@ -17,9 +17,15 @@
         <div class="search-results" id="search-results" hidden></div>
       </div>
       <span class="status-sep" aria-hidden="true"></span>
-      <div class="lang-switch" id="lang-switch" role="group" aria-label="Language">
-        <button class="lang-opt" type="button" data-lang="en" aria-pressed="true" title="English" tabindex="0">EN</button>
-        <button class="lang-opt" type="button" data-lang="pt" aria-pressed="false" title="Português" tabindex="0">PT</button>
+      <div class="lang-switch" id="lang-switch">
+        <button class="lang-toggle" id="lang-toggle" type="button" aria-label="Language: English" aria-haspopup="true" aria-expanded="false" tabindex="0">
+          <svg class="lang-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <span class="lang-current" id="lang-current">EN</span>
+        </button>
+        <div class="lang-options" role="group" aria-label="Language">
+          <button class="lang-opt" type="button" data-lang="en" aria-pressed="true" tabindex="0">English</button>
+          <button class="lang-opt" type="button" data-lang="pt" aria-pressed="false" tabindex="0">Português</button>
+        </div>
       </div>
       <span class="status-sep" aria-hidden="true"></span>
       <div class="clock">

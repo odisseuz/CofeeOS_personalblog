@@ -466,12 +466,30 @@ document.addEventListener('coffee:overlay', syncInert);
     });
   }
 
-  // seletor de idioma. Trocar o idioma re-pinta o que depende dele (recent,
-  // contadores e, se o finder estiver aberto, a lista dele).
+  // seletor de idioma: um botão (globo + idioma ativo) que abre a lista. Trocar
+  // o idioma re-pinta o que depende dele (recent, contadores e, se o finder
+  // estiver aberto, a lista dele).
   const langSwitch = document.getElementById('lang-switch');
+  const langToggle = document.getElementById('lang-toggle');
+
+  function fecharLang() {
+    if (!langSwitch) return;
+    langSwitch.classList.remove('open');
+    if (langToggle) langToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  if (langToggle) {
+    langToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const aberto = langSwitch.classList.toggle('open');
+      langToggle.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+    });
+  }
+
   if (langSwitch) {
     langSwitch.querySelectorAll('.lang-opt').forEach(function (btn) {
       btn.addEventListener('click', function () {
+        fecharLang();
         if (!setLang(btn.getAttribute('data-lang'))) return;
         pintarLang();
         loadRecentPosts();
@@ -485,13 +503,26 @@ document.addEventListener('coffee:overlay', syncInert);
     });
   }
 
+  // fecha ao clicar fora ou com Esc (mesmo padrão dos outros menus)
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#lang-switch')) fecharLang();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') fecharLang();
+  });
+
   function pintarLang() {
     const atual = getLang();
+    const rotulo = document.getElementById('lang-current');
+    if (rotulo) rotulo.textContent = langLabel(atual);
     document.querySelectorAll('.lang-opt').forEach(function (btn) {
       const ativo = btn.getAttribute('data-lang') === atual;
       btn.setAttribute('aria-pressed', ativo ? 'true' : 'false');
-      btn.setAttribute('aria-label', langLabel(btn.getAttribute('data-lang')));
     });
+    if (langToggle) {
+      const nome = atual === 'pt' ? 'Português' : 'English';
+      langToggle.setAttribute('aria-label', 'Language: ' + nome);
+    }
   }
 
   pintarLang();
