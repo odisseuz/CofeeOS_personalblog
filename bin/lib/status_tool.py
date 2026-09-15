@@ -180,7 +180,6 @@ def cmd_resumo():
 def cmd_menu():
     """As opções, uma por linha: tecla|rótulo|comando sugerido."""
     ds = dt.drafts()
-    pubs, _ds, _idi = contar()
     sujo = git("status", "--porcelain")
 
     print(f"1|{t('menu_escrever')}|new")

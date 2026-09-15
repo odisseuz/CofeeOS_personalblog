@@ -11,7 +11,6 @@ Uso:
     print(t('criado', rel='science/x.md'))
 """
 import os
-import sys
 
 LANG = 'en'
 
@@ -183,15 +182,15 @@ MENSAGENS = {
 }
 
 
-def t(chave, **kw):
+def t(chave: str, **kw) -> str:
     """Mensagem no idioma ativo. Chave sem tradução cai no inglês (nunca vazio)."""
     bloco = MENSAGENS.get(LANG) or MENSAGENS['en']
     texto = bloco.get(chave)
     if texto is None:
         texto = MENSAGENS['en'].get(chave, chave)
-    if kw:
-        try:
-            return texto.format(**kw)
-        except (KeyError, IndexError):
-            return texto
-    return texto
+    if not isinstance(texto, str):
+        texto = str(texto)
+    try:
+        return texto.format(**kw) if kw else texto
+    except (KeyError, IndexError):
+        return texto

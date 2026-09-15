@@ -12,7 +12,6 @@ Comandos:
   staged                     lista drafts que o git está rastreando (pra CI)
   publish <arquivo>          tira o draft: do frontmatter
 """
-import json
 import os
 import re
 import subprocess

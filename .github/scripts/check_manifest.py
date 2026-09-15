@@ -113,7 +113,7 @@ def gitignored():
                 for dp, _dn, fns in os.walk(POSTS)
                 for f in fns
             ),
-            capture_output=True, text=True, cwd=ROOT,
+            capture_output=True, text=True, cwd=ROOT, check=False,
         )
         return set(saida.stdout.split())
     except (OSError, subprocess.SubprocessError):
